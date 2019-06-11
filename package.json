@@ -1,0 +1,18 @@
+{
+  "name": "colorbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.0.0",
+    "eris": "^0.9.0",
+    "eris-additions": "^1.2.5",
+    "jimp": "^0.6.4",
+    "tinycolor2": "^1.4.1"
+  }
+}
