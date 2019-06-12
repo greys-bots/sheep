@@ -33,10 +33,10 @@ bot.commands.help = {
 					title: `Help | ${names.join(" - ").toLowerCase()}`,
 					description: [
 						`${cmd.help()}\n\n`,
-						`**Usage**\n${cmd.usage().map(c => `**${bot.prefix[0] + names.join(" ")}**${c}`).join("\n")}\n\n`,
+						`**Usage**\n${cmd.usage().map(c => `${bot.prefix[0] + names.join(" ")}${c}`).join("\n")}\n\n`,
 						`**Aliases:** ${cmd.alias ? cmd.alias.join(", ") : "(none)"}\n\n`,
 						`**Subcommands**\n${cmd.subcommands ?
-							Object.keys(cmd.subcommands).map(sc => `**${bot.prefix[0]}${sc}** - ${cmd.subcommands[sc].help()}`).join("\n") +"\n\n" : 
+							Object.keys(cmd.subcommands).map(sc => `**${bot.prefix[0]}${names.join(" ")} ${sc}** - ${cmd.subcommands[sc].help()}`).join("\n") +"\n\n" : 
 							"(none)\n\n"}`,
 							cmd.desc() ? "**Extra**\n"+cmd.desc() : ""
 					].join(""),
@@ -65,7 +65,7 @@ bot.commands.help = {
 
 		msg.channel.createMessage({embed: embed});
 	},
-	alias: ["h", "halp"]
+	alias: ["h", "halp", "?"]
 }
 
 async function setup() {
@@ -116,8 +116,8 @@ bot.parseCommand = async function(bot, msg, args, command) {
 
 bot.on("messageCreate",async (msg)=>{
 	if(msg.author.bot) return;
-	if(!new RegExp("^"+bot.prefix.join("|")).test(msg.content.toLowerCase())) return;
-	let args = msg.content.replace(new RegExp("^"+bot.prefix.join("|")), "").split(" ");
+	if(!new RegExp(`^(${bot.prefix.join("|")})`,"i").test(msg.content.toLowerCase())) return;
+	let args = msg.content.replace(new RegExp(`^(${bot.prefix.join("|")})`,"i"), "").split(" ");
 	let cmd = await bot.parseCommand(bot, msg, args);
 	if(cmd) {
 		console.log(cmd)
