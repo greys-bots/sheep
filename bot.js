@@ -38,7 +38,7 @@ bot.commands.help = {
 						`**Subcommands**\n${cmd.subcommands ?
 							Object.keys(cmd.subcommands).map(sc => `**${bot.prefix[0]}${names.join(" ")} ${sc}** - ${cmd.subcommands[sc].help()}`).join("\n") +"\n\n" : 
 							"(none)\n\n"}`,
-							cmd.desc() ? "**Extra**\n"+cmd.desc() : ""
+							cmd.desc ? "**Extra**\n"+cmd.desc() : ""
 					].join(""),
 					footer: {
 						icon_url: bot.user.avatarURL,
