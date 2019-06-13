@@ -11,7 +11,7 @@ module.exports = {
 		await msg.channel.createMessage({embed: {
 			title: "Color "+color.toHexString().toUpperCase(),
 			image: {
-				url: `https://via.placeholder.com/165x100/${color.toHex()}/${text}?text=${color.toHex().toUpperCase()}`
+				url: `https://sheep.greysdawn.tk/sheep/${color.toHex()}`
 			},
 			color: parseInt(color.toHex(), 16)
 		}}).then(message => {
