@@ -8,7 +8,7 @@ You can invite the bot [here](https://discordapp.com/api/oauth2/authorize?client
 ## Demos
 
 Changing:
-![Changing your color](https://cdn.discordapp.com/attachments/585890796671336451/588633770794418207/sheep_change.gif)
+![Changing your color](https://cdn.discordapp.com/attachments/585890796671336451/588635091950108682/sheep_change.giff)
 
 Using names (and cancelling):
 ![](https://cdn.discordapp.com/attachments/585890796671336451/588632240674570240/sheep_cancel.gif)
