@@ -2,16 +2,20 @@ module.exports = {
 	help: ()=> "A little about the bot",
 	usage: ()=> [" - Just what's on the tin"],
 	execute: async (bot, msg, args) => {
-		msg.channel.createMessage([
-			'**About**',
-			"```",
-			"Creator: greysdawn (GreySkies#9950)",
-			"Repo: https://github.com/greys-bots/sheep",
-			"Creator's Patreon: https://patreon.com/greysdawn",
-			"Guilds: "+bot.guilds.size,
-			"Users: "+bot.users.size,
-			"```"
-			].join("\n"));
+		msg.channel.createMessage({embed: {
+			title: '**About**',
+			fields:[
+				{name: "Prefixes", value: "s!, sh!, sheep!, or baa!"},
+				{name: "Creator", value: "greysdawn (GreySkies#9950)"},
+				{name: "Repo", value: "https://github.com/greys-bots/sheep"},
+				{name: "Website", value: "https://sheep.greysdawn.tk/"},
+				{name: "Support Discord", value: "https://discord.gg/EvDmXGt"},
+				{name: "Creator's Patreon", value: "https://patreon.com/greysdawn"},
+				{name: "Creator's Ko-Fi", value: "https://ko-fi.com/greysdawn"},
+				{name: "Guilds", value: bot.guilds.size},
+				{name: "Users", value: bot.users.size}
+			]
+		}})
 	},
 	alias: ['abt', 'a']
 }
