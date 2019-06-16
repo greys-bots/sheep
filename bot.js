@@ -8,7 +8,7 @@ const bot = new Eris(process.env.TOKEN);
 
 bot.commands = {};
 
-bot.prefix = ["s!","sh!","sheep!","baa!"]
+bot.prefix = ["s!","sh!","sheep!","baa!"];
 
 bot.utils = require('./utils');
 
@@ -132,16 +132,16 @@ bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 	if(bot.user.id == user) return;
 	if(bot.posts && bot.posts[msg.id] && bot.posts[msg.id].user == user) {
 		if(emoji.name == "\u2705") {
-			var position = msg.guild.roles.find(r => msg.guild.members.find(m => m.id == bot.user.id).roles.find(rl => rl == r.id && r.managed)).position;
+			var position = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id)).position;
 			var role;
 			var color = bot.posts[msg.id].data.toHex() == "000000" ? "000001" : bot.posts[msg.id].data.toHex();
 			role = msg.channel.guild.roles.find(r => r.name == user);
 			if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
 			else role = await bot.editRole(msg.channel.guild.id, role.id, {color: parseInt(color, 16)});
-			bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
-			bot.editRolePosition(msg.channel.guild.id, role.id, position-1);
-			bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
-			bot.removeMessageReactions(msg.channel.id, msg.id);
+			await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
+			await bot.editRolePosition(msg.channel.guild.id, role.id, position-1);
+			await bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
+			await bot.removeMessageReactions(msg.channel.id, msg.id);
 			delete bot.posts[msg.id];
 		} else if(emoji.name == "\u274C") {
 			bot.editMessage(msg.channel.id, msg.id, {content: "Action cancelled", embed: {}});

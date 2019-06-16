@@ -6,6 +6,7 @@ module.exports = {
 			title: '**About**',
 			fields:[
 				{name: "Prefixes", value: "s!, sh!, sheep!, or baa!"},
+				{name: "Invite", value: "https://discordapp.com/api/oauth2/authorize?client_id=585271178180952064&permissions=268462080&scope=bot"},
 				{name: "Creator", value: "greysdawn (GreySkies#9950)"},
 				{name: "Repo", value: "https://github.com/greys-bots/sheep"},
 				{name: "Website", value: "https://sheep.greysdawn.tk/"},
