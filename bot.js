@@ -135,6 +135,11 @@ bot.parseCommand = async function(bot, msg, args, command) {
 	
 }
 
+bot.on("ready", ()=> {
+	console.log('Ready!');
+	updateStatus();
+})
+
 bot.on("messageCreate",async (msg)=>{
 	if(msg.author.bot) return;
 	if(!new RegExp(`^(${bot.prefix.join("|")})`,"i").test(msg.content.toLowerCase())) return;
@@ -181,4 +186,3 @@ bot.on("guildMemberRemove", async (guild, member)=> {
 setup();
 bot.connect()
 .catch(e => console.log("Trouble connecting...\n"+e));
-updateStatus();
