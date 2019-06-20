@@ -15,6 +15,27 @@ bot.utils = require('./utils');
 bot.tc = require('tinycolor2');
 bot.jimp = require('jimp');
 
+bot.status = 0;
+
+const updateStatus = function(){
+	switch(bot.status){
+		case 0:
+			bot.editStatus({name: "s!h -- in "+bot.guilds.size+" guilds!"});
+			bot.status++;
+			break;
+		case 1:
+			bot.editStatus({name: "s!h -- serving "+bot.users.size+" users!"});
+			bot.status++;
+			break;
+		case 2:
+			bot.editStatus({name: "s!h -- webite: sheep.greysdawn.tk"});
+			bot.status = 0;
+			break;
+	}
+
+	setTimeout(()=> updateStatus(),600000)
+}
+
 bot.commands.help = {
 	help: ()=> "Displays help embed.",
 	usage: ()=> [" - Displays help for all commands.",
@@ -160,3 +181,4 @@ bot.on("guildMemberRemove", async (guild, member)=> {
 setup();
 bot.connect()
 .catch(e => console.log("Trouble connecting...\n"+e));
+updateStatus();
