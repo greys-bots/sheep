@@ -1,0 +1,22 @@
+{
+  "name": "sheep",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "heroku-postbuild": "cd frontend && npm install --only=dev && npm install && npm run build",
+    "build": "cd frontend && yarn build && cd .. && node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.0.0",
+    "eris": "^0.10.0",
+    "express": "^4.17.1",
+    "jimp": "^0.6.4",
+    "node-fetch": "^2.6.0"
+  }
+}
