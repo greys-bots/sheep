@@ -63,8 +63,8 @@ function App() {
           <div>
           <h1>Want to support the bot?</h1>
           <p>
-            Currently, Sheep is being run on our Raspberry Pi along with a few other bots. This means that{" "}
-            it only has 1gb of RAM to share with the other bots, and will eventually need a dedicated/upgraded{" "}
+            Currently, Sheep is being run on a Vultr VPS along with a few other bots and the rest of our sites. At the moment this means that{" "}
+            they only have 2gb of RAM to share with everything else, and we will eventually need an upgraded{" "}
             environment to run in. We're also without a job right now, and rely on patrons and donations to get by.<br/>
             If you'd like to donate, you can send money to our Ko-Fi or choose to become a Patron.
           </p>
