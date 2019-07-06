@@ -4,7 +4,7 @@ module.exports = {
 	desc: ()=> "Colors can be hex codes or color names! Full list of names found [here](https://www.w3schools.com/colors/colors_names.asp)\nNote: Roles above the automatically-created Sheep role MUST be uncolored, or this won't work!",
 	execute: async (bot, msg, args)=> {
 		if(!args[0]) return msg.channel.createMessage('Please provide a color :(');
-		var color = bot.tc(args[0]);
+		var color = bot.tc(args.join(" "));
 		if(!color.isValid()) return msg.channel.createMessage('That is not a valid color :(');
 		var crgb = color.toRgb();
 		var text = (crgb.r * 0.299) + (crgb.g * 0.587) + (crgb.b * 0.114) > 186 ? '000000' : 'ffffff';

@@ -71,7 +71,7 @@ bot.commands.help = {
 			}
 		} else {
 			embed = {
-				title: `Colorbot - help`,
+				title: `Sheep - help`,
 				description:
 					`Hello, I am a sheep baaaah-t! I'll help you change your colors!\n**My current prefixes are:** ${bot.prefix.join(", ")}\n\n`+
 					`**Commands**\n${Object.keys(bot.commands)
