@@ -6,7 +6,7 @@ module.exports = {
 		var color;
 		if(!args[0]) color = bot.tc(Math.floor(Math.random()*16777215).toString(16))
 		else color = bot.tc(args.join(''));
-		if(!color.isValid()) return msg.channel.createMessage('That is not a valid color :(');
+		if(!color.isValid()) return ('That is not a valid color :(');
 		var crgb = color.toRgb();
 		var text = (crgb.r * 0.299) + (crgb.g * 0.587) + (crgb.b * 0.114) > 186 ? '000000' : 'ffffff';
 		await msg.channel.createMessage({embed: {

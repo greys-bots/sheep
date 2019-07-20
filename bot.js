@@ -8,7 +8,7 @@ const bot = new Eris(process.env.TOKEN);
 
 bot.commands = {};
 
-bot.prefix = ["s!","sh!","sheep!","baa!"];
+bot.prefix = ["st!","sh!","sheep!","baa!"];
 
 bot.utils = require('./utils');
 
