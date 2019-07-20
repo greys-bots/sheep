@@ -1,5 +1,5 @@
+//TODO: better logging
 const Eris 		= require("eris-additions")(require("eris"));
-// const mysql 	= require("mysql");
 const fs 		= require("fs");
 
 require ('dotenv').config();
@@ -20,15 +20,15 @@ bot.status = 0;
 const updateStatus = function(){
 	switch(bot.status){
 		case 0:
-			bot.editStatus({name: "s!h -- in "+bot.guilds.size+" guilds!"});
+			bot.editStatus({name: "s!h | in "+bot.guilds.size+" guilds!"});
 			bot.status++;
 			break;
 		case 1:
-			bot.editStatus({name: "s!h -- serving "+bot.users.size+" users!"});
+			bot.editStatus({name: "s!h | serving "+bot.users.size+" users!"});
 			bot.status++;
 			break;
 		case 2:
-			bot.editStatus({name: "s!h -- webite: sheep.greysdawn.tk"});
+			bot.editStatus({name: "s!h | website: sheep.greysdawn.tk"});
 			bot.status = 0;
 			break;
 	}
@@ -99,6 +99,20 @@ async function setup() {
 	})).then(()=> console.log("finished loading commands."));
 }
 
+async function writeLog(log) {
+	let now = new Date();
+	let ndt = `${(now.getMonth() + 1).toString().length < 2 ? "0"+ (now.getMonth() + 1) : now.getMonth()+1}.${now.getDate().toString().length < 2 ? "0"+ now.getDate() : now.getDate()}.${now.getFullYear()}`;
+	if(!fs.existsSync(`./logs/${ndt}.log`)){
+		fs.writeFile(`./logs/${ndt}.log`,log+"\r\n",(err)=>{
+			if(err) console.log(`Error while attempting to write log ${ndt}\n`+err.stack);
+		});
+	} else {
+		fs.appendFile(`./logs/${ndt}.log`,log+"\r\n",(err)=>{
+			if(err) console.log(`Error while attempting to apend to log ${ndt}\n`+err);
+		});
+	}
+}
+
 bot.parseCommand = async function(bot, msg, args, command) {
 	return new Promise(async (res,rej)=>{
 		var commands;
@@ -137,42 +151,90 @@ bot.parseCommand = async function(bot, msg, args, command) {
 
 bot.on("ready", ()=> {
 	console.log('Ready!');
+	writeLog('=====LOG START=====')
 	updateStatus();
 })
 
 bot.on("messageCreate",async (msg)=>{
 	if(msg.author.bot) return;
 	if(!new RegExp(`^(${bot.prefix.join("|")})`,"i").test(msg.content.toLowerCase())) return;
+	var log = [
+			`Guild: ${msg.guild.name} (${msg.guild.id})`,
+			`User: ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})`,
+			`Message: ${msg.content}`,
+			`--------------------`
+		];
 	let args = msg.content.replace(new RegExp(`^(${bot.prefix.join("|")})`,"i"), "").split(" ");
 	let cmd = await bot.parseCommand(bot, msg, args);
 	if(cmd) {
-		console.log(cmd)
 		var check = await bot.utils.checkPermissions(bot, msg, cmd);
-		if(check) cmd[0].execute(bot, msg, cmd[1]);
-		else msg.channel.createMessage('You do not have permission to use that command.');
+		if(check) {
+			var res;
+			try {
+				var res = await cmd[0].execute(bot, msg, cmd[1]);
+			} catch(e) {
+				console.log(e.stack);
+				log.push(`Error: ${e.stack}`);
+				log.push(`--------------------`);
+				msg.channel.createMessage('There was an error! D:')
+			}
+			if(res) {
+				msg.channel.createMessage(res);
+			}
+		}
+		else {
+			msg.channel.createMessage('You do not have permission to use that command.');
+			log.push('- Missing Permissions -')
+		}
 	}
-	else msg.channel.createMessage("Command not found.");
+	else {
+		msg.channel.createMessage("Command not found.");
+		log.push('- Command Not Found -')
+	}
+	console.log(log.join('\r\n'));
+	writeLog(log.join('\r\n'))
 });
 
 bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 	if(bot.user.id == user) return;
 	if(bot.posts && bot.posts[msg.id] && bot.posts[msg.id].user == user) {
-		if(emoji.name == "\u2705") {
-			var position = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id)).position;
-			var role;
-			var color = bot.posts[msg.id].data.toHex() == "000000" ? "000001" : bot.posts[msg.id].data.toHex();
-			role = msg.channel.guild.roles.find(r => r.name == user);
-			if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
-			else role = await bot.editRole(msg.channel.guild.id, role.id, {color: parseInt(color, 16)});
-			await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
-			await bot.editRolePosition(msg.channel.guild.id, role.id, position-1);
-			await bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
-			await bot.removeMessageReactions(msg.channel.id, msg.id);
-			delete bot.posts[msg.id];
-		} else if(emoji.name == "\u274C") {
-			bot.editMessage(msg.channel.id, msg.id, {content: "Action cancelled", embed: {}});
-			bot.removeMessageReactions(msg.channel.id, msg.id);
-			delete bot.posts[msg.id];
+		switch(emoji.name) {
+			case '\u2705':
+				var role;
+				var color = bot.posts[msg.id].data.toHex() == "000000" ? "000001" : bot.posts[msg.id].data.toHex();
+				role = msg.channel.guild.roles.find(r => r.name == user);
+				if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
+				else role = await bot.editRole(msg.channel.guild.id, role.id, {color: parseInt(color, 16)});
+				await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
+				await bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
+				await bot.removeMessageReactions(msg.channel.id, msg.id);
+				delete bot.posts[msg.id];
+				break;
+			case '\u274C':
+				bot.editMessage(msg.channel.id, msg.id, {content: "Action cancelled", embed: {}});
+				bot.removeMessageReactions(msg.channel.id, msg.id);
+				delete bot.posts[msg.id];
+				break
+			case '🔀':
+				var color = bot.tc(Math.floor(Math.random()*16777215).toString(16));
+				bot.editMessage(msg.channel.id, msg.id, {embed: {
+					title: "Color "+color.toHexString().toUpperCase(),
+					image: {
+						url: `https://sheep.greysdawn.tk/sheep/${color.toHex()}`
+					},
+					color: parseInt(color.toHex(), 16)
+				}})
+				clearTimeout(bot.posts[msg.id].timeout)
+				bot.posts[msg.id] = {
+					user: bot.posts[msg.id].user,
+					data: color,
+					timeout: setTimeout(()=> {
+						if(!bot.posts[msg.id]) return;
+						message.removeReactions()
+						delete bot.posts[message.id];
+					}, 900000)
+				};
+				break;
 		}
 	}
 })
@@ -181,6 +243,11 @@ bot.on("guildMemberRemove", async (guild, member)=> {
 	var role = guild.roles.find(r => r.name == member.id);
 	if(!role) return;
 	bot.deleteRole(guild.id, role.id, "Member left server");
+})
+
+bot.on('error',(err,id)=> {
+	console.log(`Error on shard ${id}:\n${err.stack}`);
+	writeLog(`ERR:\r\nShard: ${id}\r\nStack: ${err.stack}`)
 })
 
 setup();

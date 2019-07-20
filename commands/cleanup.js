@@ -3,13 +3,26 @@ module.exports = {
 	usage: ()=> [" - Removes the `USER-` prefix on roles created by Hex to make the compatible with this bot"],
 	desc: ()=> "NOTE: this role requires the `manageRoles` permission from the user. This effectively makes it moderator-only",
 	execute: async (bot, msg, args)=> {
-		if(!msg.member.permission.has('manageRoles')) return msg.channel.createMessage('You do not have permission to use this command :(');
+		if(!msg.member.permission.has('manageRoles')) return 'You do not have permission to use this command :(';
 
-		msg.guild.roles.forEach(r => {
-			if(r.name.startsWith('USER-')) r.edit({name: r.name.replace('USER-','')});
-		});
+		var err = false;
+		await Promise.all(msg.guild.roles.map(r => {
+			return new Promise(async res => {
+				if(r.name.startsWith('USER-')) {
+					try {
+						await r.edit({name: r.name.replace('USER-','')})
+						res('');
+					} catch(e) {
+						err = true;
+						res('');
+					}
+				} else {
+					res('')
+				}
+			})
+		}))
 
-		msg.channel.createMessage('Roles cleaned!')
+		return err ? 'Some roles could not be cleaned because they are above my highest role :(' : 'Roles cleaned!'
 	},
 	alias: ['cu', 'clean']
 }

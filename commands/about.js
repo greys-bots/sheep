@@ -2,7 +2,7 @@ module.exports = {
 	help: ()=> "A little about the bot",
 	usage: ()=> [" - Just what's on the tin"],
 	execute: async (bot, msg, args) => {
-		msg.channel.createMessage({embed: {
+		return ({embed: {
 			title: '**About**',
 			fields:[
 				{name: "Prefixes", value: "s!, sh!, sheep!, or baa!"},
