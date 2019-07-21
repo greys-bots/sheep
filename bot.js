@@ -200,15 +200,30 @@ bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 	if(bot.posts && bot.posts[msg.id] && bot.posts[msg.id].user == user) {
 		switch(emoji.name) {
 			case '\u2705':
+				var position;
 				var role;
 				var color = bot.posts[msg.id].data.toHex() == "000000" ? "000001" : bot.posts[msg.id].data.toHex();
-				role = msg.channel.guild.roles.find(r => r.name == user);
-				if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
-				else role = await bot.editRole(msg.channel.guild.id, role.id, {color: parseInt(color, 16)});
-				await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
-				await bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
-				await bot.removeMessageReactions(msg.channel.id, msg.id);
-				delete bot.posts[msg.id];
+				try {
+					position = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id)).position;
+				} catch(e) {
+					position = undefined;
+					console.log("Couldn't get role position");
+					writeLog(e.stack);
+				}
+				try {
+					role = msg.channel.guild.roles.find(r => r.name == user);
+					if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
+					else role = await bot.editRole(msg.channel.guild.id, role.id, {color: parseInt(color, 16)});
+					await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
+					if(position) await bot.editRolePosition(msg.channel.guild.id, role.id, position-1);
+					await bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
+					await bot.removeMessageReactions(msg.channel.id, msg.id);
+					delete bot.posts[msg.id];
+				} catch(e) {
+					console.log(e.stack);
+					writeLog(e.stack);
+					msg.channel.createMessage("Something went wrong! ERR: "+e.message);
+				}
 				break;
 			case '\u274C':
 				bot.editMessage(msg.channel.id, msg.id, {content: "Action cancelled", embed: {}});
