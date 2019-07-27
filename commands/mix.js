@@ -1,6 +1,6 @@
 module.exports = {
 	help: ()=> "Mix two colors",
-	usage: ()=> " [color1] [color2] - Mixes two colors and gives the result. NOTE: currentl only accepts rgb/hsv values without spaces! eg: rgb(0,0,0)",
+	usage: ()=> [" [color1] [color2] - Mixes two colors and gives the result. NOTE: currentl only accepts rgb/hsv values without spaces! eg: rgb(0,0,0)"],
 	execute: async (bot, msg, args)=> {
 		var col1 = bot.tc(args[0]);
 		var col2 = bot.tc(args[1]);

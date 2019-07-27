@@ -1,6 +1,6 @@
 module.exports = {
 	help: ()=> "Converts a color to a new form",
-	usage: ()=> " [color] [hex|rgb|hsv] - Converts color to the given form. NOTE: cannot convert to color names",
+	usage: ()=> [" [color] [hex|rgb|hsv] - Converts color to the given form. NOTE: cannot convert to color names"],
 	execute: async (bot, msg, args) => {
 		if(args.length < 2) return 'Please provide a color and a form to convert to';
 		var color = bot.tc(args.slice(0, args.length - 1).join(''));
