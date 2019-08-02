@@ -28,7 +28,7 @@ const updateStatus = function(){
 			bot.status++;
 			break;
 		case 2:
-			bot.editStatus({name: "s!h | website: sheep.greysdawn.tk"});
+			bot.editStatus({name: "s!h | website: sheep.greysdawn.com"});
 			bot.status = 0;
 			break;
 	}
@@ -73,7 +73,7 @@ bot.commands.help = {
 			embed = {
 				title: `Sheep - help`,
 				description:
-					`Hello, I am a sheep baaaah-t! I'll help you change your colors!\n**My current prefixes are:** ${bot.prefix.join(", ")}\n\n`+
+					`Hello, I am a sheep baaaah-t! I'll help you change your colors!\n**My current prefixes are:** ${bot.prefix.join(", ")}\nUse *`+'`hh!help command`'+`* for command-specific help\n\n`+
 					`**Commands**\n${Object.keys(bot.commands)
 									.map(c => `**${bot.prefix[0] + c}** - ${bot.commands[c].help()}`)
 									.join("\n")}\n\n`,

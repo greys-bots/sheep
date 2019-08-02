@@ -12,7 +12,7 @@ module.exports = {
 		await msg.channel.createMessage({embed: {
 			title: "Color "+color.toHexString().toUpperCase(),
 			image: {
-				url: `https://sheep.greysdawn.tk/sheep/${color.toHex()}`
+				url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
 			},
 			color: parseInt(color.toHex(), 16)
 		}}).then(message => {
