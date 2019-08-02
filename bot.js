@@ -165,6 +165,8 @@ bot.on("messageCreate",async (msg)=>{
 			`--------------------`
 		];
 	let args = msg.content.replace(new RegExp(`^(${bot.prefix.join("|")})`,"i"), "").split(" ");
+	if(!args[0]) args.shift();
+	if(!args[0]) return msg.channel.createMessage("Baaa!");
 	let cmd = await bot.parseCommand(bot, msg, args);
 	if(cmd) {
 		var check = await bot.utils.checkPermissions(bot, msg, cmd);
