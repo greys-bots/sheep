@@ -23,7 +23,7 @@ module.exports = {
 		await msg.channel.createMessage({embed: {
 			title: "Color #"+c,
 			image: {
-				url: `https://sheep.greysdawn.tk/sheep/${c}`
+				url: `https://sheep.greysdawn.com/sheep/${c}`
 			},
 			color: parseInt(c, 16)
 		}})

@@ -1,6 +1,6 @@
-//TODO: better logging
 const Eris 		= require("eris-additions")(require("eris"));
 const fs 		= require("fs");
+const dblite 	= require("dblite");
 
 require ('dotenv').config();
 
@@ -8,12 +8,14 @@ const bot = new Eris(process.env.TOKEN);
 
 bot.commands = {};
 
-bot.prefix = ["s!","sh!","sheep!","baa!"];
+bot.prefix = ["st!","sh!","sheep!","baa!"];
 
 bot.utils = require('./utils');
 
 bot.tc = require('tinycolor2');
 bot.jimp = require('jimp');
+
+bot.db = dblite("./data.sqlite","-header");
 
 bot.status = 0;
 
@@ -97,6 +99,20 @@ async function setup() {
 			setTimeout(res("a"),100)
 		})
 	})).then(()=> console.log("finished loading commands."));
+
+	bot.db.query(`CREATE TABLE IF NOT EXISTS configs (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		server_id TEXT,
+		role_mode INTEGER
+	)`);
+
+	bot.db.query(`CREATE TABLE IF NOT EXISTS colors (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		server_id TEXT,
+		role_id TEXT,
+		user_id TEXT,
+		type INTEGER
+	)`)
 }
 
 async function writeLog(log) {
@@ -167,13 +183,16 @@ bot.on("messageCreate",async (msg)=>{
 	let args = msg.content.replace(new RegExp(`^(${bot.prefix.join("|")})`,"i"), "").split(" ");
 	if(!args[0]) args.shift();
 	if(!args[0]) return msg.channel.createMessage("Baaa!");
+	var config;
+	if(msg.guild) config = await bot.utils.getConfig(bot, msg.guild.id);
+	else config = undefined;
 	let cmd = await bot.parseCommand(bot, msg, args);
 	if(cmd) {
 		var check = await bot.utils.checkPermissions(bot, msg, cmd);
 		if(check) {
 			var res;
 			try {
-				var res = await cmd[0].execute(bot, msg, cmd[1]);
+				var res = await cmd[0].execute(bot, msg, cmd[1], config);
 			} catch(e) {
 				console.log(e.stack);
 				log.push(`Error: ${e.stack}`);
@@ -213,9 +232,9 @@ bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 					writeLog(e.stack);
 				}
 				try {
-					role = msg.channel.guild.roles.find(r => r.name == user);
-					if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
-					else role = await bot.editRole(msg.channel.guild.id, role.id, {color: parseInt(color, 16)});
+					role = await bot.utils.getUserRole(bot, msg.channel.guild, user);
+					if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)}).id;
+					else role = await bot.editRole(msg.channel.guild.id, role, {color: parseInt(color, 16)});
 					await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
 					if(position) await bot.editRolePosition(msg.channel.guild.id, role.id, position-1);
 					await bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
@@ -224,7 +243,15 @@ bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 				} catch(e) {
 					console.log(e.stack);
 					writeLog(e.stack);
-					msg.channel.createMessage("Something went wrong! ERR: "+e.message);
+					var err = "";
+					if(e.stack.includes('Client.editRolePosition')) {
+						err = "Can't edit role position! Make sure I have the `manageRoles` permission";
+					} else if(e.stack.includes('Client.editRole')) {
+						err = "Can't edit role! Make sure I have the `manageRoles` permission";
+					} else if(e.stack.includes('Client.removeMessageReactions')) {
+						err = "Can't remove reactions! Make sure I have the `manageMessages` permission";
+					}
+					msg.channel.createMessage("Something went wrong! ERR: "+err);
 				}
 				break;
 			case '\u274C':
@@ -237,7 +264,7 @@ bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 				bot.editMessage(msg.channel.id, msg.id, {embed: {
 					title: "Color "+color.toHexString().toUpperCase(),
 					image: {
-						url: `https://sheep.greysdawn.tk/sheep/${color.toHex()}`
+						url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
 					},
 					color: parseInt(color.toHex(), 16)
 				}})

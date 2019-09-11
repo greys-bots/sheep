@@ -5,11 +5,12 @@
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node bot.js"
+    "start": "supervisor -e .js,.json -i logs,data.sqlite,data.sqlite-journal bot.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dblite": "^1.0.1",
     "dotenv": "^8.0.0",
     "eris": "^0.9.0",
     "eris-additions": "^1.2.5",
