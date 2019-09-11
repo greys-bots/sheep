@@ -8,7 +8,7 @@ const bot = new Eris(process.env.TOKEN);
 
 bot.commands = {};
 
-bot.prefix = ["st!","sh!","sheep!","baa!"];
+bot.prefix = ["s!","sh!","sheep!","baa!"];
 
 bot.utils = require('./utils');
 
@@ -102,14 +102,14 @@ async function setup() {
 
 	bot.db.query(`CREATE TABLE IF NOT EXISTS configs (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		server_id TEXT,
+		server_id TEXT UNIQUE,
 		role_mode INTEGER
 	)`);
 
 	bot.db.query(`CREATE TABLE IF NOT EXISTS colors (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		server_id TEXT,
-		role_id TEXT,
+		role_id TEXT UNIQUE,
 		user_id TEXT,
 		type INTEGER
 	)`)
