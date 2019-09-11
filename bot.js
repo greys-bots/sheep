@@ -233,7 +233,7 @@ bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 				}
 				try {
 					role = await bot.utils.getUserRole(bot, msg.channel.guild, user);
-					if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)}).id;
+					if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
 					else role = await bot.editRole(msg.channel.guild.id, role, {color: parseInt(color, 16)});
 					await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
 					if(position) await bot.editRolePosition(msg.channel.guild.id, role.id, position-1);
