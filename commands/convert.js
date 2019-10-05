@@ -1,6 +1,6 @@
 module.exports = {
 	help: ()=> "Converts a color to a new form",
-	usage: ()=> [" [color] [hex|rgb|hsv] - Converts color to the given form. NOTE: cannot convert to color names"],
+	usage: ()=> [" [color] [hex|rgb|hsv|cmyk] - Converts color to the given form. NOTE: cannot convert to color names"],
 	execute: async (bot, msg, args) => {
 		if(args.length < 2) return 'Please provide a color and a form to convert to';
 		var color = bot.tc(args.slice(0, args.length - 1).join(''));
@@ -28,10 +28,17 @@ module.exports = {
 					color: parseInt(color.toHex(), 16)
 				}})
 				break;
+			case 'cmyk':
+				var cmyk = await bot.utils.toCmyk(color);
+				await msg.channel.createMessage({embed: {
+					description: `${color.toString()} = CMYK(${cmyk.c}, ${cmyk.m}, ${cmyk.y}, ${cmyk.k})`,
+					color: parseInt(color.toHex(), 16)
+				}})
+				break;
 			default:
 				return "I can't convert to that form :(";
 				break;
 		}
 	},
-	alias: ['cc', 'conv', 'convertcolor']
+	alias: ['cc', 'conv', 'cv', 'convertcolor']
 }

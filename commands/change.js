@@ -15,7 +15,10 @@ module.exports = {
 				image: {
 					url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
 				},
-				color: parseInt(color.toHex(), 16)
+				color: parseInt(color.toHex(), 16),
+				footer: {
+					text: `${color.toRgbString()}`
+				}
 			}}).then(message => {
 				if(!bot.posts) bot.posts = {};
 				bot.posts[message.id] = {
