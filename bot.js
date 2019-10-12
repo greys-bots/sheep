@@ -245,7 +245,7 @@ bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 					writeLog(e.stack);
 					var err = "";
 					if(e.stack.includes('Client.editRolePosition')) {
-						err = "Can't edit role position! Make sure I have the `manageRoles` permission";
+						err = "Can't edit role position! Please report this issue in my support server: https://discord.gg/EvDmXGt";
 					} else if(e.stack.includes('Client.editRole')) {
 						err = "Can't edit role! Make sure I have the `manageRoles` permission";
 					} else if(e.stack.includes('Client.removeMessageReactions')) {

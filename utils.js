@@ -129,7 +129,9 @@ module.exports = {
 						res(undefined)
 					} else {
 						if(rows[0]) {
-							res(rows[0].role_id);
+							role = guild.roles.find(r => r.id == rows[0].role_id);
+							if(!role) res(undefined)
+							else res(role.id);
 						} else {
 							res(undefined);
 						}
@@ -190,8 +192,8 @@ module.exports = {
 	},
 	mixColors: async (bot, c1, c2) => {
 		return new Promise(async res => {
-			c1 = col1.toHex();
-			c2 = col2.toHex();
+			c1 = c1.toHex();
+			c2 = c2.toHex();
 			var c = "";
 			for(var i = 0; i<3; i++) {
 			  var sub1 = c1.substring(2*i, 2+2*i);
