@@ -44,7 +44,7 @@ module.exports = {
 				})
 			} else {
 				bot.db.query(`INSERT INTO configs (server_id, role_mode, disabled) VALUES (?,?,?)`,
-					[guild, key == "role_mode" ? val : 0, key == "disabled" ? val : {}], (err, rows) => {
+					[guild, key == "role_mode" ? val : 0, key == "disabled" ? val : []], (err, rows) => {
 					if(err) {
 						console.log(err);
 						res(false);
@@ -250,7 +250,7 @@ module.exports = {
 	isDisabled: async (bot, srv, cmd, name) =>{
 		return new Promise(async res=>{
 			var cfg = await bot.utils.getConfig(bot, srv);
-			if(!cfg || !cfg.disabled) return res(false);
+			if(!cfg || !cfg.disabled || !cfg.disabled[0]) return res(false);
 			let dlist = cfg.disabled;
 			name = name.split(" ");
 			if(dlist && (dlist.includes(name[0]) || dlist.includes(name.join(" ")))) {
