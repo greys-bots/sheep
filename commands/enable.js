@@ -5,7 +5,7 @@ module.exports = {
 		if(!args[0]) return "Please provide a command or module to enable.";
 		if(args[0] == "disable" || args[0] == "enable") return "You can't disable or enable this command.";
 		var cfg = await bot.utils.getConfig(bot, msg.guild.id);
-		if(!cfg || cfg.disabled) return "Nothing is disabled in this server.";
+		if(!cfg || !cfg.disabled) return "Nothing is disabled in this server.";
 		var dis = cfg.disabled;
 		var cmd;
 		try {
