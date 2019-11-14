@@ -253,7 +253,7 @@ module.exports = {
 			if(!cfg || !cfg.disabled) return res(false);
 			let dlist = cfg.disabled;
 			name = name.split(" ");
-			if(dlist.commands && (dlist.commands.includes(name[0]) || dlist.commands.includes(name.join(" ")))) {
+			if(dlist && (dlist.includes(name[0]) || dlist.includes(name.join(" ")))) {
 				res(true);
 			} else {
 				res(false);
