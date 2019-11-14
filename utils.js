@@ -148,7 +148,7 @@ module.exports = {
 						} else res(role.id);
 					} else {
 						role = guild.roles.find(r => r.name == user);
-						res(role.id);
+						res(role ? role.id : undefined);
 					}
 				}
 			})
