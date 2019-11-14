@@ -46,13 +46,12 @@ module.exports.subcommands.view = {
 	usage: ()=> [" - Views the disabled config for the server"],
 	execute: async (bot, msg, args) => {
 		var cfg = await bot.utils.getConfig(bot, msg.guild.id);
-		if(!cfg || !cfg.disabled || (cfg.disabled && !cfg.disabled.commands && !cfg.disabled.levels)) return msg.channel.createMessage('No config found for this server.')
+		if(!cfg || !cfg.disabled) return 'Nothing is disabled for this server!'
 		
 		msg.channel.createMessage({embed: {
 			title: "Disabled Functions",
 			fields: [
-				{name: "Commands", value: cfg.disabled.commands[0] ? cfg.disabled.commands.sort().join("\n") : "(none)"},
-				{name: "Levels", value: cfg.disabled.levels ? "Yes" : "No"}
+				{name: "Commands", value: cfg.disabled[0] ? cfg.disabled.sort().join("\n") : "(none)"}
 			]
 		}})
 	},
