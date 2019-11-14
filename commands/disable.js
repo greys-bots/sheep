@@ -7,7 +7,7 @@ module.exports = {
 		if(args[0] == "disable" || args[0] == "enable") return msg.channel.createMessage("You can't disable or enable this command.");
 		var cfg = await bot.utils.getConfig(bot, msg.guild.id);
 		var dis;
-		if(!cfg) return "No config registered for this server.";
+		if(!cfg) cfg = {}
 		if(!cfg.disabled) dis = [];
 		else dis = cfg.disabled;
 		console.log(dis)
