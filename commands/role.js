@@ -24,6 +24,7 @@ module.exports = {
 			})
 		}}
 	},
+	guildOnly: true,
 	permissions: ["manageRoles"],
 	subcommands: {},
 	alias: ["rl"]
@@ -51,6 +52,7 @@ module.exports.subcommands.create = {
 		else return "Something went wrong while indexing the role :("
 
 	},
+	guildOnly: true,
 	permissions: ["manageRoles"],
 	alias: ['new', '+', 'cr', 'n', 'ind', 'index']
 }
@@ -89,6 +91,7 @@ module.exports.subcommands.edit = {
 				break;
 		}
 	},
+	guildOnly: true,
 	permissions: ['manageRoles']
 }
 
@@ -115,5 +118,6 @@ module.exports.subcommands.reset = {
 			}
 		}
 	},
+	guildOnly: true,
 	permissions: ['manageRoles']
 }

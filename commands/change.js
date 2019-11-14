@@ -71,5 +71,6 @@ module.exports = {
 		}
 		
 	},
+	guildOnly: true,
 	alias: ['c', 'cl', 'colour', 'color', 'ch']
 }

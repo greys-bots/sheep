@@ -55,5 +55,7 @@ module.exports.subcommands.view = {
 				{name: "Levels", value: cfg.disabled.levels ? "Yes" : "No"}
 			]
 		}})
-	}
+	},
+	guildOnly: true,
+	permissions: ["manageGuild"]
 }

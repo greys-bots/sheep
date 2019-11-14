@@ -24,5 +24,6 @@ module.exports = {
 
 		return err ? 'Some roles could not be cleaned because they are above my highest role :(' : 'Roles cleaned!'
 	},
+	guildOnly: true,
 	alias: ['cu', 'clean']
 }

@@ -9,5 +9,6 @@ module.exports = {
 		if(success) return "Role renamed!";
 		else return "Something went wrong D:";
 	},
+	guildOnly: true,
 	alias: ['rn']
 }

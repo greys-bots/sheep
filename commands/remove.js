@@ -70,5 +70,6 @@ module.exports.subcommands.all = {
 
 	},
 	guildOnly: true,
-	alias: ['*']
+	alias: ['*'],
+	permissions: ["manageRoles"]
 }
