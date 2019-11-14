@@ -4,7 +4,7 @@ module.exports = {
 				" view - lists disabled commands"],
 	execute: async (bot, msg, args) => {
 		if(!args[0]) return bot.commands.disable.subcommands.view.execute(bot, msg, args);
-		if(args[0] == "disable" || args[0] == "enable") return msg.channel.createMessage("You can't disable or enable this command.");
+		if(args[0] == "disable" || args[0] == "enable") return "You can't disable or enable this command.";
 		var cfg = await bot.utils.getConfig(bot, msg.guild.id);
 		var dis;
 		if(!cfg) cfg = {}

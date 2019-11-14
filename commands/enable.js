@@ -2,10 +2,10 @@ module.exports = {
 	help: ()=> "Enables a command/module or a command's subcommands.",
 	usage: ()=> [" [command/module] <subcommand> - enables given command or its subcommand"],
 	execute: async (bot, msg, args) => {
-		if(!args[0]) return msg.channel.createMessage("Please provide a command or module to enable.");
-		if(args[0] == "disable" || args[0] == "enable") return msg.channel.createMessage("You can't disable or enable this command.");
+		if(!args[0]) return "Please provide a command or module to enable.";
+		if(args[0] == "disable" || args[0] == "enable") return "You can't disable or enable this command.";
 		var cfg = await bot.utils.getConfig(bot, msg.guild.id);
-		if(!cfg || cfg.disabled) return msg.guild.createMessage("Nothing is disabled in this server.");
+		if(!cfg || cfg.disabled) return "Nothing is disabled in this server.";
 		var dis = cfg.disabled;
 		var cmd;
 		try {
@@ -16,7 +16,7 @@ module.exports = {
 		if(cmd) {
 			var disabled = await bot.utils.isDisabled(bot, msg.guild.id, cmd[0], cmd[2]);
 			if(!disabled) {
-				return msg.channel.createMessage("Module already enabled.")
+				return "Module already enabled."
 			} else {
 				dis = dis.filter(x => x != cmd[2]);
 				var success = await bot.utils.updateConfig(bot, msg.guild.id, "disabled", dis);
