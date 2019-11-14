@@ -144,11 +144,11 @@ module.exports = {
 					if(rows[0]) {
 						role = guild.roles.find(r => r.id == rows[0].role_id);
 						if(!role) {
-							role = guild.roles.find(r => r.name == user);
-							res(role)
+							res(undefined)
 						} else res(role.id);
 					} else {
-						res(undefined);
+						role = guild.roles.find(r => r.name == user);
+						res(role);
 					}
 				}
 			})
