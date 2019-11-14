@@ -8,7 +8,7 @@ const bot = new Eris(process.env.TOKEN);
 
 bot.commands = {};
 
-bot.prefix = ["s!","sh!","sheep!","baa!"];
+bot.prefix = ["st!","sh!","sheep!","baa!"];
 
 bot.utils = require('./utils');
 
@@ -103,7 +103,8 @@ async function setup() {
 	bot.db.query(`CREATE TABLE IF NOT EXISTS configs (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		server_id TEXT UNIQUE,
-		role_mode INTEGER
+		role_mode INTEGER,
+		disabled TEXT
 	)`);
 
 	bot.db.query(`CREATE TABLE IF NOT EXISTS colors (
@@ -188,27 +189,37 @@ bot.on("messageCreate",async (msg)=>{
 	else config = undefined;
 	let cmd = await bot.parseCommand(bot, msg, args);
 	if(cmd) {
-		var check = await bot.utils.checkPermissions(bot, msg, cmd);
-		if(check) {
-			var res;
-			try {
-				var res = await cmd[0].execute(bot, msg, cmd[1], config);
-			} catch(e) {
-				console.log(e.stack);
-				log.push(`Error: ${e.stack}`);
-				log.push(`--------------------`);
-				msg.channel.createMessage('There was an error! D:')
+		if(msg.guild) {
+			var check = await bot.utils.checkPermissions(bot, msg, cmd);
+			if(!check) {
+				console.log("- Missing Permissions -")
+				return msg.channel.createMessage('You do not have permission to use that command.');
 			}
-			if(res) {
-				msg.channel.createMessage(res);
+			check = await bot.utils.isDisabled(bot, msg.guild.id, cmd[0], cmd[2]);
+			if(check && !(["enable","disable"].includes(cmd[2]))) {
+				console.log("- Command is disabled -")
+				return msg.channel.createMessage("That command is disabled.");
+			}
+		} else {
+			if(cmd.guildOnly) {
+				console.log("- Command is guild only -")
+				return msg.channel.createMessage("That command can only be used in guilds.");
 			}
 		}
-		else {
-			msg.channel.createMessage('You do not have permission to use that command.');
-			log.push('- Missing Permissions -')
+		
+		var res;
+		try {
+			var res = await cmd[0].execute(bot, msg, cmd[1], config);
+		} catch(e) {
+			console.log(e.stack);
+			log.push(`Error: ${e.stack}`);
+			log.push(`--------------------`);
+			msg.channel.createMessage('There was an error! D:')
 		}
-	}
-	else {
+		if(res) {
+			msg.channel.createMessage(res);
+		}
+	} else {
 		msg.channel.createMessage("Command not found.");
 		log.push('- Command Not Found -')
 	}
@@ -224,22 +235,20 @@ bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 				var position;
 				var role;
 				var color = bot.posts[msg.id].data.toHex() == "000000" ? "000001" : bot.posts[msg.id].data.toHex();
-				try {
-					position = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id)).position;
-				} catch(e) {
-					position = undefined;
-					console.log("Couldn't get role position");
-					writeLog(e.stack);
-				}
+				var srole = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id));
+				if(!srole) console.log("Couldn't get position");
+				else console.log(`Sheep position: ${srole.position}`)
 				try {
 					role = await bot.utils.getUserRole(bot, msg.channel.guild, user);
 					if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
 					else role = await bot.editRole(msg.channel.guild.id, role, {color: parseInt(color, 16)});
 					await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
-					if(position) await bot.editRolePosition(msg.channel.guild.id, role.id, position-1);
+					if(srole) await bot.editRolePosition(msg.channel.guild.id, role.id, srole.position-1);
 					await bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
 					await bot.removeMessageReactions(msg.channel.id, msg.id);
 					delete bot.posts[msg.id];
+					await bot.utils.addUserRole(bot, msg.guild.id, role.id, user);
+					console.log(`Other role position: ${msg.guild.roles.find(r => r.id == role.id).position}`)
 				} catch(e) {
 					console.log(e.stack);
 					writeLog(e.stack);
@@ -287,6 +296,23 @@ bot.on("guildMemberRemove", async (guild, member)=> {
 	var role = guild.roles.find(r => r.name == member.id);
 	if(!role) return;
 	bot.deleteRole(guild.id, role.id, "Member left server");
+})
+
+bot.on("guildRoleDelete", async (guild, role) => {
+	try {
+		await bot.utils.deleteServerRole(bot, guild.id, role.id);
+		await bot.utils.deleteUserRole(bot, guild.id, role.id);
+	} catch(e) {
+		console.log("Couldn't delete data on deleted role "+role.id);
+	}
+})
+
+bot.on("guildDelete", async (guild) => {
+	try {
+		await bot.utils.deleteColorRoles(bot, guild.id);
+	} catch(e) {
+		console.log("Couldn't delete data for guild "+guild.id);
+	}
 })
 
 bot.on('error',(err,id)=> {

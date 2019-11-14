@@ -18,7 +18,8 @@ module.exports = {
 			bot.db.query(`SELECT * FROM configs WHERE server_id = ?`, [guild], {
 				id: Number,
 				server_id: String,
-				role_mode: Number
+				role_mode: Number,
+				disabled: JSON.parse
 			}, (err, rows) => {
 				if(err) {
 					console.log(err);
@@ -29,11 +30,11 @@ module.exports = {
 			})
 		})
 	},
-	updateConfig: async (bot, guild, mode) => {
+	updateConfig: async (bot, guild, key, val) => {
 		return new Promise(async res => {
 			var config = await bot.utils.getConfig(bot, guild);
 			if(config) {
-				bot.db.query(`UPDATE configs SET role_mode = ? WHERE server_id = ?`,[mode, guild], (err, rows) => {
+				bot.db.query(`UPDATE configs SET ? = ? WHERE server_id = ?`,[key, val, guild], (err, rows) => {
 					if(err) {
 						console.log(err);
 						res(false);
@@ -42,7 +43,8 @@ module.exports = {
 					}
 				})
 			} else {
-				bot.db.query(`INSERT INTO configs (server_id, role_mode) VALUES (?,?)`,[guild, mode], (err, rows) => {
+				bot.db.query(`INSERT INTO configs (server_id, role_mode, disabled) VALUES (?,?,?)`,
+					[guild, key == "role_mode" ? val : 0, key == "disabled" ? val : {}], (err, rows) => {
 					if(err) {
 						console.log(err);
 						res(false);
@@ -118,28 +120,38 @@ module.exports = {
 			})
 		})
 	},
+	deleteServerRole: async (bot, guild, role) => {
+		return new Promise(res => {
+			bot.db.query(`DELETE FROM colors WHERE server_id = ? AND role_id = ?`, [guild, role], (err, rows) => {
+				if(err) {
+					console.log(err);
+					res(false);
+				} else {
+					console.log("Deleted server role")
+					res(true);
+				}
+			})
+		})
+	},
 	getUserRole: async (bot, guild, user) => {
 		return new Promise(res => {
 			var role;
-			role = guild.roles.find(r => r.name == user);
-			if(!role) {
-				bot.db.query(`SELECT * FROM colors WHERE user_id = ? AND server_id = ?`,[user, guild.id], (err, rows) => {
-					if(err) {
-						console.log(err);
-						res(undefined)
+			bot.db.query(`SELECT * FROM colors WHERE user_id = ? AND server_id = ?`,[user, guild.id], (err, rows) => {
+				if(err) {
+					console.log(err);
+					res(undefined)
+				} else {
+					if(rows[0]) {
+						role = guild.roles.find(r => r.id == rows[0].role_id);
+						if(!role) {
+							role = guild.roles.find(r => r.name == user);
+							res(role)
+						} else res(role.id);
 					} else {
-						if(rows[0]) {
-							role = guild.roles.find(r => r.id == rows[0].role_id);
-							if(!role) res(undefined)
-							else res(role.id);
-						} else {
-							res(undefined);
-						}
+						res(undefined);
 					}
-				})
-			} else {
-				res(role.id);
-			}
+				}
+			})
 		})
 	},
 	setName: async (bot, guild, role, user, name) => {
@@ -150,19 +162,46 @@ module.exports = {
 				console.log(e);
 				return res(false);
 			}
-			bot.db.query(`INSERT OR IGNORE INTO colors (server_id, role_id, user_id, type) VALUES (?,?,?,?)`,[guild, role, user, 0], (err, rows) => {
+			var scc = await bot.utils.addUserRole(bot, guild, role, user);
+			res(scc);
+		})
+	},
+	addUserRole: async (bot, guild, role, user) => {
+		return new Promise(res => {
+			bot.db.query(`SELECT * FROM colors WHERE server_id=? AND role_id=? AND user_id=?`,[guild, role, user], (err, rows)=> {
 				if(err) {
 					console.log(err);
 					res(false);
 				} else {
-					res(true)
+					if(rows[0]) return res(true);
+					bot.db.query(`INSERT INTO colors (server_id, role_id, user_id, type) VALUES (?,?,?,?)`,[guild, role, user, 0], (err, rows) => {
+						if(err) {
+							console.log(err);
+							res(false);
+						} else {
+							res(true)
+						}
+					})
 				}
 			})
 		})
 	},
-	deleteUserRole: async (bot, role) => {
+	deleteUserRole: async (bot, guild, role) => {
 		return new Promise(async res => {
-			bot.db.query(`DELETE FROM colors WHERE role_id = ?`, [role], (err, rows) => {
+			bot.db.query(`DELETE FROM colors WHERE server_id = ? AND role_id = ?`, [guild, role], (err, rows) => {
+				if(err) {
+					console.log(err);
+					res(false);
+				} else {
+					console.log("Deleted user role")
+					res(true);
+				}
+			})
+		})
+	},
+	deleteColorRoles: async (bot, guild) => {
+		return new Promise(async res => {
+			bot.db.query(`DELETE FROM colors WHERE server_id = ?`, [guild], (err, rows) => {
 				if(err) {
 					console.log(err);
 					res(false);
@@ -206,6 +245,19 @@ module.exports = {
 			  c += padsub;
 			}
 			res(bot.tc(c));
+		})
+	},
+	isDisabled: async (bot, srv, cmd, name) =>{
+		return new Promise(async res=>{
+			var cfg = await bot.utils.getConfig(bot, srv);
+			if(!cfg || !cfg.disabled) return res(false);
+			let dlist = cfg.disabled;
+			name = name.split(" ");
+			if(dlist.commands && (dlist.commands.includes(name[0]) || dlist.commands.includes(name.join(" ")))) {
+				res(true);
+			} else {
+				res(false);
+			}
 		})
 	}
 }
