@@ -154,6 +154,27 @@ module.exports = {
 			})
 		})
 	},
+	getRawUserRole: async (bot, guild, user) => {
+		return new Promise(res => {
+			var role;
+			bot.db.query(`SELECT * FROM colors WHERE user_id = ? AND server_id = ?`,[user, guild.id], (err, rows) => {
+				if(err) {
+					console.log(err);
+					res(undefined)
+				} else {
+					if(rows[0]) {
+						role = guild.roles.find(r => r.id == rows[0].role_id);
+						if(!role) {
+							res(undefined)
+						} else res(role);
+					} else {
+						role = guild.roles.find(r => r.name == user);
+						res(role ? role : undefined);
+					}
+				}
+			})
+		})
+	},
 	setName: async (bot, guild, role, user, name) => {
 		return new Promise(async res => {
 			try {
