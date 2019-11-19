@@ -14,18 +14,79 @@ module.exports = {
 		}
 
 		var invalid = roles.filter(r => r.name == "invalid" && r.color == undefined);
-		var success = await bot.utils.deleteServerRoles(bot, msg.guild.id, invalid.map(r => r.id));
-		console.log(roles);
-		return {content: success ? "Any invalid roles have been deleted from the database" : "Invalid roles could not be deleted from the database", embed: {
-			title: "Server Color Roles",
-			description: "name : color",
-			fields: roles.filter(r => r.name != "invalid" && r.color != undefined).map(r => {
-				return {name: r.name, value: `#${r.color.toString(16).toUpperCase()}`}
-			})
-		}}
+		var content;
+		if(invalid.length > 0) {
+			var success = await bot.utils.deleteServerRoles(bot, msg.guild.id, invalid.map(r => r.id));
+			if(success) content = "Any invalid roles have been deleted from the database";
+			else content = "Invalid roles could not be deleted from the database";
+		}
+
+		if(roles.length <= 10) {
+			return {content: content ? content : "", embed: {
+				title: "Server Color Roles",
+				description: "name : color",
+				fields: roles.filter(r => r.name != "invalid" && r.color != undefined).map(r => {
+					return {name: r.name, value: `#${r.color.toString(16).toUpperCase()}`}
+				})
+			}}
+		} else {
+			var embeds = await bot.utils.genEmbeds(bot, roles, (r) => {
+				if(r.name != "invalid" && r.color != undefined) {
+					return {name: r.name, value: `#${r.color.toString(16).toUpperCase()}`}
+				}
+			}, {
+				title: "Server Color Roles",
+				description: "name : color"
+			},10);
+
+			var message = await msg.channel.createMessage(embeds[0]);
+			if(!bot.menus) bot.menus = {};
+			bot.menus[message.id] = {
+				user: msg.author.id,
+				data: embeds,
+				index: 0,
+				timeout: setTimeout(()=> {
+					if(!bot.pages[message.id]) return;
+					message.removeReaction("\u2b05");
+					message.removeReaction("\u27a1");
+					message.removeReaction("\u23f9");
+					delete bot.pages[msg.author.id];
+				}, 900000),
+				execute: async function(m, emoji) {
+					switch(emoji.name) {
+						case "\u2b05":
+							if(this.index == 0) {
+								this.index = this.data.length-1;
+							} else {
+								this.index -= 1;
+							}
+							await bot.editMessage(m.channel.id, m.id, this.data[this.index]);
+							await bot.removeMessageReaction(m.channel.id, m.id, emoji.name, msg.author.id)
+							bot.menus[m.id] = this;
+							break;
+						case "\u27a1":
+							if(this.index == this.data.length-1) {
+								this.index = 0;
+							} else {
+								this.index += 1;
+							}
+							await bot.editMessage(m.channel.id, m.id, this.data[this.index]);
+							await bot.removeMessageReaction(m.channel.id, m.id, emoji.name, msg.author.id)
+							bot.menus[m.id] = this;
+							break;
+						case "\u23f9":
+							await bot.deleteMessage(m.channel.id, m.id);
+							delete bot.menus[m.id];
+							break;
+					}
+				}
+			}
+			message.addReaction("\u2b05");
+			message.addReaction("\u27a1");
+			message.addReaction("\u23f9");
+		}
 	},
 	guildOnly: true,
-	permissions: ["manageRoles"],
 	subcommands: {},
 	alias: ["rl"]
 }

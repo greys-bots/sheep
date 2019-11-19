@@ -8,8 +8,6 @@ module.exports = {
 			if(!args[0]) color = bot.tc(Math.floor(Math.random()*16777215).toString(16))
 			else color = bot.tc(args.join(''));
 			if(!color.isValid()) return ('That is not a valid color :(');
-			var crgb = color.toRgb();
-			var text = (crgb.r * 0.299) + (crgb.g * 0.587) + (crgb.b * 0.114) > 186 ? '000000' : 'ffffff';
 			await msg.channel.createMessage({embed: {
 				title: "Color "+color.toHexString().toUpperCase(),
 				image: {
@@ -20,15 +18,77 @@ module.exports = {
 					text: `${color.toRgbString()}`
 				}
 			}}).then(message => {
-				if(!bot.posts) bot.posts = {};
-				bot.posts[message.id] = {
+				if(!bot.menus) bot.menus = {};
+				bot.menus[message.id] = {
 					user: msg.author.id,
 					data: color,
 					timeout: setTimeout(()=> {
-						if(!bot.posts[message.id]) return;
+						if(!bot.menus[message.id]) return;
 						message.removeReactions()
-						delete bot.posts[message.id];
-					}, 900000)
+						delete bot.menus[message.id];
+					}, 900000),
+					execute: async function (m, emoji) {
+						switch(emoji.name) {
+							case '\u2705':
+								var color = this.data;
+								var position;
+								var role;
+								var srole = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id));
+								if(!srole) console.log("Couldn't get position");
+								else console.log(`Sheep position: ${srole.position}`)
+								try {
+									role = await bot.utils.getUserRole(bot, msg.guild, msg.author.id);
+									if(!role) role = await bot.createRole(msg.guild.id, {name: msg.author.id, color: parseInt(color.toHex(),16)});
+									else role = await bot.editRole(msg.guild.id, role, {color: parseInt(color.toHex(), 16)});
+									await bot.addGuildMemberRole(msg.guild.id, msg.author.id, role.id);
+									if(srole) await bot.editRolePosition(msg.guild.id, role.id, srole.position-1);
+									await bot.editMessage(m.channel.id, m.id, {content: "Color successfully changed to "+color.toHexString()+"! :D", embed: {}});
+									await bot.removeMessageReactions(m.channel.id, m.id);
+									delete bot.menus[m.id];
+									await bot.utils.addUserRole(bot, msg.guild.id, role.id, msg.author.id);
+									console.log(`Other role position: ${msg.guild.roles.find(r => r.id == role.id).position}`)
+								} catch(e) {
+									console.log(e.stack);
+									var err = "";
+									if(e.stack.includes('Client.editRolePosition')) {
+										err = "Can't edit role position! Please report this issue in my support server: https://discord.gg/EvDmXGt";
+									} else if(e.stack.includes('Client.editRole')) {
+										err = "Can't edit role! Make sure I have the `manageRoles` permission";
+									} else if(e.stack.includes('Client.removeMessageReactions')) {
+										err = "Can't remove reactions! Make sure I have the `manageMessages` permission";
+									}
+									msg.channel.createMessage("Something went wrong! ERR: "+err);
+								}
+								break;
+							case '\u274C':
+								bot.editMessage(m.channel.id, m.id, {content: "Action cancelled", embed: {}});
+								bot.removeMessageReactions(m.channel.id, m.id);
+								delete bot.menus[m.id];
+								break
+							case '🔀':
+								var color = bot.tc(Math.floor(Math.random()*16777215).toString(16));
+								bot.editMessage(m.channel.id, m.id, {embed: {
+									title: "Color "+color.toHexString().toUpperCase(),
+									image: {
+										url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+									},
+									color: parseInt(color.toHex(), 16)
+								}})
+								await bot.removeMessageReaction(m.channel.id, m.id, emoji.name, msg.author.id);
+								clearTimeout(bot.menus[m.id].timeout)
+								bot.menus[m.id] = {
+									user: this.user,
+									data: color,
+									timeout: setTimeout(()=> {
+										if(!bot.menus[m.id]) return;
+										m.removeReactions()
+										delete bot.menus[m.id];
+									}, 900000),
+									execute: this.execute
+								};
+								break;
+						}
+					}
 				};
 				message.addReaction("\u2705");
 				message.addReaction("\u274C");

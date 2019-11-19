@@ -8,5 +8,6 @@ module.exports = {
 		else return "Something went wrong :("
 	},
 	guildOnly: true,
-	permissions: ["manageRoles"]
+	permissions: ["manageRoles"],
+	alias: ["tg"]
 }

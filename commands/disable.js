@@ -10,7 +10,6 @@ module.exports = {
 		if(!cfg) cfg = {}
 		if(!cfg.disabled) dis = [];
 		else dis = cfg.disabled;
-		console.log(dis)
 		var cmd;
 		try {
 			cmd = await bot.parseCommand(bot, msg, args);

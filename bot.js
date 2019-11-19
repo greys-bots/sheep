@@ -229,65 +229,13 @@ bot.on("messageCreate",async (msg)=>{
 
 bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 	if(bot.user.id == user) return;
-	if(bot.posts && bot.posts[msg.id] && bot.posts[msg.id].user == user) {
-		switch(emoji.name) {
-			case '\u2705':
-				var position;
-				var role;
-				var color = bot.posts[msg.id].data.toHex() == "000000" ? "000001" : bot.posts[msg.id].data.toHex();
-				var srole = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id));
-				if(!srole) console.log("Couldn't get position");
-				else console.log(`Sheep position: ${srole.position}`)
-				try {
-					role = await bot.utils.getUserRole(bot, msg.channel.guild, user);
-					if(!role) role = await bot.createRole(msg.channel.guild.id, {name: user, color: parseInt(color,16)});
-					else role = await bot.editRole(msg.channel.guild.id, role, {color: parseInt(color, 16)});
-					await bot.addGuildMemberRole(msg.channel.guild.id, user, role.id);
-					if(srole) await bot.editRolePosition(msg.channel.guild.id, role.id, srole.position-1);
-					await bot.editMessage(msg.channel.id, msg.id, {content: "Color successfully changed to #"+color+"! :D", embed: {}});
-					await bot.removeMessageReactions(msg.channel.id, msg.id);
-					delete bot.posts[msg.id];
-					await bot.utils.addUserRole(bot, msg.guild.id, role.id, user);
-					console.log(`Other role position: ${msg.guild.roles.find(r => r.id == role.id).position}`)
-				} catch(e) {
-					console.log(e.stack);
-					writeLog(e.stack);
-					var err = "";
-					if(e.stack.includes('Client.editRolePosition')) {
-						err = "Can't edit role position! Please report this issue in my support server: https://discord.gg/EvDmXGt";
-					} else if(e.stack.includes('Client.editRole')) {
-						err = "Can't edit role! Make sure I have the `manageRoles` permission";
-					} else if(e.stack.includes('Client.removeMessageReactions')) {
-						err = "Can't remove reactions! Make sure I have the `manageMessages` permission";
-					}
-					msg.channel.createMessage("Something went wrong! ERR: "+err);
-				}
-				break;
-			case '\u274C':
-				bot.editMessage(msg.channel.id, msg.id, {content: "Action cancelled", embed: {}});
-				bot.removeMessageReactions(msg.channel.id, msg.id);
-				delete bot.posts[msg.id];
-				break
-			case '🔀':
-				var color = bot.tc(Math.floor(Math.random()*16777215).toString(16));
-				bot.editMessage(msg.channel.id, msg.id, {embed: {
-					title: "Color "+color.toHexString().toUpperCase(),
-					image: {
-						url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
-					},
-					color: parseInt(color.toHex(), 16)
-				}})
-				clearTimeout(bot.posts[msg.id].timeout)
-				bot.posts[msg.id] = {
-					user: bot.posts[msg.id].user,
-					data: color,
-					timeout: setTimeout(()=> {
-						if(!bot.posts[msg.id]) return;
-						message.removeReactions()
-						delete bot.posts[message.id];
-					}, 900000)
-				};
-				break;
+	if(bot.menus && bot.menus[msg.id] && bot.menus[msg.id].user == user) {
+		try {
+			await bot.menus[msg.id].execute(msg, emoji);
+		} catch(e) {
+			console.log(e);
+			writeLog(e);
+			msg.channel.createMessage("Something went wrong: "+e.message);
 		}
 	}
 })

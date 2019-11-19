@@ -1,4 +1,33 @@
 module.exports = {
+	genEmbeds: async (bot, arr, genFunc, info = {}, fieldnum) => {
+		return new Promise(async res => {
+			var embeds = [];
+			var current = { embed: {
+				title: info.title,
+				description: info.description,
+				fields: []
+			}};
+			
+			for(let i=0; i<arr.length; i++) {
+				if(current.embed.fields.length < (fieldnum || 10)) {
+					current.embed.fields.push(await genFunc(arr[i], bot));
+				} else {
+					embeds.push(current);
+					current = { embed: {
+						title: info.title,
+						description: info.description,
+						fields: [await genFunc(arr[i], bot)]
+					}};
+				}
+			}
+			embeds.push(current);
+			if(embeds.length > 1) {
+				for(let i = 0; i < embeds.length; i++)
+					embeds[i].embed.title += ` (page ${i+1}/${embeds.length}, ${arr.length} total)`;
+			}
+			res(embeds);
+		})
+	},
 	checkPermissions: async (bot, msg, cmd)=>{
 		return new Promise((res)=> {
 			if(cmd.permissions) {
