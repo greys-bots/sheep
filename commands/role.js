@@ -115,7 +115,27 @@ module.exports.subcommands.create = {
 	},
 	guildOnly: true,
 	permissions: ["manageRoles"],
-	alias: ['new', '+', 'cr', 'n', 'ind', 'index']
+	alias: ['new', '+', 'cr', 'n']
+}
+
+module.exports.subcommands.index = {
+	help: ()=> "Indexes a server-based color role based on an existing one",
+	usage: ()=> [" [role] - Indexes the given role. Role can be the @mention, role name, or ID."],
+	execute: async (bot, msg, args, config = {role_mode: 0}) => {
+		if(config.role_mode == 0) return "Current mode set to user-based roles; can't add new server-based ones! Use `s!tg` to toggle modes";
+		var role = await msg.guild.roles.find(r => r.name == args.join(" ").toLowerCase() || r.id == args[0].replace(/[<@&>]/g,""));
+		if(!role) return "Couldn't find that role.";
+		var color = bot.tc(role.color.toString(16));
+		if(!color.isValid()) return "That role doesn't have a valid color, so I can't index it :(";
+
+		var success = await bot.utils.addServerRole(bot, msg.guild.id, role.id);
+		if(success) return "Role indexed!";
+		else return "Something went wrong while indexing the role :("
+
+	},
+	guildOnly: true,
+	permissions: ["manageRoles"],
+	alias: ['ind']
 }
 
 module.exports.subcommands.edit = {
