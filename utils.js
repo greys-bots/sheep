@@ -48,7 +48,8 @@ module.exports = {
 				id: Number,
 				server_id: String,
 				role_mode: Number,
-				disabled: JSON.parse
+				disabled: JSON.parse,
+				pingable: Boolean
 			}, (err, rows) => {
 				if(err) {
 					console.log(err);
@@ -72,8 +73,9 @@ module.exports = {
 					}
 				})
 			} else {
-				bot.db.query(`INSERT INTO configs (server_id, role_mode, disabled) VALUES (?,?,?)`,
-					[guild, key == "role_mode" ? val : 0, key == "disabled" ? val : []], (err, rows) => {
+				bot.db.query(`INSERT INTO configs (server_id, role_mode, disabled, pingable) VALUES (?,?,?)`,
+					[guild, key == "role_mode" ? val : 0,
+					key == "disabled" ? val : [], key == "pingable" ? val : 0], (err, rows) => {
 					if(err) {
 						console.log(err);
 						res(false);
@@ -82,6 +84,19 @@ module.exports = {
 					}
 				})
 			}
+		})
+	},
+
+	getManagedRoles: async (bot, guild) => {
+		return new Promise(res => {
+			bot.db.query(`SELECT * FROM colors WHERE server_id = ?`,[guild], (err, rows) => {
+				if(err) {
+					console.log(err);
+					res(undefined);
+				} else {
+					res(rows.map(r => r.role_id));
+				}
+			})
 		})
 	},
 	getServerRoles: async (bot, guild) => {

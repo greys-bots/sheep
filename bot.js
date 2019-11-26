@@ -101,18 +101,19 @@ async function setup() {
 	})).then(()=> console.log("finished loading commands."));
 
 	bot.db.query(`CREATE TABLE IF NOT EXISTS configs (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		server_id TEXT UNIQUE,
-		role_mode INTEGER,
-		disabled TEXT
+		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
+		server_id 	TEXT,
+		role_mode 	INTEGER,
+		disabled 	TEXT,
+		pingable 	INTEGER
 	)`);
 
 	bot.db.query(`CREATE TABLE IF NOT EXISTS colors (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		server_id TEXT,
-		role_id TEXT UNIQUE,
-		user_id TEXT,
-		type INTEGER
+		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
+		server_id 	TEXT,
+		role_id 	TEXT,
+		user_id 	TEXT,
+		type 		INTEGER
 	)`)
 }
 
@@ -229,9 +230,12 @@ bot.on("messageCreate",async (msg)=>{
 
 bot.on("messageReactionAdd", async (msg, emoji, user)=> {
 	if(bot.user.id == user) return;
+	var config;
+	if(msg.channel.guild) config = await bot.utils.getConfig(bot, msg.channel.guild.id);
+	else config = undefined;
 	if(bot.menus && bot.menus[msg.id] && bot.menus[msg.id].user == user) {
 		try {
-			await bot.menus[msg.id].execute(msg, emoji);
+			await bot.menus[msg.id].execute(msg, emoji, config);
 		} catch(e) {
 			console.log(e);
 			writeLog(e);

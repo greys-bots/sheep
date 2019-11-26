@@ -27,7 +27,8 @@ module.exports = {
 						message.removeReactions()
 						delete bot.menus[message.id];
 					}, 900000),
-					execute: async function (m, emoji) {
+					execute: async function (m, emoji, config = {pingable: false}) {
+						console.log(config);
 						switch(emoji.name) {
 							case '\u2705':
 								var color = this.data;
@@ -38,8 +39,8 @@ module.exports = {
 								else console.log(`Sheep position: ${srole.position}`)
 								try {
 									role = await bot.utils.getUserRole(bot, msg.guild, msg.author.id);
-									if(!role) role = await bot.createRole(msg.guild.id, {name: msg.author.id, color: parseInt(color.toHex(),16)});
-									else role = await bot.editRole(msg.guild.id, role, {color: parseInt(color.toHex(), 16)});
+									if(!role) role = await bot.createRole(msg.guild.id, {name: msg.author.id, color: parseInt(color.toHex(),16), mentionable: config.pingable});
+									else role = await bot.editRole(msg.guild.id, role, {color: parseInt(color.toHex(), 16), mentionable: config.pingable});
 									await bot.addGuildMemberRole(msg.guild.id, msg.author.id, role.id);
 									if(srole) await bot.editRolePosition(msg.guild.id, role.id, srole.position-1);
 									await bot.editMessage(m.channel.id, m.id, {content: "Color successfully changed to "+color.toHexString()+"! :D", embed: {}});
