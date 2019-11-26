@@ -44,7 +44,7 @@ module.exports.subcommands.enable = {
 	guildOnly: true
 }
 
-module.exports.subcommands.enable = {
+module.exports.subcommands.disable = {
 	help: ()=> "Disable pingability for Sheep-managed roles",
 	usage: ()=> [" - Disables the `everyone can mention this role` part of Sheep-managed roles"],
 	execute: async (bot, msg, args) => {
