@@ -73,7 +73,7 @@ module.exports = {
 					}
 				})
 			} else {
-				bot.db.query(`INSERT INTO configs (server_id, role_mode, disabled, pingable) VALUES (?,?,?)`,
+				bot.db.query(`INSERT INTO configs (server_id, role_mode, disabled, pingable) VALUES (?,?,?,?)`,
 					[guild, key == "role_mode" ? val : 0,
 					key == "disabled" ? val : [], key == "pingable" ? val : 0], (err, rows) => {
 					if(err) {
