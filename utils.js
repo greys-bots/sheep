@@ -276,6 +276,19 @@ module.exports = {
 			})
 		})
 	},
+	unlinkUserRole: async (bot, guild, role, user) => {
+		return new Promise(async res => {
+			bot.db.query(`DELETE FROM colors WHERE server_id = ? AND role_id = ? AND user_id = ?`, [guild, role, user], (err, rows) => {
+				if(err) {
+					console.log(err);
+					res(false);
+				} else {
+					console.log("Deleted user role")
+					res(true);
+				}
+			})
+		})
+	},
 	toCmyk: async (color) => {
 		//code based on this: http://www.javascripter.net/faq/rgb2cmyk.htm
 		return new Promise(res => {
