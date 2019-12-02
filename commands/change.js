@@ -6,7 +6,7 @@ module.exports = {
 		if(config.role_mode == 0) {
 			var color;
 			if(!args[0]) color = bot.tc(Math.floor(Math.random()*16777215).toString(16))
-			else color = bot.tc(args.join(''));
+			else color = bot.tc(["000000","black"].includes(args.join('')) ? "000001" : args.join(''));
 			if(!color.isValid()) return ('That is not a valid color :(');
 			await msg.channel.createMessage({embed: {
 				title: "Color "+color.toHexString().toUpperCase(),
