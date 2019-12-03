@@ -6,8 +6,9 @@ module.exports = {
 		if(config.role_mode == 0) {
 			var color;
 			if(!args[0]) color = bot.tc(Math.floor(Math.random()*16777215).toString(16))
-			else color = bot.tc(["000000","black"].includes(args.join('')) ? "000001" : args.join(''));
+			else color = bot.tc(args.join(''));
 			if(!color.isValid()) return ('That is not a valid color :(');
+			if(color.toHex()=="000000") color = bot.tc('001')
 			await msg.channel.createMessage({embed: {
 				title: "Color "+color.toHexString().toUpperCase(),
 				image: {
@@ -34,15 +35,18 @@ module.exports = {
 								var color = this.data;
 								var position;
 								var role;
+								var n = false;
 								var srole = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id));
 								if(!srole) console.log("Couldn't get position");
 								else console.log(`Sheep position: ${srole.position}`)
 								try {
 									role = await bot.utils.getUserRole(bot, msg.guild, msg.author.id);
-									if(!role) role = await bot.createRole(msg.guild.id, {name: msg.author.id, color: parseInt(color.toHex(),16), mentionable: config.pingable});
-									else role = await bot.editRole(msg.guild.id, role, {color: parseInt(color.toHex(), 16), mentionable: config.pingable});
+									if(!role) {
+										role = await bot.createRole(msg.guild.id, {name: msg.author.id, color: parseInt(color.toHex(),16), mentionable: config.pingable});
+										n = true;
+									} else role = await bot.editRole(msg.guild.id, role, {color: parseInt(color.toHex(), 16), mentionable: config.pingable});
 									await bot.addGuildMemberRole(msg.guild.id, msg.author.id, role.id);
-									if(srole) await bot.editRolePosition(msg.guild.id, role.id, srole.position-1);
+									if(srole) await bot.editRolePosition(msg.guild.id, role.id, n ? srole.position-2 : srole.position-1);
 									await bot.editMessage(m.channel.id, m.id, {content: "Color successfully changed to "+color.toHexString()+"! :D", embed: {}});
 									await bot.removeMessageReactions(m.channel.id, m.id);
 									delete bot.menus[m.id];
