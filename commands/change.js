@@ -46,7 +46,7 @@ module.exports = {
 										n = true;
 									} else role = await bot.editRole(msg.guild.id, role, {color: parseInt(color.toHex(), 16), mentionable: config.pingable});
 									await bot.addGuildMemberRole(msg.guild.id, msg.author.id, role.id);
-									if(srole) await bot.editRolePosition(msg.guild.id, role.id, n ? srole.position-2 : srole.position-1);
+									if(srole) await bot.editRolePosition(msg.guild.id, role.id, n ? srole.position : srole.position-1);
 									await bot.editMessage(m.channel.id, m.id, {content: "Color successfully changed to "+color.toHexString()+"! :D", embed: {}});
 									await bot.removeMessageReactions(m.channel.id, m.id);
 									delete bot.menus[m.id];

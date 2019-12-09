@@ -198,7 +198,7 @@ module.exports = {
 						else res(rows[0].id);
 					} else {
 						role = guild.roles.find(r => r.name == user);
-						res(role ? role : undefined);
+						res(role ? role.id : undefined);
 					}
 				}
 			})
