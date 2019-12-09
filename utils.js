@@ -186,13 +186,19 @@ module.exports = {
 					res(undefined)
 				} else {
 					if(rows[0]) {
-						role = guild.roles.find(r => r.id == rows[0].role_id);
-						if(!role) {
-							res(undefined)
-						} else res(role.id);
+						for(var i = 0; i < rows.length; i++) {
+							role = guild.roles.find(r => r.id == rows[i].role_id);
+							if(!role || !guild.members.find(m => m.id == user).roles.includes(rows[i].role_id)) {
+								bot.utils.deleteUserRole(bot, rows[i].server_id, rows[i].role_id);
+								rows[i] = "deleted";
+							} else rows[i] = role;
+						}
+						rows = rows.filter(x => x != "deleted");
+						if(!rows || !rows[0]) res(undefined);
+						else res(rows[0].id);
 					} else {
 						role = guild.roles.find(r => r.name == user);
-						res(role ? role.id : undefined);
+						res(role ? role : undefined);
 					}
 				}
 			})
@@ -207,10 +213,16 @@ module.exports = {
 					res(undefined)
 				} else {
 					if(rows[0]) {
-						role = guild.roles.find(r => r.id == rows[0].role_id);
-						if(!role) {
-							res(undefined)
-						} else res(role);
+						for(var i = 0; i < rows.length; i++) {
+							role = guild.roles.find(r => r.id == rows[i].role_id);
+							if(!role || !guild.members.find(m => m.id == user).roles.includes(rows[i].role_id)) {
+								bot.utils.deleteUserRole(bot, rows[i].server_id, rows[i].role_id);
+								rows[i] = "deleted";
+							} else rows[i] = role;
+						}
+						rows = rows.filter(x => x != "deleted");
+						if(!rows || !rows[0]) res(undefined);
+						else res(rows[0]);
 					} else {
 						role = guild.roles.find(r => r.name == user);
 						res(role ? role : undefined);
