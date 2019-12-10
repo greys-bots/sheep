@@ -36,9 +36,6 @@ module.exports = {
 								var position;
 								var role;
 								var n = false;
-								var srole = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id));
-								if(!srole) console.log("Couldn't get position");
-								else console.log(`Sheep position: ${srole.position}`)
 								try {
 									role = await bot.utils.getUserRole(bot, msg.guild, msg.author.id);
 									if(!role) {
@@ -46,7 +43,11 @@ module.exports = {
 										n = true;
 									} else role = await bot.editRole(msg.guild.id, role, {color: parseInt(color.toHex(), 16), mentionable: config.pingable});
 									await bot.addGuildMemberRole(msg.guild.id, msg.author.id, role.id);
-									if(srole) await bot.editRolePosition(msg.guild.id, role.id, n ? srole.position-1 : srole.position);
+									var srole = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id));
+									if(srole) {
+										console.log(`Sheep position: ${srole.position}`)
+										await bot.editRolePosition(msg.guild.id, role.id, srole.position-1);
+									} else console.log("Couldn't get position");
 									await bot.editMessage(m.channel.id, m.id, {content: "Color successfully changed to "+color.toHexString()+"! :D", embed: {}});
 									await bot.removeMessageReactions(m.channel.id, m.id);
 									delete bot.menus[m.id];

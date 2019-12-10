@@ -69,7 +69,7 @@ bot.commands.help = {
 					}
 				}
 			} else {
-				msg.channel.createMessage("Command not found.")
+				return "Command not found.";
 			}
 		} else {
 			embed = {
@@ -86,7 +86,7 @@ bot.commands.help = {
 			}
 		}
 
-		msg.channel.createMessage({embed: embed});
+		return {embed: embed};
 	},
 	alias: ["h", "halp", "?"]
 }
