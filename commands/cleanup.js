@@ -11,6 +11,7 @@ module.exports = {
 				if(r.name.startsWith('USER-')) {
 					try {
 						await r.edit({name: r.name.replace('USER-','')})
+						await bot.utils.addUserRole(bot, msg.guild.id, r.id, r.name.replace("USER-",""))
 						res('');
 					} catch(e) {
 						err = true;
