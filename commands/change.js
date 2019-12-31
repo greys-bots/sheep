@@ -46,7 +46,7 @@ module.exports = {
 									var srole = msg.guild.roles.find(r => r.name.toLowerCase() == "sheep" && msg.guild.members.find(m => m.id == bot.user.id).roles.includes(r.id));
 									if(srole) {
 										console.log(`Sheep position: ${srole.position}`)
-										await bot.editRolePosition(msg.guild.id, role.id, srole.position-1);
+										await bot.editRolePosition(msg.guild.id, role.id, srole.position);
 									} else console.log("Couldn't get position");
 									await bot.editMessage(m.channel.id, m.id, {content: "Color successfully changed to "+color.toHexString()+"! :D", embed: {}});
 									await bot.removeMessageReactions(m.channel.id, m.id);
