@@ -31,12 +31,9 @@ module.exports = {
 	checkPermissions: async (bot, msg, cmd)=>{
 		return new Promise((res)=> {
 			if(cmd.permissions) {
-				console.log(cmd.permissions.filter(p => msg.member.permission.has(p)).length)
-				if(!cmd.permissions.filter(p => msg.member.permission.has(p)).length == cmd.permissions.length) {
-					res(false);
-					return;
-				}
-				res(true);
+				console.log(msg.member.permissions);
+				console.log(msg.member.permissions.has(cmd.permissions))
+				res(msg.member.permissions.has(cmd.permissions))
 			} else {
 				res(true);
 			}
@@ -48,7 +45,7 @@ module.exports = {
 				id: Number,
 				server_id: String,
 				role_mode: Number,
-				disabled: JSON.parse,
+				disabled: val => val ? JSON.parse(val) : null,
 				pingable: Boolean
 			}, (err, rows) => {
 				if(err) {
@@ -60,31 +57,55 @@ module.exports = {
 			})
 		})
 	},
-	updateConfig: async (bot, guild, key, val) => {
-		return new Promise(async res => {
-			var config = await bot.utils.getConfig(bot, guild);
+	updateConfig: async function(bot, server, data) {
+		var config = await bot.utils.getConfig(bot, server);
+		return new Promise((res)=> {
 			if(config) {
-				bot.db.query(`UPDATE configs SET ? = ? WHERE server_id = ?`,[key, val, guild], (err, rows) => {
+				bot.db.query(`UPDATE configs SET ${Object.keys(data).map((k) => k+"=?").join(",")} WHERE server_id=?`,[...Object.values(data), server], (err, rows)=> {
 					if(err) {
 						console.log(err);
-						res(false);
-					} else {
-						res(true);
-					}
+						res(false)
+					} else res(true)
 				})
 			} else {
-				bot.db.query(`INSERT INTO configs (server_id, role_mode, disabled, pingable) VALUES (?,?,?,?)`,
-					[guild, key == "role_mode" ? val : 0,
-					key == "disabled" ? val : [], key == "pingable" ? val : 0], (err, rows) => {
+				bot.db.query(`INSERT INTO configs (server_id, ${Object.keys(data).join(",")}) VALUES (?,${Object.keys(data).map(() => "?").join(",")})`,
+							 [server, ...Object.values(data)],
+				(err,rows)=>{
 					if(err) {
 						console.log(err);
 						res(false);
-					} else {
-						res(true);
-					}
+					} else res(true);
 				})
 			}
 		})
+	},
+	paginateEmbeds: async function(bot, m, reaction) {
+		switch(reaction.emoji.name) {
+			case "\u2b05":
+				if(this.index == 0) {
+					this.index = this.data.length-1;
+				} else {
+					this.index -= 1;
+				}
+				await m.edit(this.data[this.index]);
+				await m.reactions.users.remove(this.user)
+				bot.menus[m.id] = this;
+				break;
+			case "\u27a1":
+				if(this.index == this.data.length-1) {
+					this.index = 0;
+				} else {
+					this.index += 1;
+				}
+				await m.edit(this.data[this.index]);
+				await m.reactions.users.remove(this.user)
+				bot.menus[m.id] = this;
+				break;
+			case "\u23f9":
+				await m.delete();
+				delete bot.menus[m.id];
+				break;
+		}
 	},
 
 	getManagedRoles: async (bot, guild) => {
@@ -177,10 +198,10 @@ module.exports = {
 			})
 		})
 	},
-	getUserRole: async (bot, guild, user) => {
+	getUserRole: async (bot, guild, member) => {
 		return new Promise(res => {
 			var role;
-			bot.db.query(`SELECT * FROM colors WHERE user_id = ? AND server_id = ?`,[user, guild.id], (err, rows) => {
+			bot.db.query(`SELECT * FROM colors WHERE user_id = ? AND server_id = ?`,[member.id, guild.id], (err, rows) => {
 				if(err) {
 					console.log(err);
 					res(undefined)
@@ -188,7 +209,7 @@ module.exports = {
 					if(rows[0]) {
 						for(var i = 0; i < rows.length; i++) {
 							role = guild.roles.find(r => r.id == rows[i].role_id);
-							if(!role || !guild.members.find(m => m.id == user).roles.includes(rows[i].role_id)) {
+							if(!role || !member.roles.find(r => r.id == rows[i].role_id)) {
 								bot.utils.deleteUserRole(bot, rows[i].server_id, rows[i].role_id);
 								rows[i] = "deleted";
 							} else rows[i] = role;
@@ -197,25 +218,25 @@ module.exports = {
 						if(!rows || !rows[0]) res(undefined);
 						else res(rows[0].id);
 					} else {
-						role = guild.roles.find(r => r.name == user);
+						role = guild.roles.find(r => r.name == member.id);
 						res(role ? role.id : undefined);
 					}
 				}
 			})
 		})
 	},
-	getRawUserRole: async (bot, guild, user) => {
+	getRawUserRole: async (bot, guild, member) => {
 		return new Promise(res => {
-			var role;
-			bot.db.query(`SELECT * FROM colors WHERE user_id = ? AND server_id = ?`,[user, guild.id], (err, rows) => {
+			bot.db.query(`SELECT * FROM colors WHERE user_id = ? AND server_id = ?`,[member.id, guild.id], async (err, rows) => {
 				if(err) {
 					console.log(err);
 					res(undefined)
 				} else {
+					var role;
 					if(rows[0]) {
 						for(var i = 0; i < rows.length; i++) {
 							role = guild.roles.find(r => r.id == rows[i].role_id);
-							if(!role || !guild.members.find(m => m.id == user).roles.includes(rows[i].role_id)) {
+							if(!role || !member.roles.find(r => r.id == rows[i].role_id)) {
 								bot.utils.deleteUserRole(bot, rows[i].server_id, rows[i].role_id);
 								rows[i] = "deleted";
 							} else rows[i] = role;
@@ -224,8 +245,9 @@ module.exports = {
 						if(!rows || !rows[0]) res(undefined);
 						else res(rows[0]);
 					} else {
-						role = guild.roles.find(r => r.name == user);
-						res(role ? role : undefined);
+						role = guild.roles.find(r => r.name == member.id);
+						if(!role) res(undefined);
+						else res(role);
 					}
 				}
 			})
@@ -234,12 +256,12 @@ module.exports = {
 	setName: async (bot, guild, role, user, name) => {
 		return new Promise(async res => {
 			try {
-				await bot.editRole(guild, role, {name: name});
+				await role.edit({name: name});
 			} catch(e) {
 				console.log(e);
 				return res(false);
 			}
-			var scc = await bot.utils.addUserRole(bot, guild, role, user);
+			var scc = await bot.utils.addUserRole(bot, guild, role.id, user);
 			res(scc);
 		})
 	},

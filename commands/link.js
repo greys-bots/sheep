@@ -14,29 +14,29 @@ module.exports = {
 					args.join(" ").toLowerCase()
 		});
 		if(!user) return "Couldn't find that user :(";
-		var role = await bot.utils.getUserRole(bot, msg.guild, msg.author.id);
+		var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
 		if(!role) return "You don't have a role to link!";
-		var role2 = await bot.utils.getRawUserRole(bot, msg.guild, user.id);
+		var role2 = await bot.utils.getRawUserRole(bot, msg.guild, user);
 		if(role2) {
-			msg.channel.createMessage(`Other user has a color role already! ${user.mention}, would you like to overwrite it? (y/n)`);
-			var resp = await msg.channel.awaitMessages(m => m.author.id == user.id, {time: 60000, maxMatches: 1});
-			if(!resp || !resp[0]) return "ERR: timed out! Aborting...";
-			else if(resp[0].content.toLowerCase() != "y") return "ERR: user declined role overwrite! Aborting...";
-			await role2.delete("User accepted color overwrite");
+			msg.channel.send(`Other user has a color role already! ${user}, would you like to overwrite it? (y/n)`);
+			var resp = await msg.channel.awaitMessages(m => m.author.id == user.id, {time: 60000, max: 1});
+			if(!resp || !resp.first()) return "ERR: timed out! Aborting...";
+			else if(["y","yes"].includes(resp[0].first().content.toLowerCase())) await role2.delete("User accepted color overwrite");
+			else return "ERR: user declined role overwrite! Aborting...";
 		} else {
-			await msg.channel.createMessage(`${user.mention}, please confirm that you want to link roles! (y/n)`);
-			var resp = await msg.channel.awaitMessages(m => m.author.id == user.id, {time: 60000, maxMatches: 1});
-			if(!resp || !resp[0]) return "ERR: timed out! Aborting...";
-			else if(resp[0].content.toLowerCase() != "y") return "ERR: user declined role link! Aborting...";
+			await msg.channel.send(`${user}, please confirm that you want to link roles! (y/n)`);
+			var resp = await msg.channel.awaitMessages(m => m.author.id == user.id, {time: 60000, max: 1});
+			if(!resp || !resp.first()) return "ERR: timed out! Aborting...";
+			else if(!["y","yes"].includes(resp.first().content.toLowerCase())) return "ERR: user declined role link! Aborting...";
 		}
 
 		try {
-			await user.addRole(role);
+			await user.roles.add(role.id);
 		} catch(e) {
 			console.log(e);
 			return "ERR: "+e.message;
 		}
-		var scc = await bot.utils.addUserRole(bot, msg.guild.id, role, user.id);
+		var scc = await bot.utils.addUserRole(bot, msg.guild.id, role.id, user.id);
 		if(scc) return "Roles linked!";
 		else return "Something went wrong D:"
 	},

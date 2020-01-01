@@ -1,14 +1,14 @@
-const Eris 		= require("eris-additions")(require("eris"));
+const Discord 	= require("discord.js");
 const fs 		= require("fs");
 const dblite 	= require("dblite");
 
 require ('dotenv').config();
 
-const bot = new Eris(process.env.TOKEN);
+const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER']});
 
 bot.commands = {};
 
-bot.prefix = ["s!","sh!","sheep!","baa!"];
+bot.prefix = ["st!","sh!","sheep!","baa!"];
 
 bot.utils = require('./utils');
 
@@ -22,15 +22,15 @@ bot.status = 0;
 const updateStatus = function(){
 	switch(bot.status){
 		case 0:
-			bot.editStatus({name: "s!h | in "+bot.guilds.size+" guilds!"});
+			bot.user.setActivity("s!h | in "+bot.guilds.size+" guilds!");
 			bot.status++;
 			break;
 		case 1:
-			bot.editStatus({name: "s!h | serving "+bot.users.size+" users!"});
+			bot.user.setActivity("s!h | serving "+bot.users.size+" users!");
 			bot.status++;
 			break;
 		case 2:
-			bot.editStatus({name: "s!h | website: sheep.greysdawn.com"});
+			bot.user.setActivity("s!h | website: sheep.greysdawn.com");
 			bot.status = 0;
 			break;
 	}
@@ -93,12 +93,10 @@ bot.commands.help = {
 
 async function setup() {
 	var files = fs.readdirSync("./commands");
-	await Promise.all(files.map(f => {
-		bot.commands[f.slice(0,-3)] = require("./commands/"+f);
-		return new Promise((res,rej)=>{
-			setTimeout(res("a"),100)
-		})
-	})).then(()=> console.log("finished loading commands."));
+	files.forEach(f => bot.commands[f.slice(0,-3)] = require("./commands/"+f));
+
+	files = fs.readdirSync("./events");
+	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require("./events/"+f)(...args,bot)));
 
 	bot.db.query(`CREATE TABLE IF NOT EXISTS configs (
 		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -117,7 +115,7 @@ async function setup() {
 	)`)
 }
 
-async function writeLog(log) {
+bot.writeLog = async (log) => {
 	let now = new Date();
 	let ndt = `${(now.getMonth() + 1).toString().length < 2 ? "0"+ (now.getMonth() + 1) : now.getMonth()+1}.${now.getDate().toString().length < 2 ? "0"+ now.getDate() : now.getDate()}.${now.getFullYear()}`;
 	if(!fs.existsSync(`./logs/${ndt}.log`)){
@@ -169,109 +167,15 @@ bot.parseCommand = async function(bot, msg, args, command) {
 
 bot.on("ready", ()=> {
 	console.log('Ready!');
-	writeLog('=====LOG START=====')
+	bot.writeLog('=====LOG START=====')
 	updateStatus();
 })
 
-bot.on("messageCreate",async (msg)=>{
-	if(msg.author.bot) return;
-	if(!new RegExp(`^(${bot.prefix.join("|")})`,"i").test(msg.content.toLowerCase())) return;
-	var log = [
-			`Guild: ${msg.guild.name} (${msg.guild.id})`,
-			`User: ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})`,
-			`Message: ${msg.content}`,
-			`--------------------`
-		];
-	let args = msg.content.replace(new RegExp(`^(${bot.prefix.join("|")})`,"i"), "").split(" ");
-	if(!args[0]) args.shift();
-	if(!args[0]) return msg.channel.createMessage("Baaa!");
-	var config;
-	if(msg.guild) config = await bot.utils.getConfig(bot, msg.guild.id);
-	else config = undefined;
-	let cmd = await bot.parseCommand(bot, msg, args);
-	if(cmd) {
-		if(msg.guild) {
-			var check = await bot.utils.checkPermissions(bot, msg, cmd);
-			if(!check) {
-				console.log("- Missing Permissions -")
-				return msg.channel.createMessage('You do not have permission to use that command.');
-			}
-			check = await bot.utils.isDisabled(bot, msg.guild.id, cmd[0], cmd[2]);
-			if(check && !(["enable","disable"].includes(cmd[2]))) {
-				console.log("- Command is disabled -")
-				return msg.channel.createMessage("That command is disabled.");
-			}
-		} else {
-			if(cmd.guildOnly) {
-				console.log("- Command is guild only -")
-				return msg.channel.createMessage("That command can only be used in guilds.");
-			}
-		}
-		
-		var res;
-		try {
-			var res = await cmd[0].execute(bot, msg, cmd[1], config);
-		} catch(e) {
-			console.log(e.stack);
-			log.push(`Error: ${e.stack}`);
-			log.push(`--------------------`);
-			msg.channel.createMessage('There was an error! D:')
-		}
-		if(res) {
-			msg.channel.createMessage(res);
-		}
-	} else {
-		msg.channel.createMessage("Command not found.");
-		log.push('- Command Not Found -')
-	}
-	console.log(log.join('\r\n'));
-	writeLog(log.join('\r\n'))
-});
-
-bot.on("messageReactionAdd", async (msg, emoji, user)=> {
-	if(bot.user.id == user) return;
-	var config;
-	if(msg.channel.guild) config = await bot.utils.getConfig(bot, msg.channel.guild.id);
-	else config = undefined;
-	if(bot.menus && bot.menus[msg.id] && bot.menus[msg.id].user == user) {
-		try {
-			await bot.menus[msg.id].execute(msg, emoji, config);
-		} catch(e) {
-			console.log(e);
-			writeLog(e);
-			msg.channel.createMessage("Something went wrong: "+e.message);
-		}
-	}
-})
-
-bot.on("guildMemberRemove", async (guild, member)=> {
-	var role = guild.roles.find(r => r.name == member.id);
-	if(!role) return;
-	bot.deleteRole(guild.id, role.id, "Member left server");
-})
-
-bot.on("guildRoleDelete", async (guild, role) => {
-	try {
-		await bot.utils.deleteServerRole(bot, guild.id, role.id);
-		await bot.utils.deleteUserRole(bot, guild.id, role.id);
-	} catch(e) {
-		console.log("Couldn't delete data on deleted role "+role.id);
-	}
-})
-
-bot.on("guildDelete", async (guild) => {
-	try {
-		await bot.utils.deleteColorRoles(bot, guild.id);
-	} catch(e) {
-		console.log("Couldn't delete data for guild "+guild.id);
-	}
-})
-
-bot.on('error',(err,id)=> {
-	console.log(`Error on shard ${id}:\n${err.stack}`);
-	writeLog(`ERR:\r\nShard: ${id}\r\nStack: ${err.stack}`)
+bot.on('error', (err)=> {
+	console.log(`Error:\n${err.stack}`);
+	bot.writeLog(`=====ERROR=====\r\nStack: ${err.stack}`)
 })
 
 setup();
-bot.connect()
+bot.login(process.env.TOKEN)
 .catch(e => console.log("Trouble connecting...\n"+e));

@@ -8,14 +8,13 @@ module.exports = {
 		var c = await bot.utils.mixColors(bot, col1, col2);
 		if(!c.isValid()) return "Something went wrong :(";
 		
-		await msg.channel.createMessage({embed: {
+		return {embed: {
 			title: "Color #"+c.toHex(),
 			image: {
 				url: `https://sheep.greysdawn.com/sheep/${c.toHex()}`
 			},
 			color: parseInt(c.toHex(), 16)
-		}})
-		return;
+		}}
 	},
 	guildOnly: true,
 	alias: ['m', 'blend']

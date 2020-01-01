@@ -3,22 +3,22 @@ module.exports = {
 	usage: ()=> [" - Removes the color role you have"],
 	execute: async (bot, msg, args, config = {role_mode: 0})=> {
 		if(config.role_mode == 0) {
-			var role = await bot.utils.getUserRole(bot, msg.guild, msg.author.id);
+			var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
 			if(!role) return "You don't have a color role!";
-			await bot.deleteRole(msg.guild.id, role);
-			await bot.utils.deleteUserRole(bot, msg.guild.id, role);
+			await role.delete();
+			await bot.utils.deleteUserRole(bot, msg.guild.id, role.id);
 			return 'Color successfully removed! :D';
 		} else {
 			var roles = await bot.utils.getServerRoles(bot, msg.guild);
-			var role = await bot.utils.getUserRole(bot, msg.guild, msg.author.id);
+			var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
 			if(role) {
-				await bot.deleteRole(msg.guild.id, role);
+				await role.delete();
 				await bot.utils.deleteUserRole(bot, msg.guild.id, role);
 			}
 			if(roles) {
 				for(var i = 0; i < roles.length; i++) {
-					if(msg.member.roles.includes(roles[i].id)) {
-						await bot.removeGuildMemberRole(msg.guild.id, msg.author.id, roles[i].id);
+					if(msg.member.roles.find(r => r.id == roles[i].id)) {
+						await msg.member.roles.remove(roles[i].id);
 					}
 				}
 			}
@@ -71,5 +71,5 @@ module.exports.subcommands.all = {
 	},
 	guildOnly: true,
 	alias: ['*'],
-	permissions: ["manageRoles"]
+	permissions: ["MANAGE_ROLES"]
 }

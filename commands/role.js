@@ -26,69 +26,42 @@ module.exports = {
 				title: "Server Color Roles",
 				description: "name : color",
 				fields: roles.filter(r => r.name != "invalid" && r.color != undefined).map(r => {
-					return {name: r.name, value: `#${r.color.toString(16).toUpperCase()}`}
+					return {name: r.mention, value: `#${r.color.toString(16).toUpperCase()}`}
 				})
 			}}
 		} else {
 			var embeds = await bot.utils.genEmbeds(bot, roles, (r) => {
 				if(r.name != "invalid" && r.color != undefined) {
-					return {name: r.name, value: `#${r.color.toString(16).toUpperCase()}`}
+					return {name: r.mention, value: `#${r.color.toString(16).toUpperCase()}`}
 				}
 			}, {
 				title: "Server Color Roles",
 				description: "name : color"
 			},10);
 
-			var message = await msg.channel.createMessage(embeds[0]);
+			var message = await msg.channel.send(embeds[0]);
 			if(!bot.menus) bot.menus = {};
 			bot.menus[message.id] = {
 				user: msg.author.id,
 				data: embeds,
 				index: 0,
 				timeout: setTimeout(()=> {
-					if(!bot.pages[message.id]) return;
-					message.removeReaction("\u2b05");
-					message.removeReaction("\u27a1");
-					message.removeReaction("\u23f9");
-					delete bot.pages[msg.author.id];
-				}, 900000),
-				execute: async function(m, emoji) {
-					switch(emoji.name) {
-						case "\u2b05":
-							if(this.index == 0) {
-								this.index = this.data.length-1;
-							} else {
-								this.index -= 1;
-							}
-							await bot.editMessage(m.channel.id, m.id, this.data[this.index]);
-							await bot.removeMessageReaction(m.channel.id, m.id, emoji.name, msg.author.id)
-							bot.menus[m.id] = this;
-							break;
-						case "\u27a1":
-							if(this.index == this.data.length-1) {
-								this.index = 0;
-							} else {
-								this.index += 1;
-							}
-							await bot.editMessage(m.channel.id, m.id, this.data[this.index]);
-							await bot.removeMessageReaction(m.channel.id, m.id, emoji.name, msg.author.id)
-							bot.menus[m.id] = this;
-							break;
-						case "\u23f9":
-							await bot.deleteMessage(m.channel.id, m.id);
-							delete bot.menus[m.id];
-							break;
+					if(!bot.menus[message.id]) return;
+					try {
+						message.reactions.removeAll();
+					} catch(e) {
+						console.log(e);
 					}
-				}
-			}
-			message.addReaction("\u2b05");
-			message.addReaction("\u27a1");
-			message.addReaction("\u23f9");
+					delete bot.menus[msg.author.id];
+				}, 900000),
+				execute: paginateEmbeds()
+			};
+			["\u2b05", "\u27a1", "\u23f9"].forEach(r => message.react(r));
 		}
 	},
 	guildOnly: true,
 	subcommands: {},
-	alias: ["rl"]
+	alias: ["rl", "roles", "rls"]
 }
 
 module.exports.subcommands.create = {
@@ -102,7 +75,7 @@ module.exports.subcommands.create = {
 		var role;
 
 		try {
-			role = await bot.createRole(msg.guild.id,{name: args.slice(0, args.length - 1).join(" "),color: parseInt(color.toHex(), 16)});
+			role = await msg.guild.roles.create({data: {name: args.slice(0, args.length - 1).join(" "), color: color.toHex()}});
 		} catch(e) {
 			console.log(e.stack);
 			return "Something went wrong while creating the role :(";
@@ -114,7 +87,7 @@ module.exports.subcommands.create = {
 
 	},
 	guildOnly: true,
-	permissions: ["manageRoles"],
+	permissions: ["MANAGE_ROLES"],
 	alias: ['new', '+', 'cr', 'n']
 }
 
@@ -134,7 +107,7 @@ module.exports.subcommands.index = {
 
 	},
 	guildOnly: true,
-	permissions: ["manageRoles"],
+	permissions: ["MANAGE_ROLES"],
 	alias: ['ind']
 }
 
@@ -150,7 +123,7 @@ module.exports.subcommands.edit = {
 				var role = msg.guild.roles.find(r => r.name == newArgs[0]);
 				if(!role) return "Role not found";
 				try {
-					await bot.editRole(msg.guild.id, role.id, {name: newArgs[1]})
+					await role.edit({name: newArgs[1]})
 				} catch(e) {
 					console.log(e.stack);
 					return "Something went wrong while updating the role :("
@@ -163,7 +136,7 @@ module.exports.subcommands.edit = {
 				var color = bot.tc(args[args.length-1]);
 				if(!color.isValid()) return "Invalid color :("
 				try {
-					await bot.editRole(msg.guild.id, role.id, {color: parseInt(color.toHex(), 16)})
+					await role.edit({color: parseInt(color.toHex(), 16)})
 				} catch(e) {
 					console.log(e.stack);
 					return "Something went wrong while updating the role :("
@@ -173,25 +146,24 @@ module.exports.subcommands.edit = {
 		}
 	},
 	guildOnly: true,
-	permissions: ['manageRoles']
+	permissions: ['MANAGE_ROLES']
 }
 
 module.exports.subcommands.reset = {
 	help: ()=> "Deletes all server-based roles, setting the config back to user-based",
 	usage: ()=> [" - Resets server-based roles"],
 	execute: async (bot, msg, args) => {
-		await msg.channel.createMessage("WARNING: This will delete all of your indexed server-based roles. Are you sure you want to continue? (y/n)");
-		var messages = await msg.channel.awaitMessages(m => m.author.id == msg.author.id, {maxMatches: 1, time: 10000});
+		await msg.channel.send("WARNING: This will delete all of your indexed server-based roles. Are you sure you want to continue? (y/n)");
+		var messages = await msg.channel.awaitMessages(m => m.author.id == msg.author.id, {max: 1, time: 30000});
 		if(messages && messages[0]) {
 			var conf = messages[0].content.toLowerCase();
 			if(conf == "yes" || conf == "y") {
 				var roles = await bot.utils.getServerRoles(bot, msg.guild);
 				if(!roles) return "No roles to delete";
-				await Promise.all(roles.map(async r => {
-					await bot.deleteRole(msg.guild.id, r.id);
-					return new Promise(res => setTimeout(()=> res(), 100));
-				}))
-				await bot.utils.updateConfig(bot, msg.guild.id, 0);
+				for(var i = 0; i < roles.length; i++) {
+					await roles[i].delete();
+				}
+				await bot.utils.updateConfig(bot, msg.guild.id, {role_mode: 0});
 				await bot.utils.resetServerRoles(bot, msg.guild.id);
 				return "Roles deleted!";
 			} else {
@@ -200,5 +172,5 @@ module.exports.subcommands.reset = {
 		}
 	},
 	guildOnly: true,
-	permissions: ['manageRoles']
+	permissions: ['MANAGE_ROLES']
 }

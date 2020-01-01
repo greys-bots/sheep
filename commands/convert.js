@@ -6,39 +6,42 @@ module.exports = {
 		var color = bot.tc(args.slice(0, args.length - 1).join(''));
 		var form = args.slice(-1).join('').toLowerCase();
 		if(!color.isValid()) return "That color isn't vald :(";
+		var message;
 
 		switch(form) {
 			case 'hex':
-				await msg.channel.createMessage({embed: {
+				message = {embed: {
 					description: `${color.toString()} = ${color.toHexString().toUpperCase()}`,
 					color: parseInt(color.toHex(), 16)
-				}})
+				}}
 				return;
 				break;
 			case 'rgb':
-				await msg.channel.createMessage({embed: {
+				message = {embed: {
 					description: `${color.toString()} = ${color.toRgbString().toUpperCase()}`,
 					color: parseInt(color.toHex(), 16)
-				}})
+				}}
 				return;
 				break;
 			case 'hsv':
-				await msg.channel.createMessage({embed: {
+				message = {embed: {
 					description: `${color.toString()} = ${color.toHsvString().toUpperCase()}`,
 					color: parseInt(color.toHex(), 16)
-				}})
+				}}
 				break;
 			case 'cmyk':
 				var cmyk = await bot.utils.toCmyk(color);
-				await msg.channel.createMessage({embed: {
+				message = {embed: {
 					description: `${color.toString()} = CMYK(${cmyk.c}, ${cmyk.m}, ${cmyk.y}, ${cmyk.k})`,
 					color: parseInt(color.toHex(), 16)
-				}})
+				}}
 				break;
 			default:
-				return "I can't convert to that form :(";
+				message = "I can't convert to that form :(";
 				break;
 		}
+		
+		msg.channel.send(message);
 	},
 	alias: ['cc', 'conv', 'cv', 'convertcolor']
 }

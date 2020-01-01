@@ -12,13 +12,13 @@ module.exports = {
 					args.join(" ").toLowerCase()
 		});
 		if(!user) return "Couldn't find that user :(";
-		var role = await bot.utils.getUserRole(bot, msg.guild, msg.author.id);
+		var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
 		if(!role) return "You don't have a role to unlink!";
-		var role2 = await bot.utils.getRawUserRole(bot, msg.guild, user.id);
+		var role2 = await bot.utils.getRawUserRole(bot, msg.guild, user);
 		if(role != role2.id) return "Your roles aren't linked!";
 
 		try {
-			await msg.member.removeRole(role);
+			await msg.member.roles.remove(role);
 		} catch(e) {
 			console.log(e);
 			return "ERR: "+e.message;

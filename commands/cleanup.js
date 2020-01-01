@@ -3,28 +3,27 @@ module.exports = {
 	usage: ()=> [" - Removes the `USER-` prefix on roles created by Hex to make the compatible with this bot"],
 	desc: ()=> "NOTE: this role requires the `manageRoles` permission from the user. This effectively makes it moderator-only",
 	execute: async (bot, msg, args)=> {
-		if(!msg.member.permission.has('manageRoles')) return 'You do not have permission to use this command :(';
-
+		var roles = msg.guild.roles.array();
 		var err = false;
-		await Promise.all(msg.guild.roles.map(r => {
-			return new Promise(async res => {
-				if(r.name.startsWith('USER-')) {
-					try {
-						await r.edit({name: r.name.replace('USER-','')})
-						await bot.utils.addUserRole(bot, msg.guild.id, r.id, r.name.replace("USER-",""))
-						res('');
-					} catch(e) {
-						err = true;
-						res('');
-					}
-				} else {
-					res('')
+		for(var i = 0; i < roles.length; i++) {
+			if(roles[i].name && roles[i].name.startsWith('USER-')) {
+				try {
+					await roles[i].edit({name: roles[i].name.replace('USER-','')})
+					await bot.utils.addUserRole(bot, msg.guild.id, roles[i].id, roles[i].name.replace("USER-",""))
+					res('');
+				} catch(e) {
+					console.log(e);
+					err = true;
+					continue;
 				}
-			})
-		}))
+			} else {
+				continue;
+			}
+		}
 
 		return err ? 'Some roles could not be cleaned because they are above my highest role :(' : 'Roles cleaned!'
 	},
 	guildOnly: true,
-	alias: ['cu', 'clean']
+	alias: ['cu', 'clean'],
+	permissions: ["MANAGE_ROLES"]
 }

@@ -5,7 +5,7 @@ module.exports = {
 		if(!args[0]) return "Please provide a command or module to enable.";
 		if(args[0] == "disable" || args[0] == "enable") return "You can't disable or enable this command.";
 		var cfg = await bot.utils.getConfig(bot, msg.guild.id);
-		if(!cfg || !cfg.disabled) return "Nothing is disabled in this server.";
+		if(!cfg || !cfg.disabled) return "Nothing is disabled in this server!";
 		var dis = cfg.disabled;
 		var cmd;
 		try {
@@ -16,14 +16,14 @@ module.exports = {
 		if(cmd) {
 			var disabled = await bot.utils.isDisabled(bot, msg.guild.id, cmd[0], cmd[2]);
 			if(!disabled) {
-				return "Module already enabled."
+				return "That module is already enabled!"
 			} else {
 				dis = dis.filter(x => x != cmd[2]);
-				var success = await bot.utils.updateConfig(bot, msg.guild.id, "disabled", dis);
+				var success = await bot.utils.updateConfig(bot, msg.guild.id, {disabled: dis});
 				if(success) {
 					return "Enabled!";
 				} else {
-					return "Something went wrong.";
+					return "Something went wrong :(";
 				}
 			}
 		} else {
@@ -33,5 +33,5 @@ module.exports = {
 	},
 	guildOnly: true,
 	module: "admin",
-	permissions: ["manageGuild"]
+	permissions: ["MANAGE_GUILD"]
 }
