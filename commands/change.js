@@ -38,7 +38,7 @@ module.exports = {
 							var options = {
 								name: role ? role.name : msg.author.id,
 								color: this.data.toHex(),
-								position: srole ? srole.position : 0,
+								position: srole ? srole.rawPosition : 0,
 								mentionable: config.pingable
 							}
 
@@ -50,7 +50,7 @@ module.exports = {
 									role = await msg.guild.roles.create({data: options});
 								}
 								await msg.member.roles.add(role.id);
-								await m.edit("Color successfully changed to #"+options.color+"! :D", {embed: null});
+								await m.edit("Color successfully changed to "+this.data.toHexString()+"! :D", {embed: null});
 								await m.reactions.removeAll();
 								delete bot.menus[m.id];
 								await bot.utils.addUserRole(bot, msg.guild.id, role.id, msg.author.id);
