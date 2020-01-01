@@ -8,7 +8,7 @@ const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_
 
 bot.commands = {};
 
-bot.prefix = ["st!","sh!","sheep!","baa!"];
+bot.prefix = ["s!","sh!","sheep!","baa!"];
 
 bot.utils = require('./utils');
 
