@@ -77,7 +77,7 @@ module.exports = {
 			module.commands = module.commands.map(c => c);
 
 			var embeds = await bot.utils.genEmbeds(bot, module.commands, c => {
-				return {name: `**${bot.prefix[0] + c}**`, value: bot.commands[c].help()}
+				return {name: `**${bot.prefix[0] + c.name}**`, value: c.help()}
 			}, {
 				title: `**${module.name}**`,
 				description: module.description,
