@@ -1,7 +1,7 @@
-const Discord	= require("discord.js");
-const fs					= require("fs");
-const path 					= require("path");
-const dblite				= require("dblite");
+const Discord		= require("discord.js");
+const fs			= require("fs");
+const path 			= require("path");
+const dblite		= require("dblite");
 
 require ('dotenv').config();
 

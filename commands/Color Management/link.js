@@ -7,7 +7,7 @@ module.exports = {
 				"Note that removing the role will unlink both users, so you'll have to link the role again if you want it linked."].join(""),
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		if(config.role_mode == 1) return "Can't link colors in server-based color mode!";
-		if(!args[0]) return msg.channel.createMessage("Please provide a user to link to");
+		if(!args[0]) return "Please provide a user to link to";
 
 		var user = msg.guild.members.find(m => {
 			return m.id == args[0].replace(/[<@!>]/g,"") ||

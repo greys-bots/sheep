@@ -2,6 +2,7 @@ module.exports = {
 	help: ()=> "Assigns a color role to a user",
 	usage: () => [" [user] [color] - Assigns a color to the given user"],
 	execute: async (bot, msg, args) => {
+		if(!args[0]) return "Please provide a user and color to assign!";
 		var member = msg.guild.members.find(m => m.id == args[0].replace(/[<@!>]/g, ""));
 		if(!member) return "Couldn't find that member :(";
 		var color = bot.tc(args.slice(1).join(""));
