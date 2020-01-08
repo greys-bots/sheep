@@ -21,25 +21,15 @@ module.exports = {
 			else content = "Invalid roles could not be deleted from the database";
 		}
 
-		if(roles.length <= 10) {
-			return {content: content ? content : "", embed: {
-				title: "Server Color Roles",
-				description: "name : color",
-				fields: roles.filter(r => r.name != "invalid" && r.color != undefined).map(r => {
-					return {name: r.mention, value: `#${r.color.toString(16).toUpperCase()}`}
-				})
-			}}
-		} else {
-			var embeds = await bot.utils.genEmbeds(bot, roles, (r) => {
-				if(r.name != "invalid" && r.color != undefined) {
-					return {name: r.mention, value: `#${r.color.toString(16).toUpperCase()}`}
-				}
-			}, {
-				title: "Server Color Roles",
-				description: "name : color"
-			},10);
+		var embeds = await bot.utils.genEmbeds(bot, roles.filter(x => x.name != "invalid"), (r) => {
+			return {name: r.mention, value: `#${r.color ? r.color.toString(16).toUpperCase() : "(no color)"}`}
+		}, {
+			title: "Server Color Roles",
+			description: "name : color"
+		},10);
 
-			var message = await msg.channel.send(embeds[0]);
+		var message = await msg.channel.send(embeds[0]);
+		if(embeds[1]) {
 			if(!bot.menus) bot.menus = {};
 			bot.menus[message.id] = {
 				user: msg.author.id,
@@ -54,7 +44,7 @@ module.exports = {
 					}
 					delete bot.menus[msg.author.id];
 				}, 900000),
-				execute: paginateEmbeds()
+				execute: bot.utils.paginateEmbeds
 			};
 			["\u2b05", "\u27a1", "\u23f9"].forEach(r => message.react(r));
 		}

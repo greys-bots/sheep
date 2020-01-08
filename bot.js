@@ -1,16 +1,13 @@
-const Discord 	= require("discord.js");
-const fs 		= require("fs");
-const dblite 	= require("dblite");
+const Discord	= require("discord.js");
+const fs					= require("fs");
+const path 					= require("path");
+const dblite				= require("dblite");
 
 require ('dotenv').config();
 
 const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER']});
 
-bot.commands = {};
-
 bot.prefix = ["s!","sh!","sheep!","baa!"];
-
-bot.utils = require('./utils');
 
 bot.tc = require('tinycolor2');
 bot.jimp = require('jimp');
@@ -38,65 +35,27 @@ const updateStatus = function(){
 	setTimeout(()=> updateStatus(),600000)
 }
 
-bot.commands.help = {
-	help: ()=> "Displays help embed.",
-	usage: ()=> [" - Displays help for all commands.",
-				" [command] - Displays help for specfic command.",
-				" [command] [subcommand]... - Displays help for a command's subcommands"],
-	execute: async (bot, msg, args) => {
-		let cmd;
-		let names;
-		let embed;
-		if(args[0]) {
-			let dat = await bot.parseCommand(bot, msg, args);
-			if(dat) {
-				cmd = dat[0];
-				names = dat[2].split(" ");
-				embed = {
-					title: `Help | ${names.join(" - ").toLowerCase()}`,
-					description: [
-						`${cmd.help()}\n\n`,
-						`**Usage**\n${cmd.usage().map(c => `${bot.prefix[0] + names.join(" ")}${c}`).join("\n")}\n\n`,
-						`**Aliases:** ${cmd.alias ? cmd.alias.join(", ") : "(none)"}\n\n`,
-						`**Subcommands**\n${cmd.subcommands ?
-							Object.keys(cmd.subcommands).map(sc => `**${bot.prefix[0]}${names.join(" ")} ${sc}** - ${cmd.subcommands[sc].help()}`).join("\n") +"\n\n" : 
-							"(none)\n\n"}`,
-							cmd.desc ? "**Extra**\n"+cmd.desc() : ""
-					].join(""),
-					footer: {
-						icon_url: bot.user.avatarURL,
-						text: "Arguments like [this] are required, arguments like <this> are optional."
-					}
-				}
-			} else {
-				return "Command not found.";
-			}
+const recursivelyReadDirectory = function(dir) {
+	var results = [];
+	var files = fs.readdirSync(dir, {withFileTypes: true});
+	for(file of files) {
+		if(file.isDirectory()) {
+			results = results.concat(recursivelyReadDirectory(dir+"/"+file.name));
 		} else {
-			embed = {
-				title: `Sheep - help`,
-				description:
-					`Hello, I am a sheep baaaah-t! I'll help you change your colors!\n**My current prefixes are:** ${bot.prefix.join(", ")}\nUse *`+'`s!help command`'+`* for command-specific help\n\n`+
-					`**Commands**\n${Object.keys(bot.commands)
-									.map(c => `**${bot.prefix[0] + c}** - ${bot.commands[c].help()}`)
-									.join("\n")}\n\n`,
-				footer: {
-					icon_url: bot.user.avatarURL,
-					text: "Arguments like [this] are required, arguments like <this> are optional."
-				}
-			}
+			results.push(dir+"/"+file.name);
 		}
+	}
 
-		return {embed: embed};
-	},
-	alias: ["h", "halp", "?"]
+	return results;
 }
 
 async function setup() {
-	var files = fs.readdirSync("./commands");
-	files.forEach(f => bot.commands[f.slice(0,-3)] = require("./commands/"+f));
-
-	files = fs.readdirSync("./events");
-	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require("./events/"+f)(...args,bot)));
+	bot.db.query(`CREATE TABLE IF NOT EXISTS colors (
+		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id 	TEXT,
+		name 		TEXT,
+		color 		TEXT
+	)`);
 
 	bot.db.query(`CREATE TABLE IF NOT EXISTS configs (
 		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -106,13 +65,84 @@ async function setup() {
 		pingable 	INTEGER
 	)`);
 
-	bot.db.query(`CREATE TABLE IF NOT EXISTS colors (
+	bot.db.query(`CREATE TABLE IF NOT EXISTS roles (
 		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
 		server_id 	TEXT,
 		role_id 	TEXT,
 		user_id 	TEXT,
 		type 		INTEGER
-	)`)
+	)`);
+
+	files = fs.readdirSync("./events");
+	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require("./events/"+f)(...args,bot)));
+
+	bot.utils = {};
+	files = fs.readdirSync("./utils");
+	files.forEach(f => Object.assign(bot.utils, require("./utils/"+f)));
+
+	files = recursivelyReadDirectory("./commands");
+
+	bot.modules = new Discord.Collection();
+	bot.commands = new Discord.Collection();
+	bot.aliases = new Discord.Collection();
+	for(f of files) {
+		var path_frags = f.split(/(?:\\|\/)/);
+		var mod = path_frags[path_frags.length - 2];
+		var file = path_frags[path_frags.length - 1];
+		if(!bot.modules.get(mod.toLowerCase())) {
+			var mod_info = require(file == "__mod.js" ? f : f.replace(file, "__mod.js"));
+			bot.modules.set(mod.toLowerCase(), {...mod_info, name: mod, commands: new Discord.Collection()})
+		}
+		if(file == "__mod.js") continue;
+
+		mod = bot.modules.get(mod.toLowerCase());
+		if(!mod) {
+			console.log("??? Something went wrong I guess");
+			continue;
+		}
+
+		var command = require(f);
+		command.module = mod;
+		command.name = file.slice(0, -3).toLowerCase();
+		mod.commands.set(file.slice(0,-3).toLowerCase(), command);
+		bot.commands.set(file.slice(0, -3).toLowerCase(), command);
+		if(command.alias) {
+			bot.aliases.set(command.name, command.name);
+			command.alias.forEach(a => bot.aliases.set(a, command.name));
+		}
+		if(command.subcommands) {
+			var subcommands = command.subcommands;
+			command.subcommands = new Discord.Collection();
+			Object.keys(subcommands).forEach(c => {
+				var cmd = subcommands[c];
+				cmd.name = `${command.name} ${c}`;
+				cmd.parent = command;
+				cmd.module = command.module;
+				if(cmd.alias) {
+					if(!command.sub_aliases) command.sub_aliases = new Discord.Collection();
+					command.sub_aliases.set(c, c);
+					cmd.alias.forEach(a => command.sub_aliases.set(a, c));
+				}
+				command.subcommands.set(c, cmd);
+			})
+		}
+	}
+}
+
+bot.parseCommand = async function(bot, msg, args) {
+	if(!args[0]) return undefined;
+	
+	var command = bot.commands.get(bot.aliases.get(args[0].toLowerCase()));
+	if(!command) return {command, nargs: args};
+
+	args.shift();
+
+	if(args[0] && command.subcommands && command.subcommands.get(command.sub_aliases.get(args[0].toLowerCase()))) {
+		command = command.subcommands.get(command.sub_aliases.get(args[0].toLowerCase()));
+		args.shift();
+	}
+
+	return {command, nargs: args};
 }
 
 bot.writeLog = async (log) => {
@@ -127,42 +157,6 @@ bot.writeLog = async (log) => {
 			if(err) console.log(`Error while attempting to apend to log ${ndt}\n`+err);
 		});
 	}
-}
-
-bot.parseCommand = async function(bot, msg, args, command) {
-	return new Promise(async (res,rej)=>{
-		var commands;
-		var cmd;
-		var name = "";
-		if(command) {
-			commands = command.subcommands || [];
-		} else {
-			commands = bot.commands;
-		}
-
-		if(args[0] && commands[args[0].toLowerCase()]) {
-			cmd = commands[args[0].toLowerCase()];
-			name = args[0].toLowerCase();
-			args = args.slice(1);
-		} else if(args[0] && Object.values(commands).find(cm => cm.alias && cm.alias.includes(args[0].toLowerCase()))) {
-			cmd = Object.values(commands).find(cm => cm.alias && cm.alias.includes(args[0].toLowerCase()));
-			name = args[0].toLowerCase();
-			args = args.slice(1);
-		} else if(!cmd) {
-			res(undefined);
-		}
-
-		if(cmd && cmd.subcommands && args[0]) {
-			let data = await bot.parseCommand(bot, msg, args, cmd);
-			if(data) {
-				cmd = data[0]; args = data[1];
-				name += " "+data[2];
-			}
-		}
-
-		res([cmd, args, name]);
-	})
-	
 }
 
 bot.on("ready", ()=> {

@@ -11,7 +11,7 @@ module.exports = async (reaction, user, bot)=> {
 
 	if(bot.menus && bot.menus[msg.id] && bot.menus[msg.id].user == user) {
 		try {
-			await bot.menus[msg.id].execute(msg, reaction, config);
+			await bot.menus[msg.id].execute(bot, msg, reaction, user, config);
 		} catch(e) {
 			console.log(e);
 			bot.writeLog(e);

@@ -5,7 +5,7 @@ module.exports = {
 		if(args.length < 2) return 'Please provide a color and a form to convert to';
 		var color = bot.tc(args.slice(0, args.length - 1).join(''));
 		var form = args.slice(-1).join('').toLowerCase();
-		if(!color.isValid()) return "That color isn't vald :(";
+		if(!color.isValid()) return "That color isn't valid :(";
 		var message;
 
 		switch(form) {

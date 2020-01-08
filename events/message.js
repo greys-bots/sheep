@@ -13,21 +13,21 @@ module.exports = async (msg, bot)=>{
 	var config;
 	if(msg.guild) config = await bot.utils.getConfig(bot, msg.guild.id);
 	else config = undefined;
-	let cmd = await bot.parseCommand(bot, msg, args);
-	if(cmd) {
+	let {command, nargs} = await bot.parseCommand(bot, msg, args);
+	if(command) {
 		if(msg.guild) {
-			var check = await bot.utils.checkPermissions(bot, msg, cmd[0]);
+			var check = await bot.utils.checkPermissions(bot, msg, command);
 			if(!check) {
 				console.log("- Missing Permissions -")
 				return msg.channel.send('You do not have permission to use that command.');
 			}
-			check = await bot.utils.isDisabled(bot, msg.guild.id, cmd[0], cmd[2]);
-			if(check && !(["enable","disable"].includes(cmd[2]))) {
+			check = await bot.utils.isDisabled(bot, msg.guild.id, command, command.name);
+			if(check && !(["enable","disable"].includes(command.name))) {
 				console.log("- Command is disabled -")
 				return msg.channel.send("That command is disabled.");
 			}
 		} else {
-			if(cmd.guildOnly) {
+			if(command.guildOnly) {
 				console.log("- Command is guild only -")
 				return msg.channel.send("That command can only be used in guilds.");
 			}
@@ -35,7 +35,7 @@ module.exports = async (msg, bot)=>{
 		
 		var res;
 		try {
-			var res = await cmd[0].execute(bot, msg, cmd[1], config);
+			var res = await command.execute(bot, msg, nargs, config);
 		} catch(e) {
 			console.log(e.stack);
 			log.push(`Error: ${e.stack}`);
