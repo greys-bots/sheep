@@ -231,7 +231,6 @@ module.exports = {
 
 				try {
 					if(role) {
-						options.position = srole ? options.position - 1 : options.position;
 						role = await role.edit(options);
 					} else {
 						role = await m.guild.roles.create({data: options});
