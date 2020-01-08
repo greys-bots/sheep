@@ -33,5 +33,6 @@ module.exports = {
 			console.log(e.stack);
 			return `Something went wrong! ERR: ${e.message}\nIf the error continues, please report this in my development server: https://discord.gg/EvDmXGt`;
 		}
-	}
+	},
+	permissions: ["MANAGE_ROLES"]
 }

@@ -5,10 +5,13 @@ module.exports = {
 	execute: async (bot, msg, args, config = {role_mode: 0})=> {
 		if(config.role_mode == 0) {
 			var color;
-			if(!args[0]) color = bot.tc(Math.floor(Math.random()*16777215).toString(16))
-			else color = await bot.utils.getSavedColor(bot, msg.author.id, args[0]);
-			if(!color) color = bot.tc(args[0]);
-			else color = bot.tc(color.color);
+			if(!args[0]) color = bot.tc(Math.floor(Math.random()*16777215).toString(16));
+			else {
+				color = await bot.utils.getSavedColor(bot, msg.author.id, args[0]);
+				if(color) color = bot.tc(color.color);
+				else color = bot.tc(args[0]);
+			}
+
 			if(!color.isValid()) return ("That color isn't valid :(");
 			if(color.toHex()=="000000") color = bot.tc('001')
 			var message = await msg.channel.send({embed: {

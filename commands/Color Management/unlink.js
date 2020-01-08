@@ -5,6 +5,7 @@ module.exports = {
 				"After unlinking, you'll have to set your color again- they keep the role, not you."].join(""),
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		if(config.role_mode == 1) return "Can't unlink colors in server-based color mode!";
+		if(!args[0]) return msg.channel.createMessage("Please provide a user to unlink from");
 
 		var user = msg.guild.members.find(m => {
 			return m.id == args[0].replace(/[<@!>]/g,"") ||

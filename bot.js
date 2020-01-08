@@ -106,8 +106,8 @@ async function setup() {
 		command.name = file.slice(0, -3).toLowerCase();
 		mod.commands.set(file.slice(0,-3).toLowerCase(), command);
 		bot.commands.set(file.slice(0, -3).toLowerCase(), command);
+		bot.aliases.set(command.name, command.name);
 		if(command.alias) {
-			bot.aliases.set(command.name, command.name);
 			command.alias.forEach(a => bot.aliases.set(a, command.name));
 		}
 		if(command.subcommands) {
