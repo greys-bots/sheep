@@ -32,7 +32,7 @@ module.exports = {
 	},
 	saveColor: async (bot, user, name, color) => {
 		return new Promise(res => {
-			bot.db.query(`INSERT INTO colors (user_id, name, color) VALUES (?,?,?)`, [user, name.toLowerCase(), color], (err, rows) => {
+			bot.db.query(`INSERT INTO colors (user_id, name, color) VALUES (?,?,?)`, [user, name, color], (err, rows) => {
 				if(err) {
 					console.log(err);
 					res(false);
