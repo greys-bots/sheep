@@ -220,7 +220,6 @@ module.exports = {
 			case '\u2705':
 				var srole = m.guild.me.roles.find(r => r.name.toLowerCase() == "sheep");
 				var role = await bot.utils.getRawUserRole(bot, m.guild, member);
-				console.log(srole.position);
 				console.log(srole.rawPosition);
 				var options = {
 					name: role ? role.name : member.id,
@@ -231,11 +230,12 @@ module.exports = {
 
 				try {
 					if(role) {
-						if(srole && role.name < srole.name) options.position -= 1;
+						console.log(role.rawPosition);
 						role = await role.edit(options);
 					} else {
 						role = await m.guild.roles.create({data: options});
 					}
+					console.log(role.rawPosition);
 					await member.roles.add(role.id);
 					await m.edit("Color successfully changed to "+this.data.toHexString()+"! :D", {embed: null});
 					await m.reactions.removeAll();
