@@ -220,7 +220,7 @@ module.exports = {
 			case '\u2705':
 				var srole = m.guild.me.roles.find(r => r.name.toLowerCase() == "sheep");
 				var role = await bot.utils.getRawUserRole(bot, m.guild, member);
-				console.log(srole.position);
+				console.log(srole ? srole.position : "No sheep role");
 				var options = {
 					name: role ? role.name : member.id,
 					color: this.data.toHex(),
