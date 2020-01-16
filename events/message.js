@@ -2,11 +2,11 @@ module.exports = async (msg, bot)=>{
 	if(msg.author.bot) return;
 	if(!new RegExp(`^(${bot.prefix.join("|")})`,"i").test(msg.content.toLowerCase())) return;
 	var log = [
-			`Guild: ${msg.guild.name} (${msg.guild.id})`,
-			`User: ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})`,
-			`Message: ${msg.content}`,
-			`--------------------`
-		];
+		`Guild: ${msg.guild ? msg.guild.name : "DMs"} (${msg.guild ? msg.guild.id : msg.channel.id})`,
+		`User: ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})`,
+		`Message: ${msg.content}`,
+		`--------------------`
+	];
 	let args = msg.content.replace(new RegExp(`^(${bot.prefix.join("|")})`,"i"), "").split(" ");
 	if(!args[0]) args.shift();
 	if(!args[0]) return msg.channel.send("Baaa!");

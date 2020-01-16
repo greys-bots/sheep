@@ -270,7 +270,7 @@ module.exports = {
 					data: color,
 					timeout: setTimeout(()=> {
 						if(!bot.menus[m.id]) return;
-						m.removeReactions()
+						m.reactions.removeAll()
 						delete bot.menus[m.id];
 					}, 900000),
 					execute: this.execute
