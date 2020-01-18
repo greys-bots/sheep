@@ -55,7 +55,7 @@ module.exports = {
 
 		let {command} = await bot.parseCommand(bot, msg, args);
 		if(command) {
-			return {embed: {
+			var embed = {embed: {
 				title: `Help | ${command.name.toLowerCase()}`,
 				description: command.help(),
 				fields: [
@@ -71,6 +71,10 @@ module.exports = {
 					text: "Arguments like [this] are required, arguments like <this> are optional."
 				}
 			}};
+			if(command.desc) embed.embed.fields.push({name: "**Extra Info**", value: command.desc()});
+			if(command.permissions) embed.embed.fields.push({name: "**Permissions**", value: command.permissions.join(", ")});
+
+			return embed;
 		} else {
 			let module = bot.modules.get(args[0].toLowerCase());
 			if(!module) return "Command/module not found";
