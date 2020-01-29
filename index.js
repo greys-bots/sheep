@@ -80,7 +80,7 @@ async function createSheepImage(color) {
 		var c = color.toRgb();
 		var img;
 		var sheep = await jimp.read(path.join(__dirname,'sheep.png'));
-		var mask = await jimp.read(path.join(__dirname,'mask2.png'));
+		var mask = await jimp.read(path.join(__dirname,'mask.png'));
 		new jimp(750,1000,color.toHex(),(err,image)=>{
 			if(err){
 				console.log(err);
