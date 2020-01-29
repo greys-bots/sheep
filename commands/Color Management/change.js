@@ -5,7 +5,7 @@ module.exports = {
 	execute: async (bot, msg, args, config = {role_mode: 0})=> {
 		if(config.role_mode == 0) {
 			var color;
-			if(!args[0]) color = bot.tc(Math.floor(Math.random()*16777215).toString(16));
+			if(!args[0]) color = bot.tc.random();
 			else {
 				color = await bot.utils.getSavedColor(bot, msg.author.id, args[0]);
 				if(color) color = bot.tc(color.color);

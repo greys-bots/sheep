@@ -252,7 +252,7 @@ module.exports = {
 				delete bot.menus[m.id];
 				break
 			case '🔀':
-				var color = bot.tc(Math.floor(Math.random()*16777215).toString(16));
+				var color = bot.tc.random();
 				m.edit({embed: {
 					title: "Color "+color.toHexString().toUpperCase(),
 					image: {
