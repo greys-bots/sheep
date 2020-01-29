@@ -80,8 +80,7 @@ async function createSheepImage(color) {
 		var c = color.toRgb();
 		var img;
 		var sheep = await jimp.read(path.join(__dirname,'sheep.png'));
-		var head = await jimp.read(path.join(__dirname,'sheep_head.png'));
-		var mask = await jimp.read(path.join(__dirname,'mask.png'));
+		var mask = await jimp.read(path.join(__dirname,'mask2.png'));
 		new jimp(750,1000,color.toHex(),(err,image)=>{
 			if(err){
 				console.log(err);
@@ -93,7 +92,6 @@ async function createSheepImage(color) {
 				  opacitySource: .9,
 				  opacityDest: 1
 				});
-				sheep.composite(head, 0, 0);
 				sheep.getBuffer(jimp.MIME_PNG,(err,data)=>{
 					res(data);
 				})
