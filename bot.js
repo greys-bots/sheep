@@ -83,6 +83,7 @@ async function setup() {
 	files = recursivelyReadDirectory("./commands");
 
 	bot.modules = new Discord.Collection();
+	bot.mod_aliases = new Discord.Collection();
 	bot.commands = new Discord.Collection();
 	bot.aliases = new Discord.Collection();
 	for(f of files) {
@@ -91,7 +92,9 @@ async function setup() {
 		var file = path_frags[path_frags.length - 1];
 		if(!bot.modules.get(mod.toLowerCase())) {
 			var mod_info = require(file == "__mod.js" ? f : f.replace(file, "__mod.js"));
-			bot.modules.set(mod.toLowerCase(), {...mod_info, name: mod, commands: new Discord.Collection()})
+			bot.modules.set(mod.toLowerCase(), {...mod_info, name: mod, commands: new Discord.Collection()});
+			bot.mod_aliases.set(mod.toLowerCase(), mod.toLowerCase());
+			if(mod_info.alias) mod_info.alias.forEach(a => bot.mod_aliases.set(a, mod.toLowerCase()));
 		}
 		if(file == "__mod.js") continue;
 

@@ -218,7 +218,7 @@ module.exports = {
 		var member = m.guild.members.find(mb => mb.id == user.id);
 		switch(reaction.emoji.name) {
 			case '\u2705':
-				var srole = m.guild.me.roles.find(r => r.name.toLowerCase() == "sheep");
+				var srole = m.guild.me.roles.find(r => r.name.toLowerCase().includes("sheep"));
 				var role = await bot.utils.getRawUserRole(bot, m.guild, member);
 				console.log(srole ? srole.position : "No sheep role");
 				var options = {

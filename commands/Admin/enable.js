@@ -5,20 +5,29 @@ module.exports = {
 		if(!args[0]) return "Please provide a command or module to enable.";
 		if(args[0] == "disable" || args[0] == "enable") return "You can't disable or enable this command.";
 		var cfg = await bot.utils.getConfig(bot, msg.guild.id);
-		if(!cfg || !cfg.disabled) return "Nothing is disabled in this server!";
+		if(!cfg || !cfg.disabled || (cfg.disabled && !cfg.disabled[0])) return "Nothing is disabled in this server!";
 		var dis = cfg.disabled;
-		var cmd;
-		try {
-			cmd = await bot.parseCommand(bot, msg, args);
-		} catch (e) {
-			cmd = undefined;
-		}
-		if(cmd) {
-			var disabled = await bot.utils.isDisabled(bot, msg.guild.id, cmd[0], cmd[2]);
+
+		var cmd = args.join(" ").toLowerCase();
+		if(bot.modules.get(bot.mod_aliases.get(cmd))) {
+			var mod = bot.modules.get(bot.mod_aliases.get(cmd));
+			dis = dis.filter(x => !mod.commands.get(x));
+			var success = await bot.utils.updateConfig(bot, msg.guild.id, {disabled: dis});
+			if(success) return "Disabled!";
+			else "Something went wrong";
+		} else {
+			try {
+				var {command} = await bot.parseCommand(bot, msg, args);
+			} catch (e) {
+				command = undefined;
+			}
+			if(!command) return "Command/module not found";
+			
+			var disabled = await bot.utils.isDisabled(bot, msg.guild.id, command, command.name);
 			if(!disabled) {
-				return "That module is already enabled!"
+				return "That command is already enabled!"
 			} else {
-				dis = dis.filter(x => x != cmd[2]);
+				dis = dis.filter(x => x != command.name);
 				var success = await bot.utils.updateConfig(bot, msg.guild.id, {disabled: dis});
 				if(success) {
 					return "Enabled!";
@@ -26,10 +35,7 @@ module.exports = {
 					return "Something went wrong :(";
 				}
 			}
-		} else {
-			return "Command not found"
 		}
-		
 	},
 	guildOnly: true,
 	module: "admin",
