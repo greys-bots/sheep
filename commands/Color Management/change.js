@@ -7,9 +7,9 @@ module.exports = {
 			var color;
 			if(!args[0]) color = bot.tc.random();
 			else {
-				color = await bot.utils.getSavedColor(bot, msg.author.id, args[0]);
+				color = await bot.utils.getSavedColor(bot, msg.author.id, args.join(""));
 				if(color) color = bot.tc(color.color);
-				else color = bot.tc(args[0]);
+				else color = bot.tc(args.join(""));
 			}
 
 			if(!color.isValid()) return ("That color isn't valid :(");
