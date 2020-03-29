@@ -59,5 +59,25 @@ module.exports = {
 				} else res(true);
 			})
 		})
+	},
+	deleteSavedColors: async (bot, user) => {
+		return new Promise(res => {
+			bot.db.query(`DELETE FROM colors WHERE user_id = ?`, [user], (err, rows) => {
+				if(err) {
+					console.log(err);
+					res(false);
+				} else res(true);
+			})
+		})
+	},
+	importSavedColors: async (bot, user, data) => {
+		return new Promise(async res => {
+			var colors = await bot.utils.getSavedColors(bot, user);
+			for(var color of data) {
+				if(colors.find(c => c.name == color.name)) await bot.utils.updateSavedColor(bot, user, color.name, {color: color.color});
+				else await bot.utils.saveColor(bot, user, color.name, color.color);
+			}
+			return res(true);
+		})
 	}
 }

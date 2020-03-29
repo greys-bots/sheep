@@ -11,6 +11,7 @@ bot.prefix = ["s!","sh!","sheep!","baa!"];
 
 bot.tc = require('tinycolor2');
 bot.jimp = require('jimp');
+bot.fetch = require('axios');
 
 bot.db = dblite("./data.sqlite","-header");
 
