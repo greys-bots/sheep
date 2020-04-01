@@ -3,14 +3,14 @@ module.exports = {
 	usage: () => [" [user] [color] - Assigns a color to the given user"],
 	execute: async (bot, msg, args) => {
 		if(!args[0]) return "Please provide a user and color to assign!";
-		var member = msg.guild.members.find(m => m.id == args[0].replace(/[<@!>]/g, ""));
+		var member = msg.guild.members.cache.find(m => m.id == args[0].replace(/[<@!>]/g, ""));
 		if(!member) return "Couldn't find that member :(";
 		var color = bot.tc(args.slice(1).join(""));
 		if(!color.isValid()) return "That color isn't valid :(";
 		var config = await bot.utils.getConfig(bot, msg.guild.id);
 		if(!config) config = {};
 
-		var srole = msg.guild.me.roles.find(r => r.name.toLowerCase() == "sheep");
+		var srole = msg.guild.me.roles.cache.find(r => r.name.toLowerCase() == "sheep");
 		var role = await bot.utils.getRawUserRole(bot, msg.guild, member);
 
 		var options = {

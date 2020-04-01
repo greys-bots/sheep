@@ -3,7 +3,7 @@ module.exports = {
 	usage: ()=> [" - Removes the `USER-` prefix on roles created by Hex to make the compatible with this bot"],
 	desc: ()=> "NOTE: this role requires the `manageRoles` permission from the user. This effectively makes it moderator-only",
 	execute: async (bot, msg, args)=> {
-		var roles = msg.guild.roles.array();
+		var roles = msg.guild.roles.cache.array();
 		var err = false;
 		for(var i = 0; i < roles.length; i++) {
 			if(roles[i].name && roles[i].name.startsWith('USER-')) {

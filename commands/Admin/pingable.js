@@ -21,7 +21,7 @@ module.exports.subcommands.enable = {
 
 		try {
 			for(var i = 0; i < roles.length; i++) {
-				var role = msg.guild.roles.find(rl => rl.id == r);
+				var role = msg.guild.roles.cache.find(rl => rl.id == r);
 				if(role && !role.mentionable) await role.edit({mentionable: true})
 			}
 		} catch(e) {
@@ -54,7 +54,7 @@ module.exports.subcommands.disable = {
 
 		try {
 			for(var i = 0; i < roles.length; i++) {
-				var role = msg.guild.roles.find(rl => rl.id == r);
+				var role = msg.guild.roles.cache.find(rl => rl.id == r);
 				if(role && !role.mentionable) await role.edit({mentionable: false})
 			}
 		} catch(e) {

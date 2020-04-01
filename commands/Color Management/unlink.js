@@ -7,7 +7,7 @@ module.exports = {
 		if(config.role_mode == 1) return "Can't unlink colors in server-based color mode!";
 		if(!args[0]) return "Please provide a user to unlink from";
 
-		var user = msg.guild.members.find(m => {
+		var user = msg.guild.members.cache.find(m => {
 			return m.id == args[0].replace(/[<@!>]/g,"") ||
 				`${m.username}#${m.discriminator}`.toLowerCase() ==
 					args.join(" ").toLowerCase()
