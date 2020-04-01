@@ -34,12 +34,12 @@ module.exports.subcommands.all = {
 	help: ()=> "Removes all the color roles on the server",
 	usage: ()=> [" - Deletes all of the server's colored roles"],
 	execute: async (bot, msg, args) => {
-		await msg.channel.createMessage("Are you sure you want to do this? (y/n)");
+		await msg.channel.send("Are you sure you want to do this? (y/n)");
 		var response = await msg.channel.awaitMessages(m => m.author.id == msg.author.id, {maxMatches: 1, time: 60000});
-		if(!response[0]) return msg.channel.createMessage("ERR: timed out. Aborting");
+		if(!response[0]) return msg.channel.send("ERR: timed out. Aborting");
 
-		if(!["y","yes"].includes(response[0].content.toLowerCase())) return msg.channel.createMessage("Action aborted");
-		await msg.channel.createMessage("Deleting roles, this may take a bit...");
+		if(!["y","yes"].includes(response[0].content.toLowerCase())) return msg.channel.send("Action aborted");
+		await msg.channel.send("Deleting roles, this may take a bit...");
 		var roles = await bot.utils.getServerRoles(bot, msg.guild.id);
 		if(roles) {
 			try {

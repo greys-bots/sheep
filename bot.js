@@ -3,11 +3,10 @@ const fs			= require("fs");
 const path 			= require("path");
 const dblite		= require("dblite");
 
-require ('dotenv').config();
-
 const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER']});
 
 bot.prefix = ["s!","sh!","sheep!","baa!"];
+bot.owner = process.env.OWNER;
 
 bot.tc = require('tinycolor2');
 bot.jimp = require('jimp');
@@ -17,14 +16,24 @@ bot.db = dblite("./data.sqlite","-header");
 
 bot.status = 0;
 
-const updateStatus = function(){
+bot.updateStatus = async function(){
 	switch(bot.status){
 		case 0:
-			bot.user.setActivity("s!h | in "+bot.guilds.size+" guilds!");
+			try {
+				var guilds = (await bot.shard.fetchClientValues('guilds.cache.size')).reduce((prev, val) => prev + val, 0)
+			} catch(e) {
+				console.log("Couldn't get guilds size: "+err.message);
+			}
+			bot.user.setActivity("s!h | in "+guilds+" guilds!");
 			bot.status++;
 			break;
 		case 1:
-			bot.user.setActivity("s!h | serving "+bot.users.size+" users!");
+			try {
+				var users = (await bot.shard.fetchClientValues('users.cache.size')).reduce((prev, val) => prev + val, 0)
+			} catch(e) {
+				console.log("Couldn't get users size: "+err.message);
+			}
+			bot.user.setActivity("s!h | serving "+users+" users!");
 			bot.status++;
 			break;
 		case 2:
@@ -33,7 +42,7 @@ const updateStatus = function(){
 			break;
 	}
 
-	setTimeout(()=> updateStatus(),600000)
+	setTimeout(()=> bot.updateStatus(), 600000)
 }
 
 const recursivelyReadDirectory = function(dir) {
@@ -166,7 +175,7 @@ bot.writeLog = async (log) => {
 bot.on("ready", ()=> {
 	console.log('Ready!');
 	bot.writeLog('=====LOG START=====')
-	updateStatus();
+	bot.updateStatus();
 })
 
 bot.on('error', (err)=> {

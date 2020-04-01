@@ -2,17 +2,17 @@
   "name": "colorbot",
   "version": "1.0.0",
   "description": "",
-  "main": "bot.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "supervisor -e .js,.json -i logs,data.sqlite,data.sqlite-journal bot.js"
+    "start": "supervisor -e .js,.json -i logs,data.sqlite,data.sqlite-journal index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
     "dblite": "^1.0.1",
-    "discord.js": "github:discordjs/discord.js",
+    "discord.js": "^12.1.1",
     "dotenv": "^8.0.0",
     "eris": "^0.9.0",
     "eris-additions": "^1.2.5",
