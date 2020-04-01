@@ -17,7 +17,7 @@ module.exports = {
 			}
 			if(roles) {
 				for(var i = 0; i < roles.length; i++) {
-					if(msg.member.roles.find(r => r.id == roles[i].id)) {
+					if(msg.member.roles.cache.find(r => r.id == roles[i].id)) {
 						await msg.member.roles.remove(roles[i].id);
 					}
 				}
@@ -54,7 +54,7 @@ module.exports.subcommands.all = {
 		}
 
 		try {
-			await Promise.all(msg.guild.members.map(async m => {
+			await Promise.all(msg.guild.members.cache.map(async m => {
 				var role = await bot.utils.getUserRole(bot, msg.guild, m.id);
 				if(role) await bot.deleteRole(msg.guild.id, role);
 				return new Promise(res => setTimeout(()=> res(), 100));

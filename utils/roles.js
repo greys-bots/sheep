@@ -20,7 +20,10 @@ module.exports = {
 				} else {
 					
 					res(rows.map(r => {
-						var role = guild.roles.find(rl => rl.id == r.role_id);
+						// guild.roles.fetch(r.role_id)
+						// .then(role => { return {name: role.name, id: role.id, color: role.color} });
+						// .catch(e => { {name: "invalid", id: r.role_id}; })
+						var role = guild.roles.cache.find(rl => rl.id == r.role_id);
 						if(role) return {name: role.name, id: role.id, color: role.color};
 						else return {name: "invalid", id: r.role_id};
 					}));
@@ -99,8 +102,8 @@ module.exports = {
 				} else {
 					if(rows[0]) {
 						for(var i = 0; i < rows.length; i++) {
-							role = guild.roles.find(r => r.id == rows[i].role_id);
-							if(!role || !member.roles.find(r => r.id == rows[i].role_id)) {
+							role = guild.roles.cache.find(r => r.id == rows[i].role_id);
+							if(!role || !member.roles.cache.find(r => r.id == rows[i].role_id)) {
 								bot.utils.deleteUserRole(bot, rows[i].server_id, rows[i].role_id);
 								rows[i] = "deleted";
 							} else rows[i] = role;
@@ -109,7 +112,7 @@ module.exports = {
 						if(!rows || !rows[0]) res(undefined);
 						else res(rows[0].id);
 					} else {
-						role = guild.roles.find(r => r.name == member.id);
+						role = guild.roles.cache.find(r => r.name == member.id);
 						res(role ? role.id : undefined);
 					}
 				}
@@ -126,8 +129,8 @@ module.exports = {
 					var role;
 					if(rows[0]) {
 						for(var i = 0; i < rows.length; i++) {
-							role = guild.roles.find(r => r.id == rows[i].role_id);
-							if(!role || !member.roles.find(r => r.id == rows[i].role_id)) {
+							role = guild.roles.cache.find(r => r.id == rows[i].role_id);
+							if(!role || !member.roles.cache.find(r => r.id == rows[i].role_id)) {
 								bot.utils.deleteUserRole(bot, rows[i].server_id, rows[i].role_id);
 								rows[i] = "deleted";
 							} else rows[i] = role;
@@ -136,7 +139,7 @@ module.exports = {
 						if(!rows || !rows[0]) res(undefined);
 						else res(rows[0]);
 					} else {
-						role = guild.roles.find(r => r.name == member.id);
+						role = guild.roles.cache.find(r => r.name == member.id);
 						if(!role) res(undefined);
 						else res(role);
 					}
@@ -215,10 +218,10 @@ module.exports = {
 		})
 	},
 	handleChangeReacts: async function (bot, m, reaction, user, config = {pingable: false}) {
-		var member = m.guild.members.find(mb => mb.id == user.id);
+		var member = await m.guild.members.fetch(user.id);
 		switch(reaction.emoji.name) {
 			case '\u2705':
-				var srole = m.guild.me.roles.find(r => r.name.toLowerCase().includes("sheep"));
+				var srole = m.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep"));
 				var role = await bot.utils.getRawUserRole(bot, m.guild, member);
 				console.log(srole ? srole.position : "No sheep role");
 				var options = {

@@ -39,7 +39,7 @@ module.exports = {
 			["\u2705", "\u274C", "🔀"].forEach(r => message.react(r));
 			return;
 		} else {
-			var role = msg.guild.roles.find(r => r.name.toLowerCase() == args.join(" "));
+			var role = await msg.guild.roles.cache.find(r => r.name.toLowerCase() == args.join(" "));
 			if(!role) return "Role not found";
 
 			role = await bot.utils.getServerRole(bot, msg.guild.id, role.id);
@@ -48,9 +48,9 @@ module.exports = {
 			var roles = await bot.utils.getServerRoles(bot, msg.guild);
 
 			for(var i = 0; i < roles.length; i++) {
-				if(msg.member.roles.includes(roles[i].id)) {
+				if(msg.member.roles.cache.find(r => r.id == roles[i].id)) {
 					try {
-						await bot.removeGuildMemberRole(msg.guild.id, msg.author.id, roles[i].id);
+						await msg.members.roles.remove(roles[i].id);
 					} catch(e) {
 						console.log(e.stack);
 						return "Something went wrong while removing the role";
@@ -59,7 +59,7 @@ module.exports = {
 			}		
 
 			try {
-				await bot.addGuildMemberRole(msg.guild.id, msg.author.id, role.role_id);
+				await msg.member.roles.add(role.role_id);
 			} catch(e) {
 				console.log(e.stack);
 				return "Something went wrong while adding the role";

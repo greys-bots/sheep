@@ -6,6 +6,7 @@ module.exports = {
 				 " reset - Deletes all indexed color roles and switches to user-based roles"],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		var roles = await bot.utils.getServerRoles(bot, msg.guild);
+		console.log(roles);
 		if(!roles || !roles[0]) return "No indexed roles";
 		if(!roles.find(r => r.name != "invalid")) {
 			var success = await bot.utils.resetServerRoles(bot, msg.guild.id);
@@ -22,7 +23,7 @@ module.exports = {
 		}
 
 		var embeds = await bot.utils.genEmbeds(bot, roles.filter(x => x.name != "invalid"), (r) => {
-			return {name: r.mention, value: `#${r.color ? r.color.toString(16).toUpperCase() : "(no color)"}`}
+			return {name: r.name, value: `#${r.color ? r.color.toString(16).toUpperCase() : "(no color)"}`}
 		}, {
 			title: "Server Color Roles",
 			description: "name : color"
@@ -86,7 +87,7 @@ module.exports.subcommands.index = {
 	usage: ()=> [" [role] - Indexes the given role. Role can be the @mention, role name, or ID."],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		if(config.role_mode == 0) return "Current mode set to user-based roles; can't add new server-based ones! Use `s!tg` to toggle modes";
-		var role = await msg.guild.roles.find(r => r.name == args.join(" ").toLowerCase() || r.id == args[0].replace(/[<@&>]/g,""));
+		var role = await msg.guild.roles.cache.find(r => r.name == args.join(" ").toLowerCase() || r.id == args[0].replace(/[<@&>]/g,""));
 		if(!role) return "Couldn't find that role.";
 		var color = bot.tc(role.color.toString(16));
 		if(!color.isValid()) return "That role doesn't have a valid color, so I can't index it :(";
@@ -110,7 +111,7 @@ module.exports.subcommands.edit = {
 		switch(args[0].toLowerCase()) {
 			case "name":
 				var newArgs = args.slice(1).join(" ").split("\n");
-				var role = msg.guild.roles.find(r => r.name == newArgs[0]);
+				var role = msg.guild.roles.cache.find(r => r.name == newArgs[0]);
 				if(!role) return "Role not found";
 				try {
 					await role.edit({name: newArgs[1]})
@@ -121,7 +122,7 @@ module.exports.subcommands.edit = {
 				return "Updated!"
 				break;
 			case "color":
-				var role = msg.guild.roles.find(r => r.name == args.slice(1, args.length-1).join(" "));
+				var role = msg.guild.roles.cache.find(r => r.name == args.slice(1, args.length-1).join(" "));
 				if(!role) return "Role not found";
 				var color = bot.tc(args[args.length-1]);
 				if(!color.isValid()) return "Invalid color :("
