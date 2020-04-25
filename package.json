@@ -18,6 +18,8 @@
     "eris-additions": "^1.2.5",
     "jimp": "^0.6.4",
     "node-fetch": "^2.6.0",
+    "pg": "^8.0.0",
+    "pg-ipc": "^1.0.4",
     "tinycolor2": "^1.4.1"
   }
 }

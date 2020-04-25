@@ -1,5 +1,5 @@
 module.exports = async (member, bot)=> {
-	var role = await bot.utils.getRawUserRole(bot, member.guild, member);
+	var role = await bot.stores.userRoles.get(member.guild, member);
 	if(!role) return;
 	role.delete("Member left server");
 }

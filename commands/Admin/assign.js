@@ -7,11 +7,11 @@ module.exports = {
 		if(!member) return "Couldn't find that member :(";
 		var color = bot.tc(args.slice(1).join(""));
 		if(!color.isValid()) return "That color isn't valid :(";
-		var config = await bot.utils.getConfig(bot, msg.guild.id);
+		var config = await bot.stores.configs.get(msg.guild.id);
 		if(!config) config = {};
 
 		var srole = msg.guild.me.roles.cache.find(r => r.name.toLowerCase() == "sheep");
-		var role = await bot.utils.getRawUserRole(bot, msg.guild, member);
+		var role = await bot.stores.userRoles.get(msg.guild.id, member.id);
 
 		var options = {
 			name: role ? role.name : member.id,
@@ -23,12 +23,13 @@ module.exports = {
 		try {
 			if(role) {
 				options.position = srole ? options.position - 1 : options.position;
-				role = await role.edit(options);
+				role = await role.raw.edit(options);
 			} else {
 				role = await msg.guild.roles.create({data: options});
+				role.new = true;
 			}
 			await member.roles.add(role.id);
-			await bot.utils.addUserRole(bot, msg.guild.id, role.id, member.id);
+			if(role.new) await bot.stores.userRoles.create(msg.guild.id, member.id, role.id);
 			return "Color successfully changed to "+color.toHexString()+"! :D";
 		} catch(e) {
 			console.log(e.stack);

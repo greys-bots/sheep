@@ -3,8 +3,11 @@ module.exports = {
 	usage: ()=> [" [color] [hex|rgb|hsv|cmyk] - Converts color to the given form. NOTE: cannot convert to color names"],
 	execute: async (bot, msg, args) => {
 		if(args.length < 2) return 'Please provide a color and a form to convert to';
-		var color = bot.tc(args.slice(0, args.length - 1).join(''));
-		var form = args.slice(-1).join('').toLowerCase();
+		var name = args.slice(0, args.length - 1).join('').toLowerCase();
+		var color = await bot.stores.colors.get(msg.author.id, name);
+		if(color) bot.tc(color.color);
+		else color = bot.tc(name);
+		var form = args.slice(-1).toLowerCase();
 		if(!color.isValid()) return "That color isn't valid :(";
 
 		switch(form) {

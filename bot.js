@@ -12,8 +12,6 @@ bot.tc = require('tinycolor2');
 bot.jimp = require('jimp');
 bot.fetch = require('axios');
 
-bot.db = dblite("./data.sqlite","-header");
-
 bot.status = 0;
 
 bot.updateStatus = async function(){
@@ -60,28 +58,7 @@ const recursivelyReadDirectory = function(dir) {
 }
 
 async function setup() {
-	bot.db.query(`CREATE TABLE IF NOT EXISTS colors (
-		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
-		user_id 	TEXT,
-		name 		TEXT,
-		color 		TEXT
-	)`);
-
-	bot.db.query(`CREATE TABLE IF NOT EXISTS configs (
-		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
-		server_id 	TEXT,
-		role_mode 	INTEGER,
-		disabled 	TEXT,
-		pingable 	INTEGER
-	)`);
-
-	bot.db.query(`CREATE TABLE IF NOT EXISTS roles (
-		id 			INTEGER PRIMARY KEY AUTOINCREMENT,
-		server_id 	TEXT,
-		role_id 	TEXT,
-		user_id 	TEXT,
-		type 		INTEGER
-	)`);
+	bot.db = require('./stores/__db')(bot);
 
 	files = fs.readdirSync("./events");
 	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require("./events/"+f)(...args,bot)));

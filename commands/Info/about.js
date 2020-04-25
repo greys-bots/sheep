@@ -6,7 +6,7 @@ module.exports = {
 			title: '**About**',
 			description: "Baa! I'm Sheep! I help people change their name color here on Discord.\nMy prefixes are `s!`, `sh!`, `sheep!`, and `baa!`",
 			fields:[
-				{name: "Creators", value: "[greysdawn](https://github.com/greysdawn) | GreySkies#9950"},
+				{name: "Creators", value: "[greysdawn](https://github.com/greysdawn) | (GS)#6969"},
 				{name: "Invite", value: "[Clicky!](https://discordapp.com/api/oauth2/authorize?client_id=585271178180952064&permissions=268462080&scope=bot)",inline: true},
 				{name: "Support Server", value: "[Clicky!](https://discord.gg/EvDmXGt)", inline: true},
 				{name: "Other Links", value: "[Repo](https://github.com/greys-bots/sheep) | [Website](https://sheep.greysdawn.com/)"},

@@ -2,7 +2,7 @@ module.exports = {
 	help: ()=> "Show your current color",
 	usage: ()=> [" - Tells you what your current color is"],
 	execute: async (bot, msg, args) => {
-		var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
+		var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 		if(!role) return "Either you don't have a color role or I couldn't get it :(";
 
 		var conv = role.color.toString(16);

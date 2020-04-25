@@ -6,7 +6,7 @@ module.exports = async (reaction, user, bot)=> {
 	else msg = reaction.message;
 
 	var config;
-	if(msg.channel.guild) config = await bot.utils.getConfig(bot, msg.channel.guild.id);
+	if(msg.channel.guild) config = await bot.stores.configs.get(msg.channel.guild.id);
 	else config = undefined;
 
 	if(bot.menus && bot.menus[msg.id] && bot.menus[msg.id].user == user) {

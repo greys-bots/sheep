@@ -15,9 +15,9 @@ module.exports = {
 					args.join(" ").toLowerCase()
 		});
 		if(!user) return "Couldn't find that user :(";
-		var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
+		var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 		if(!role) return "You don't have a role to link!";
-		var role2 = await bot.utils.getRawUserRole(bot, msg.guild, user);
+		var role2 = await bot.stores.userRoles.get(msg.guild.id, user.id);
 		if(role2) {
 			msg.channel.send(`Other user has a color role already! ${user}, would you like to overwrite it? (y/n)`);
 			var resp = await msg.channel.awaitMessages(m => m.author.id == user.id, {time: 60000, max: 1});
@@ -37,9 +37,14 @@ module.exports = {
 			console.log(e);
 			return "ERR: "+e.message;
 		}
-		var scc = await bot.utils.addUserRole(bot, msg.guild.id, role.id, user.id);
-		if(scc) return "Roles linked!";
-		else return "Something went wrong D:"
+
+		try {
+			await bot.stores.userRoles.create(msg.guild.id, user.id, role.id);
+		} catch(e) {
+			return "ERR: "+e.message;
+		}
+
+		return "Roles linked!";
 	},
 	guildOnly: true,
 	alias: ["share"]

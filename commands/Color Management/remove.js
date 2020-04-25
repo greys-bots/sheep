@@ -3,22 +3,36 @@ module.exports = {
 	usage: ()=> [" - Removes the color role you have"],
 	execute: async (bot, msg, args, config = {role_mode: 0})=> {
 		if(config.role_mode == 0) {
-			var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
+			var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 			if(!role) return "You don't have a color role!";
-			await role.delete();
-			await bot.utils.deleteUserRole(bot, msg.guild.id, role.id);
+			try {
+				await role.raw.delete("Removed color");
+			} catch(e) {
+				console.log(e);
+				return "ERR: "+e.message;
+			}
+			
 			return 'Color successfully removed! :D';
 		} else {
-			var roles = await bot.utils.getServerRoles(bot, msg.guild);
-			var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
+			var roles = await bot.stores.serverRoles.get(msg.guild.id);
+			var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 			if(role) {
-				await role.delete();
-				await bot.utils.deleteUserRole(bot, msg.guild.id, role);
+				try {
+					await role.raw.delete("Removed color");
+				} catch(e) {
+					console.log(e);
+					return "ERR: "+e.message;
+				}
 			}
 			if(roles) {
 				for(var i = 0; i < roles.length; i++) {
 					if(msg.member.roles.cache.find(r => r.id == roles[i].id)) {
-						await msg.member.roles.remove(roles[i].id);
+						try {
+							await msg.member.roles.remove(roles[i].id);
+						} catch(e) {
+							console.log(e);
+							return "ERR: "+e.message;
+						}	
 					}
 				}
 			}
@@ -40,13 +54,10 @@ module.exports.subcommands.all = {
 
 		if(!["y","yes"].includes(response[0].content.toLowerCase())) return msg.channel.send("Action aborted");
 		await msg.channel.send("Deleting roles, this may take a bit...");
-		var roles = await bot.utils.getServerRoles(bot, msg.guild.id);
+		var roles = await bot.stores.serverRoles.get(msg.guild.id);
 		if(roles) {
 			try {
-				await Promise.all(roles.map(async r => {
-					await bot.deleteRole(msg.guild.id, r.id);
-					return new Promise(res => setTimeout(()=> res(), 100));
-				}))
+				for(var r of roles) await bot.deleteRole(msg.guild.id, r.id);
 			} catch(e) {
 				console.log(e);
 				return "Error:\n"+e.message;
@@ -54,20 +65,16 @@ module.exports.subcommands.all = {
 		}
 
 		try {
-			await Promise.all(msg.guild.members.cache.map(async m => {
-				var role = await bot.utils.getUserRole(bot, msg.guild, m.id);
-				if(role) await bot.deleteRole(msg.guild.id, role);
-				return new Promise(res => setTimeout(()=> res(), 100));
-			}))
+			for(var m of msg.guild.members.cache) {
+				var role = await bot.stores.userRoles.get(msg.guild.id, m.id);
+				if(role) await bot.deleteRole(msg.guild.id, role.role_id);
+			}
 		} catch(e) {
 			console.log(e);
 			return "Error:\n"+e.message;
 		}
 
-		var scc = await bot.utils.deleteColorRoles(bot, msg.guild.id);
-		if(scc) return "Roles deleted!";
-		else return "Something went wrong";
-
+		return "Roles deleted!";
 	},
 	guildOnly: true,
 	alias: ['*'],

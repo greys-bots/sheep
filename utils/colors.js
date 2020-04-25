@@ -1,83 +1,38 @@
 module.exports = {
-	getSavedColors: async (bot, user) => {
+	toCmyk: async (color) => {
+		//code based on this: http://www.javascripter.net/faq/rgb2cmyk.htm
 		return new Promise(res => {
-			bot.db.query(`SELECT * FROM colors WHERE user_id = ?`, [user], {
-				id: Number,
-				user_id: String,
-				name: String,
-				color: String
-			}, (err, rows) => {
-				if(err) {
-					console.log(err);
-					res(undefined);
-				} else res(rows);
-			})
+			var rgb = color.toRgb();
+			if(rgb.r == 0 && rgb.g == 0 && rgb.b == 0) return res({c: 0, m: 0, y: 0, k: 1});
+
+			var c = 1 - rgb.r/255;
+			var m = 1 - rgb.g/255;
+			var y = 1 - rgb.b/255;
+
+			var k = Math.min(c, Math.min(m, y));
+			c = (c - k)/(1 - k);
+			m = (m - k)/(1 - k);
+			y = (y - k)/(1 - k);
+
+			res({c, m, y, k});
 		})
 	},
-	getSavedColor: async (bot, user, name) => {
-		return new Promise(res => {
-			bot.db.query(`SELECT * FROM colors WHERE user_id = ? AND LOWER(name) = ?`, [user, name.toLowerCase()], {
-				id: Number,
-				user_id: String,
-				name: String,
-				color: String
-			}, (err, rows) => {
-				if(err) {
-					console.log(err);
-					res(undefined);
-				} else res(rows[0]);
-			})
-		})
-		
-	},
-	saveColor: async (bot, user, name, color) => {
-		return new Promise(res => {
-			bot.db.query(`INSERT INTO colors (user_id, name, color) VALUES (?,?,?)`, [user, name, color], (err, rows) => {
-				if(err) {
-					console.log(err);
-					res(false);
-				} else res(true);
-			})
-		})
-	},
-	updateSavedColor: async (bot, user, name, data) => {
-		return new Promise(res => {
-			bot.db.query(`UPDATE colors SET ${Object.keys(data).map((k) => k+"=?").join(",")} WHERE user_id = ? AND LOWER(name) = ?`, [...Object.values(data), user, name.toLowerCase()], (err, rows) => {
-				if(err) {
-					console.log(err);
-					res(false);
-				} else res(true);
-			})
-		})
-	},
-	deleteSavedColor: async (bot, user, name) => {
-		return new Promise(res => {
-			bot.db.query(`DELETE FROM colors WHERE user_id = ? AND LOWER(name) = ?`, [user, name.toLowerCase()], (err, rows) => {
-				if(err) {
-					console.log(err);
-					res(false);
-				} else res(true);
-			})
-		})
-	},
-	deleteSavedColors: async (bot, user) => {
-		return new Promise(res => {
-			bot.db.query(`DELETE FROM colors WHERE user_id = ?`, [user], (err, rows) => {
-				if(err) {
-					console.log(err);
-					res(false);
-				} else res(true);
-			})
-		})
-	},
-	importSavedColors: async (bot, user, data) => {
+	mixColors: async (bot, c1, c2) => {
 		return new Promise(async res => {
-			var colors = await bot.utils.getSavedColors(bot, user);
-			for(var color of data) {
-				if(colors.find(c => c.name == color.name)) await bot.utils.updateSavedColor(bot, user, color.name, {color: color.color});
-				else await bot.utils.saveColor(bot, user, color.name, color.color);
+			c1 = c1.toHex();
+			c2 = c2.toHex();
+			var c = "";
+			for(var i = 0; i<3; i++) {
+			  var sub1 = c1.substring(2*i, 2+2*i);
+			  var sub2 = c2.substring(2*i, 2+2*i);
+			  var v1 = parseInt(sub1, 16);
+			  var v2 = parseInt(sub2, 16);
+			  var v = Math.floor((v1 + v2) / 2);
+			  var sub = v.toString(16).toUpperCase();
+			  var padsub = ('0'+sub).slice(-2);
+			  c += padsub;
 			}
-			return res(true);
+			res(bot.tc(c));
 		})
 	}
 }

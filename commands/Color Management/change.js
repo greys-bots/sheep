@@ -7,7 +7,7 @@ module.exports = {
 			var color;
 			if(!args[0]) color = bot.tc.random();
 			else {
-				color = await bot.utils.getSavedColor(bot, msg.author.id, args.join(""));
+				color = await bot.stores.colors.get(msg.author.id, args.join("").toLowerCase());
 				if(color) color = bot.tc(color.color);
 				else color = bot.tc(args.join(""));
 			}
@@ -34,7 +34,7 @@ module.exports = {
 					message.reactions.removeAll()
 					delete bot.menus[message.id];
 				}, 900000),
-				execute: bot.utils.handleChangeReacts
+				execute: bot.stores.userRoles.handleReactions
 			};
 			["\u2705", "\u274C", "🔀"].forEach(r => message.react(r));
 			return;
@@ -42,18 +42,19 @@ module.exports = {
 			var role = await msg.guild.roles.cache.find(r => r.name.toLowerCase() == args.join(" "));
 			if(!role) return "Role not found";
 
-			role = await bot.utils.getServerRole(bot, msg.guild.id, role.id);
+			role = await bot.stores.serverRoles.get(msg.guild.id, role.id);
 			if(!role) return "Server role not found";
 
-			var roles = await bot.utils.getServerRoles(bot, msg.guild);
+			var roles = await bot.stores.serverRoles.getAll(msg.guild.id);
+			if(!roles || !roles[0]) return "Couldn't get role list :(";
 
-			for(var i = 0; i < roles.length; i++) {
-				if(msg.member.roles.cache.find(r => r.id == roles[i].id)) {
+			for(var rl of roles) {
+				if(msg.member.roles.cache.find(r => r.id == rl.role_id)) {
 					try {
-						await msg.members.roles.remove(roles[i].id);
+						await msg.member.roles.remove(rl.role_id);
 					} catch(e) {
 						console.log(e.stack);
-						return "Something went wrong while removing the role";
+						return "ERR: "+e.message;
 					}
 				}
 			}		
@@ -62,7 +63,7 @@ module.exports = {
 				await msg.member.roles.add(role.role_id);
 			} catch(e) {
 				console.log(e.stack);
-				return "Something went wrong while adding the role";
+				return "ERR: "+e.message;
 			}
 			
 			return "Added!"

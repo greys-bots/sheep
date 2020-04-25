@@ -23,7 +23,7 @@ module.exports = {
 		if(!reaction) return "ERR: timed out. Aborting";
 		if(reaction.emoji.name == "❌") return "Action cancelled";
 
-		var scc = await bot.utils.importSavedColors(bot, msg.author.id, data);
+		var scc = await bot.stores.colors.import(msg.author.id, data);
 		if(scc) return "Colors imported!";
 		else return "Something went wrong";
 	}

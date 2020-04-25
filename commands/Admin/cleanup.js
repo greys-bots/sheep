@@ -9,7 +9,7 @@ module.exports = {
 			if(roles[i].name && roles[i].name.startsWith('USER-')) {
 				try {
 					await roles[i].edit({name: roles[i].name.replace('USER-','')})
-					await bot.utils.addUserRole(bot, msg.guild.id, roles[i].id, roles[i].name.replace("USER-",""))
+					await bot.stores.userRoles.create(msg.guild.id, roles[i].id, roles[i].name.replace("USER-",""))
 					res('');
 				} catch(e) {
 					console.log(e);

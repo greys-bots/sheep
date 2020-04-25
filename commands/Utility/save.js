@@ -7,7 +7,7 @@ module.exports = {
 				 " delete [name] - Deletes a saved color. Use `all` or `*` to delete all your colors at once"],
 	execute: async (bot, msg, args) => {
 		if(!args[0]) {
-			var colors = await bot.utils.getSavedColors(bot, msg.author.id);
+			var colors = await bot.stores.colors.getAll(msg.author.id);
 			if(!colors || !colors[0]) return "You don't have any saved colors!";
 
 			var embeds = await bot.utils.genEmbeds(bot, colors, c => {
@@ -17,29 +17,9 @@ module.exports = {
 				title: "Saved Colors"
 			})
 
-			var message = await msg.channel.send(embeds[0]);
-			if(embeds[1]) {
-				if(!bot.menus) bot.menus = {};
-				bot.menus[message.id] = {
-					user: msg.author.id,
-					data: embeds,
-					index: 0,
-					timeout: setTimeout(()=> {
-						if(!bot.menus[message.id]) return;
-						try {
-							message.reactions.removeAll();
-						} catch(e) {
-							console.log(e);
-						}
-						delete bot.menus[msg.author.id];
-					}, 900000),
-					execute: bot.utils.paginateEmbeds
-				};
-				["\u2b05", "\u27a1", "\u23f9"].forEach(r => message.react(r));
-			}
-			return;
+			return embeds;
 		} else if(args[0] && !args[1]) {
-			var color = await bot.utils.getSavedColor(bot, msg.author.id, args[0].toLowerCase());
+			var color = await bot.stores.colors.get(msg.author.id, args[0].toLowerCase());
 			if(!color) return "Color not found! D:";
 			color = bot.tc(color.color); //color doesn't seem like a real word anymore huh
 
@@ -87,14 +67,16 @@ module.exports = {
 				if(reaction.emoji.name == "❌") return "Action cancelled";
 			}
 
-			var scc;
-			if(!exists) scc = await bot.utils.saveColor(bot, msg.author.id, name, color);
-			else scc = await bot.utils.updateSavedColor(bot, msg.author.id, name, {color: color});
+			try {
+				if(!exists) await bot.stores.colors.create(msg.author.id, name, {color: color});
+				else await bot.stores.colors.update(msg.author.id, name, {color: color});
+			} catch(e) {
+				console.log(e);
+				return "ERR: "+e;
+			}
 
-			if(scc) return "Color saved!";
-			else return "Something went wrong";
-		}
-		
+			return "Color saved!";
+		}	
 	},
 	alias: ["sv"],
 	subcommands: {}
@@ -106,13 +88,13 @@ module.exports.subcommands.rename = {
 	execute: async (bot, msg, args) => {
 		if(!args[1]) return "Please provide a color and the new name";
 		
-		var color = await bot.utils.getSavedColor(bot, msg.author.id, args[0].toLowerCase());
+		var color = await bot.stores.colors.get(msg.author.id, args[0].toLowerCase());
 		if(!color) return msg.channel.send("Color not found! D:");
 
-		var exists = await bot.utils.getSavedColor(bot, msg.author.id, args[0]);
+		var exists = await bot.stores.colors.get(msg.author.id, args[0]);
 		if(exists && color.name !== exists.name) return "Color with that name already exists! Aborting";
 
-		var scc = await bot.utils.updateSavedColor(bot, msg.author.id, color.name, {name: args[1]});
+		var scc = await bot.store.colors.update(msg.author.id, color.name, {name: args[1]});
 		if(scc) return "Color renamed!";
 		else return "Something went wrong"
 	},
@@ -126,7 +108,7 @@ module.exports.subcommands.delete = {
 		var message;
 		var reaction;
 		if(["all", "*"].includes(args[0].toLowerCase())) {
-			var colors = await bot.utils.getSavedColors(bot, msg.author.id);
+			var colors = await bot.stores.colors.getAll(msg.author.id);
 			if(!colors || !colors[0]) return "You have no saved colors";
 
 			message = await msg.channel.send("Are you sure you want to delete ALL your saved colors?");
@@ -136,11 +118,11 @@ module.exports.subcommands.delete = {
 			if(!reaction) return "ERR: timed out. Aborting";
 			if(reaction.emoji.name == "❌") return "Action cancelled";
 
-			var scc = await bot.utils.deleteSavedColors(bot, msg.author.id);
+			var scc = await bot.stores.colors.deleteAll(msg.author.id);
 			if(scc) return "Colors deleted!";
 			else return "Something went wrong"
 		} else {
-			var color = await bot.utils.getSavedColor(bot, msg.author.id, args[0].toLowerCase());
+			var color = await bot.stores.colors.get(msg.author.id, args[0].toLowerCase());
 			if(!color) return "Color not found! D:";
 
 			message = await msg.channel.send("Are you sure you want to delete this color?");
@@ -150,7 +132,7 @@ module.exports.subcommands.delete = {
 			if(!reaction) return "ERR: timed out. Aborting";
 			if(reaction.emoji.name == "❌") return "Action cancelled";
 
-			var scc = await bot.utils.deleteSavedColor(bot, msg.author.id, color.name);
+			var scc = await bot.stores.colors.delete(msg.author.id, color.name);
 			if(scc) return "Color deleted!";
 			else return "Something went wrong"
 		}	

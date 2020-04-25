@@ -5,50 +5,18 @@ module.exports = {
 				 " edit [color|name] [name] [value] - Edits an indexed role. Can change the role's color or name",
 				 " reset - Deletes all indexed color roles and switches to user-based roles"],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
-		var roles = await bot.utils.getServerRoles(bot, msg.guild);
+		var roles = await bot.stores.serverRoles.getAll(msg.guild.id);
 		console.log(roles);
 		if(!roles || !roles[0]) return "No indexed roles";
-		if(!roles.find(r => r.name != "invalid")) {
-			var success = await bot.utils.resetServerRoles(bot, msg.guild.id);
-			if(success) return "No valid color roles found. Database successfully reset";
-			else return "No valid color roles found. Database failed to reset"
-		}
-
-		var invalid = roles.filter(r => r.name == "invalid" && r.color == undefined);
-		var content;
-		if(invalid.length > 0) {
-			var success = await bot.utils.deleteServerRoles(bot, msg.guild.id, invalid.map(r => r.id));
-			if(success) content = "Any invalid roles have been deleted from the database";
-			else content = "Invalid roles could not be deleted from the database";
-		}
-
+		
 		var embeds = await bot.utils.genEmbeds(bot, roles.filter(x => x.name != "invalid"), (r) => {
-			return {name: r.name, value: `#${r.color ? r.color.toString(16).toUpperCase() : "(no color)"}`}
+			return {name: r.raw.name, value: `#${r.raw.color ? r.raw.color.toString(16).toUpperCase() : "(no color)"}`}
 		}, {
 			title: "Server Color Roles",
 			description: "name : color"
 		},10);
 
-		var message = await msg.channel.send(embeds[0]);
-		if(embeds[1]) {
-			if(!bot.menus) bot.menus = {};
-			bot.menus[message.id] = {
-				user: msg.author.id,
-				data: embeds,
-				index: 0,
-				timeout: setTimeout(()=> {
-					if(!bot.menus[message.id]) return;
-					try {
-						message.reactions.removeAll();
-					} catch(e) {
-						console.log(e);
-					}
-					delete bot.menus[msg.author.id];
-				}, 900000),
-				execute: bot.utils.paginateEmbeds
-			};
-			["\u2b05", "\u27a1", "\u23f9"].forEach(r => message.react(r));
-		}
+		return embeds;
 	},
 	guildOnly: true,
 	subcommands: {},
@@ -67,15 +35,13 @@ module.exports.subcommands.create = {
 
 		try {
 			role = await msg.guild.roles.create({data: {name: args.slice(0, args.length - 1).join(" "), color: color.toHex()}});
+			await bot.stores.serverRoles.create(msg.guild.id, role.id);
 		} catch(e) {
-			console.log(e.stack);
-			return "Something went wrong while creating the role :(";
+			console.log(e);
+			return "ERR: "+(e.message || e)
 		}
 
-		var success = await bot.utils.addServerRole(bot, msg.guild.id, role.id);
-		if(success) return "Role created!";
-		else return "Something went wrong while indexing the role :("
-
+		return "Role created!";
 	},
 	guildOnly: true,
 	permissions: ["MANAGE_ROLES"],
@@ -91,11 +57,41 @@ module.exports.subcommands.index = {
 		if(!role) return "Couldn't find that role.";
 		var color = bot.tc(role.color.toString(16));
 		if(!color.isValid()) return "That role doesn't have a valid color, so I can't index it :(";
+		var exists = await bot.stores.serverRoles.get(msg.guild.id, role.id);
+		if(exists) return "Role already indexed!";
 
-		var success = await bot.utils.addServerRole(bot, msg.guild.id, role.id);
-		if(success) return "Role indexed!";
-		else return "Something went wrong while indexing the role :("
+		try {
+			await bot.stores.serverRoles.create(msg.guild.id, role.id);
+		} catch(e) {
+			return "ERR: "+e;
+		}
 
+		return "Role indexed!";
+	},
+	guildOnly: true,
+	permissions: ["MANAGE_ROLES"],
+	alias: ['ind']
+}
+
+module.exports.subcommands.remove = {
+	help: ()=> "Removes a server-based color role based",
+	usage: ()=> [" [role] - Removes the given role. Role can be the @mention, role name, or ID."],
+	execute: async (bot, msg, args, config = {role_mode: 0}) => {
+		if(config.role_mode == 0) return "Current mode set to user-based roles; can't edit server-based ones! Use `s!tg` to toggle modes";
+		var role = await msg.guild.roles.cache.find(r => r.name == args.join(" ").toLowerCase() || r.id == args[0].replace(/[<@&>]/g,""));
+		if(!role) return "Couldn't find that role :(";
+		console.log(role.id);
+		var exists = await bot.stores.serverRoles.get(msg.guild.id, role.id);
+		console.log(exists);
+		if(!exists) return "Role not indexed!";
+
+		try {
+			await bot.stores.serverRoles.delete(msg.guild.id, role.id);
+		} catch(e) {
+			return "ERR: "+e;
+		}
+
+		return "Role removed!";
 	},
 	guildOnly: true,
 	permissions: ["MANAGE_ROLES"],
@@ -108,33 +104,30 @@ module.exports.subcommands.edit = {
 				 " color [name] [color] - Changes a role's color. This doesn't need a new line"],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		if(config.role_mode == 0) return "Current mode set to user-based roles; can't edit server-based ones! Use `s!tg` to toggle modes";
+		var data = {};
 		switch(args[0].toLowerCase()) {
 			case "name":
 				var newArgs = args.slice(1).join(" ").split("\n");
 				var role = msg.guild.roles.cache.find(r => r.name == newArgs[0]);
 				if(!role) return "Role not found";
-				try {
-					await role.edit({name: newArgs[1]})
-				} catch(e) {
-					console.log(e.stack);
-					return "Something went wrong while updating the role :("
-				}
-				return "Updated!"
+				data = {name: newArgs[1]};
 				break;
 			case "color":
 				var role = msg.guild.roles.cache.find(r => r.name == args.slice(1, args.length-1).join(" "));
 				if(!role) return "Role not found";
 				var color = bot.tc(args[args.length-1]);
 				if(!color.isValid()) return "Invalid color :("
-				try {
-					await role.edit({color: parseInt(color.toHex(), 16)})
-				} catch(e) {
-					console.log(e.stack);
-					return "Something went wrong while updating the role :("
-				}
-				return "Updated!"
+				data = {color: parseInt(color.toHex(), 16)};
 				break;
 		}
+
+		try {
+			await role.edit(data);
+		} catch(e) {
+			console.log(e);
+			return "ERR: "+e.message;
+		}
+		return "Updated!"
 	},
 	guildOnly: true,
 	permissions: ['MANAGE_ROLES']
@@ -149,14 +142,20 @@ module.exports.subcommands.reset = {
 		if(messages && messages[0]) {
 			var conf = messages[0].content.toLowerCase();
 			if(conf == "yes" || conf == "y") {
-				var roles = await bot.utils.getServerRoles(bot, msg.guild);
-				if(!roles) return "No roles to delete";
-				for(var i = 0; i < roles.length; i++) {
-					await roles[i].delete();
+				try {
+					var roles = await bot.stores.serverRoles.getAll(msg.guild);
+					if(!roles) return "No roles to delete";
+					for(var i = 0; i < roles.length; i++) {
+						await roles[i].delete();
+					}
+					await bot.stores.configs.update(msg.guild.id, {role_mode: 0});
+					await bot.stores.serverRoles.deleteAll(msg.guild.id);
+					return "Roles deleted!";
+				} catch(e) {
+					return "ERR: "+(e.message || e);
 				}
-				await bot.utils.updateConfig(bot, msg.guild.id, {role_mode: 0});
-				await bot.utils.resetServerRoles(bot, msg.guild.id);
-				return "Roles deleted!";
+
+				return "Roles deleted and role mode reset to user-based roles!";
 			} else {
 				return "Action cancelled!";
 			}

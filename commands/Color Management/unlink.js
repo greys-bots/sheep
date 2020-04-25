@@ -13,9 +13,9 @@ module.exports = {
 					args.join(" ").toLowerCase()
 		});
 		if(!user) return "Couldn't find that user :(";
-		var role = await bot.utils.getRawUserRole(bot, msg.guild, msg.member);
+		var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 		if(!role) return "You don't have a role to unlink!";
-		var role2 = await bot.utils.getRawUserRole(bot, msg.guild, user);
+		var role2 = await bot.stores.userRoles.get(msg.guild.id, user);
 		if(role != role2.id) return "Your roles aren't linked!";
 
 		try {
@@ -24,7 +24,7 @@ module.exports = {
 			console.log(e);
 			return "ERR: "+e.message;
 		}
-		var scc = await bot.utils.unlinkUserRole(bot, msg.guild.id, role, msg.author.id);
+		var scc = await bot.stores.userRoles.unlink(msg.guild.id, role, msg.author.id);
 		if(scc) return "Roles unlinked!";
 		else return "Something went wrong D:"
 	},

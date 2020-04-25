@@ -11,7 +11,7 @@ module.exports = async (msg, bot)=>{
 	if(!args[0]) args.shift();
 	if(!args[0]) return msg.channel.send("Baaa!");
 	var config;
-	if(msg.guild) config = await bot.utils.getConfig(bot, msg.guild.id);
+	if(msg.guild) config = await bot.stores.configs.get(msg.guild.id);
 	else config = undefined;
 	let {command, nargs} = await bot.parseCommand(bot, msg, args);
 	if(command) {
@@ -33,20 +33,39 @@ module.exports = async (msg, bot)=>{
 			}
 		}
 		
-		var res;
 		try {
-			var res = await command.execute(bot, msg, nargs, config);
+			var result = await command.execute(bot, msg, nargs, config);
 		} catch(e) {
 			console.log(e.stack);
 			log.push(`Error: ${e.stack}`);
 			log.push(`--------------------`);
 			msg.channel.send('There was an error! D:')
 		}
-		if(res) {
-			msg.channel.send(res);
-		}
+		if(!result) return;
+		if(typeof result == "object" && result[0]) { //embeds
+			var message = await msg.channel.send(result[0]);
+			if(result[1]) {
+				if(!bot.menus) bot.menus = {};
+				bot.menus[message.id] = {
+					user: msg.author.id,
+					data: result,
+					index: 0,
+					timeout: setTimeout(()=> {
+						if(!bot.menus[message.id]) return;
+						try {
+							message.reactions.removeAll();
+						} catch(e) {
+							console.log(e);
+						}
+						delete bot.menus[message.id];
+					}, 900000),
+					execute: bot.utils.paginateEmbeds
+				};
+				["⬅️", "➡️", "⏹️"].forEach(r => message.react(r));
+			}
+		} else msg.channel.send(result);
 	} else {
-		msg.channel.send("Command not found.");
+		msg.channel.send("Command not found!");
 		log.push('- Command Not Found -')
 	}
 	console.log(log.join('\r\n'));
