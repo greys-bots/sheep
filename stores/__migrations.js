@@ -5,7 +5,7 @@ var fs 		= require('fs');
 var Eris 	= require("eris-additions")(require("eris"));
 var bot 	= new Eris(process.env.TOKEN, {restmode: true});
 
-const old_db = dblite('tmp.sqlite', '-header');
+const old_db = dblite('data.sqlite', '-header');
 
 async function migrate() {
 	const db = await require(__dirname+'/__db')(bot);
