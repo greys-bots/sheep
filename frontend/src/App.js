@@ -1,5 +1,5 @@
 import React from 'react';
-import * as fetch from 'node-fetch';
+import axios from 'axios';
 import './App.css';
 
 import Commands from './components/commands';

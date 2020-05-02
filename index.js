@@ -3,46 +3,49 @@ const path 		= require('path');
 const express 	= require('express');
 const jimp 		= require('jimp');
 const tc 		= require('tinycolor2');
-const eris 		= require('eris');
+const pgIPC 	= require('pg-ipc');
 
 require('dotenv').config();
 
-const app = express();
+const app 		= express();
+const ipc 		= require('node-ipc');
+var commands 	= {};
+var modules		= {};
+var stats 		= {};
 
-const bot = eris(process.env.TOKEN_SHEEP);
+ipc.config.id = 'sheep-site';
+
+ipc.connectTo('sheep-bot', function() {
+	ipc.of['sheep-bot'].on('STATS', function(msg) {
+		console.log('stats received!');
+		stats = msg;
+	})
+
+	ipc.of['sheep-bot'].on('COMMANDS', function(msg) {
+		console.log('commands received!');
+		commands = msg.cmds;
+		modules = msg.mods;
+	})
+})
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const commands = {};
-
 async function setup() {
-	var files = fs.readdirSync(path.join(__dirname, "commands"));
-	await Promise.all(files.map(f => {
-		commands[f.slice(0,-3)] = require(path.join(__dirname, "commands", f));
-		return new Promise((res,rej)=>{
-			setTimeout(res(),100)
-		})
-	})).then(()=> console.log("Finished loading commands."));
-}
+	ipc.of['sheep-bot'].emit('STATS');
+	setInterval(()=> ipc.of.world.emit('STATS'), 1000 * 60 * 10);
 
-async function getCommand(cmd) {
-	return new Promise(res => {
-		if(!cmd) return res(false);
-		cmd = cmd.toLowerCase();
-		var command = commands[cmd];
-		if(!command) return res(undefined);
-		res({name: cmd, data: commands[cmd]});
-	})
-}
+	ipc.of['sheep-bot'].emit('COMMANDS');
+	setInterval(()=> ipc.of.world.emit('COMMANDS'), 1000 * 60 * 10);
 
-async function getCommands() {
-	return new Promise(res => {
-		var cmds = Object.keys(commands).map(k => {
-			return {name: k, data: commands[k]}
-		});
-		res(cmds);
-	})
+
+	// var files = fs.readdirSync(path.join(__dirname, "commands"));
+	// await Promise.all(files.map(f => {
+	// 	commands[f.slice(0,-3)] = require(path.join(__dirname, "commands", f));
+	// 	return new Promise((res,rej)=>{
+	// 		setTimeout(res(),100)
+	// 	})
+	// })).then(()=> console.log("Finished loading commands."));
 }
 
 async function createColorImage(color) {
@@ -136,12 +139,11 @@ app.get('/command/:cmd', async (req, res)=> {
 })
 
 app.get('/commands', async (req, res)=> {
-	var cmd = await getCommands();
-	res.send(cmd);
+	res.send({commands, modules});
 })
 
 app.get('/info', async (req, res)=> {
-	res.send({guilds: bot.guilds.size, users: bot.users.size});
+	res.send(stats);
 })
 
 app.get('/', async (req, res)=> {
@@ -171,6 +173,6 @@ app.use(async (req, res)=> {
 })
 
 setup();
-bot.connect();
 console.log("Sheep ready.");
-module.exports = app;
+// module.exports = app;
+app.listen(process.env.PORT || 8080);

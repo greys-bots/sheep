@@ -156,14 +156,56 @@ a:hover {
   background-color: #555;
 }
 
+.App-commandsHeader {
+  display: flex;
+  flex-direction: row !important;
+  padding: 10px;
+}
+
 .App-command {
   display: flex;
+  flex-direction: column;
+  margin: 10px auto;
+  transition: .5s;
+}
+
+.App-commandInner {
+  display: flex;
   flex-direction: row;
+  border-bottom: 2px solid #334;
+}
+
+.App-commandInner>* {
+  flex: 1 1 0;
+  padding: 10px;
 }
 
 .App-command>* {
   flex: 1 1 0;
+}
+
+.App-subcommand {
+  display: none;
+  position: relative;
+}
+
+.App-command.active .App-subcommand {
+  display: flex;
+  animation: App-cardAnim .25s forwards;
+}
+
+.App-extras {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  background-color: transparent !important;
+}
+
+.App-extra {
   padding: 10px;
+  margin: 2px;
+  border-radius: 10px;
+  background-color: #778;
 }
 
 .App-note {

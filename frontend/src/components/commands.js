@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
-import * as fetch from 'node-fetch';
+import axios from 'axios';
+
+import Command from './command';
 
 class Commands extends Component {
 	constructor(props) {
@@ -8,15 +10,12 @@ class Commands extends Component {
 	}
 
 	async componentDidMount() {
-		var cmds = await fetch('/commands');
-		console.log(cmds);
-		var cmds = await cmds.json();
-		console.log(cmds);
-		this.setState({cmds: cmds});
+		var data = await axios('/commands');
+		this.setState({...data.data});
 	}
 
 	render() {
-		var commands = this.state.cmds;
+		var commands = this.state.commands;
 		console.log(commands);
 		return (
 			<div className="App-commandsContainer">
@@ -29,16 +28,12 @@ class Commands extends Component {
 		          	<h3>Description</h3>
 		          </div>
 		          <div>
-		          	<h3>Examples</h3>
+		          	<h3>Usage</h3>
 		          </div>
 	          </div>
 	            {commands!=undefined ? commands.map((c, i) => {
 	              return (
-	                <div className="App-command" key={i}>
-	                  <div>{c.name} (aliases: {c.data.alias ? c.data.alias.join(", ") : "(none)"})</div>
-	                  <div dangerouslySetInnerHTML={{__html: c.data.help}}></div>
-	                  <div dangerouslySetInnerHTML={{ __html: c.data.examples.join('<br/>')}}></div>
-	                </div>
+	                <Command key={i} cmd={c} />
 	              )
 	            }) : <tr><td>Loading...</td></tr>}
 	        </div>
