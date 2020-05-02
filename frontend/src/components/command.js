@@ -4,14 +4,17 @@ class Command extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {cmd: this.props.cmd, show: false};
+		this.state = {cmd: this.props.cmd, show: false, last: false};
+		this.subref = React.createRef();
 		this.ref = React.createRef();
 	}
 
 	toggleSubcommands() {
 		if(this.state.cmd.subcommands) {
-			if(!this.state.show) window.scrollTo(0, this.ref.current.offsetTop);
-			this.setState({show: !this.state.show});
+			this.setState({show: !this.state.show, last: this.state.show}, ()=> {
+				if(this.state.show) window.scrollTo(0, this.subref.current.offsetTop-10);
+				else window.scrollTo(0, this.ref.current.offsetTop);
+			});
 		}
 	}
 
@@ -47,9 +50,9 @@ class Command extends Component {
 											</div>
 				<div dangerouslySetInnerHTML={{ __html: cmd.usage.join('<hr/>')}}></div>
 			</div>
-			{cmd.subcommands && cmd.subcommands.map(c => {
+			{cmd.subcommands && cmd.subcommands.map((c, i) => {
 				return(
-					<div className="App-commandInner App-subcommand">
+					<div className="App-commandInner App-subcommand" ref={i == 0 && this.subref} >
 					<div>{c.name} (aliases: {c.alias ? c.alias.join(", ") : "[none]"})</div>
 					<div dangerouslySetInnerHTML={{__html: 
 												c.help +

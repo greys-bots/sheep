@@ -14,6 +14,8 @@ var modules		= {};
 var stats 		= {};
 
 ipc.config.id = 'sheep-site';
+ipc.config.silent = true;
+ipc.config.sync = true;
 
 ipc.connectTo('sheep-bot', function() {
 	ipc.of['sheep-bot'].on('STATS', function(msg) {
@@ -33,19 +35,10 @@ app.use(express.urlencoded({ extended: true }));
 
 async function setup() {
 	ipc.of['sheep-bot'].emit('STATS');
-	setInterval(()=> ipc.of.world.emit('STATS'), 1000 * 60 * 10);
+	setInterval(()=> ipc.of['sheep-bot'].emit('STATS'), 1000 * 60 * 10);
 
 	ipc.of['sheep-bot'].emit('COMMANDS');
-	setInterval(()=> ipc.of.world.emit('COMMANDS'), 1000 * 60 * 10);
-
-
-	// var files = fs.readdirSync(path.join(__dirname, "commands"));
-	// await Promise.all(files.map(f => {
-	// 	commands[f.slice(0,-3)] = require(path.join(__dirname, "commands", f));
-	// 	return new Promise((res,rej)=>{
-	// 		setTimeout(res(),100)
-	// 	})
-	// })).then(()=> console.log("Finished loading commands."));
+	setInterval(()=> ipc.of['sheep-bot'].emit('COMMANDS'), 1000 * 60 * 10);
 }
 
 async function createColorImage(color) {
@@ -174,5 +167,5 @@ app.use(async (req, res)=> {
 
 setup();
 console.log("Sheep ready.");
-module.exports = app;
-// app.listen(process.env.PORT || 8080);
+// module.exports = app;
+app.listen(process.env.PORT || 8080);

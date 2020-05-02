@@ -1,5 +1,9 @@
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background-color: #33333f;
+  background-color: #111;
   color: white;
 }
 
@@ -46,7 +50,7 @@ body {
 }
 
 .App-button {
-  background-color: #55555f;
+  background-color: #3a3a3a;
   border-radius: 5px;
   margin: 20px;
   padding: 10px 5px;
@@ -56,7 +60,7 @@ body {
 }
 
 .App-button:hover {
-  background-color: #778;
+  background-color: #555;
   border-radius: 5px;
   margin: 20px;
   padding: 10px 5px;
@@ -77,8 +81,7 @@ body {
 
 .App-about {
   height: 200px;
-  background-color: #303030;
-  border-bottom: 2px solid #323233;
+  background-color: #202020;
   width: 100%;
   padding: 100px 0;
   display: flex;
@@ -97,8 +100,7 @@ body {
 
 .App-footer {
   height: 200px;
-  background-color: #303030;
-  border-bottom: 2px solid #323233;
+  background-color: #202020;
   width: 100%;
   padding: 100px 0;
   display: flex;
@@ -148,14 +150,6 @@ a:hover {
   width: 90%;
 }
 
-.App-commandsContainer .App-command:nth-child(even) {
-  background-color: #444;
-}
-
-.App-commandsContainer .App-command:nth-child(odd) {
-  background-color: #555;
-}
-
 .App-commandsHeader {
   display: flex;
   flex-direction: row !important;
@@ -167,12 +161,12 @@ a:hover {
   flex-direction: column;
   margin: 10px auto;
   transition: .5s;
+  padding: 10px;
 }
 
 .App-commandInner {
   display: flex;
   flex-direction: row;
-  border-bottom: 2px solid #334;
 }
 
 .App-commandInner>* {
@@ -187,6 +181,7 @@ a:hover {
 .App-subcommand {
   display: none;
   position: relative;
+  border-top: 2px solid #202020;
 }
 
 .App-command.active .App-subcommand {
@@ -205,7 +200,22 @@ a:hover {
   padding: 10px;
   margin: 2px;
   border-radius: 10px;
-  background-color: #778;
+  background-color: #444;
+}
+
+.App-filters {
+  background-color: #202020;
+  padding: 10px;
+}
+
+.App-filters div {
+  display: flex;
+  justify-content: space-around;
+}
+
+.App-filters p {
+  padding: 10px 20px;
+  background-color: #333;
 }
 
 .App-note {
@@ -213,7 +223,7 @@ a:hover {
   padding: 10px;
   margin: 20px;
   width: 90%;
-  background-color: #556;
+  background-color: #333;
 }
 
 table {
@@ -278,21 +288,41 @@ td {
     display: none;
   }
 
-  .App-command {
+  .App-commandInner {
     flex-direction: column;
-    margin: 10px 0;
   }
 
   .App-command {
-    background-color: white;
+    background-color: #333;
   }
 
-  .App-command div:nth-child(odd) {
-    background-color: #555;
+  .App-commandInner div:nth-child(odd) {
+    background-color: #333;
   }
 
-  .App-command div:nth-child(even) {
-    background-color: #444;
+  .App-commandInner div:nth-child(even) {
+    background-color: #202020;
   }
 
+}
+
+@media (min-width: 651px) {
+  .App-commandsContainer .App-command:nth-child(even) {
+    background-color: #202020;
+  }
+
+  .App-commandsContainer .App-command:nth-child(odd) {
+    background-color: #333;
+  }
+}
+
+@keyframes App-cardAnim {
+  0% {
+    top: 20px;
+    opacity: 0;
+  }
+  100% {
+    top: 0px;
+    opacity: 1;
+  }
 }
