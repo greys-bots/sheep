@@ -28,13 +28,31 @@ class UserRoleStore extends Collection {
 					user_id,
 					role_id
 				) VALUES ($1,$2,$3)`,
-				[server, user, role])
+				[server, user, role]);
 			} catch(e) {
 				console.log(e);
 		 		return rej(e.message);
 			}
 			
 			res(await this.get(server, user));
+		})
+	}
+
+	async index(server, user, role) {
+		return new Promise(async (res, rej) => {
+			try {
+				await this.db.query(`INSERT INTO user_roles (
+					server_id,
+					user_id,
+					role_id
+				) VALUES ($1,$2,$3)`,
+				[server, user, role]);
+			} catch(e) {
+				console.log(e);
+		 		return rej(e.message);
+			}
+			
+			res();
 		})
 	}
 

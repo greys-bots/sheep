@@ -25,6 +25,23 @@ class ServerRoleStore extends Collection {
 		})
 	}
 
+	async index(server, role) {
+		return new Promise(async (res, rej) => {
+			try {
+				await this.db.query(`INSERT INTO server_roles (
+					server_id,
+					role_id
+				) VALUES ($1,$2)`,
+				[server, role])
+			} catch(e) {
+				console.log(e);
+		 		return rej(e.message);
+			}
+			
+			res();
+		})
+	}
+
 	async get(server, role) {
 		return new Promise(async (res, rej) => {
 			console.log(server, role);

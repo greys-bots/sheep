@@ -73,6 +73,13 @@ module.exports = {
 				break;
 		}
 	},
+	cleanText: function(text){
+		if (typeof(text) === "string") {
+			return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
+		} else	{
+			return text;
+		}
+	},
 	
 	checkPermissions: async (bot, msg, cmd)=>{
 		return new Promise((res)=> {

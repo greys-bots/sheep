@@ -5,41 +5,49 @@ const dblite		= require("dblite");
 
 const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER']});
 
-bot.prefix = ["s!","sh!","sheep!","baa!"];
+bot.prefix = ["sht!"]; //,"sh!","sheep!","baa!"
 bot.owner = process.env.OWNER;
 
 bot.tc = require('tinycolor2');
 bot.jimp = require('jimp');
 bot.fetch = require('axios');
 
-bot.status = 0;
+bot.status = -1;
+bot.guildCount = 0;
+bot.statuses = [
+	async ()=> {
+		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
+		return `s!h | in ${guilds} guilds!`;
+	},
+	async ()=> {
+		var users = (await bot.shard.broadcastEval('this.users.cache.size')).reduce((prev, val) => prev + val, 0);
+		return `s!h | serving ${users} users!`;
+	},
+	"s!h | https://sheep.greysdawn.com"
+];
 
 bot.updateStatus = async function(){
-	switch(bot.status){
-		case 0:
-			try {
-				var guilds = (await bot.shard.fetchClientValues('guilds.cache.size')).reduce((prev, val) => prev + val, 0)
-			} catch(e) {
-				console.log("Couldn't get guilds size: "+err.message);
-			}
-			bot.user.setActivity("s!h | in "+guilds+" guilds!");
-			bot.status++;
-			break;
-		case 1:
-			try {
-				var users = (await bot.shard.fetchClientValues('users.cache.size')).reduce((prev, val) => prev + val, 0)
-			} catch(e) {
-				console.log("Couldn't get users size: "+err.message);
-			}
-			bot.user.setActivity("s!h | serving "+users+" users!");
-			bot.status++;
-			break;
-		case 2:
-			bot.user.setActivity("s!h | website: sheep.greysdawn.com");
+	//wait for all guilds to show up before setting the status again
+	if(bot.status == -1) {
+		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
+		if(guilds != bot.guildCount) {
+			console.log("updating guilds...", guilds);
+			bot.guildCount = guilds;
+			setTimeout(()=> bot.updateStatus(), 10000);
+		} else {
 			bot.status = 0;
-			break;
+			bot.updateStatus();
+		}
+		return;
 	}
-
+	var target = bot.statuses[bot.status % bot.statuses.length];
+	console.log(target);
+	if(typeof target == "function") {
+		console.log(target());
+		bot.user.setActivity(await target());
+	} else bot.user.setActivity(target);
+	bot.status++;
+		
 	setTimeout(()=> bot.updateStatus(), 600000)
 }
 
@@ -149,10 +157,12 @@ bot.writeLog = async (log) => {
 	}
 }
 
-bot.on("ready", ()=> {
+bot.on("ready", async ()=> {
 	console.log('Ready!');
 	bot.writeLog('=====LOG START=====')
-	bot.updateStatus();
+	await bot.user.setActivity("s!h | booting...");
+	if(bot.shard.ids.find(id => id+1 == bot.shard.count))
+		await bot.shard.broadcastEval('this.updateStatus()');
 })
 
 bot.on('error', (err)=> {

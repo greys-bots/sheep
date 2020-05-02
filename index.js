@@ -2,53 +2,88 @@ require('dotenv').config();
 
 const { ShardingManager } = require('discord.js');
 const manager = new ShardingManager('./bot.js', { token: process.env.TOKEN });
-var pgIPC = require('pg-ipc');
-var client = new (require('pg')).Client();
+const ipc       = require('node-ipc');
 
-var ipc = pgIPC(client)
- 
-ipc.on('error', console.error)
+ipc.config.id = 'sheep-bot';
 
-ipc.on('end', ()=> client.end());
- 
-ipc.on('sheepIPC', async function (msg) {
-  // Ignore messages from this process
-  if(msg.processId === client.processID) return;
-  if(!msg.type) return;
+ipc.serve(function() {
 
-  switch(msg.type) {
-  	case "STATS":
-  		var guilds = (await manager.broadcastEval(`this.guilds.cache.size`)).reduce((prev, val) => prev + val, 0);
-  		var users = (await manager.broadcastEval(`this.users.cache.size`)).reduce((prev, val) => prev + val, 0);
-  		ipc.notify(`sheepIPC`, {guilds, users});
-  		break;
-  }
-})
+    ipc.server.on('error', console.error);
 
-manager.spawn();
-manager.on('shardCreate', shard => console.log(`Launched shard ${shard.id}`));
+    ipc.server.on('STATS', async function (msg, socket) {
+        console.log("stats requested");
+        var guilds = (await manager.broadcastEval(`this.guilds.cache.size`)).reduce((prev, val) => prev + val, 0);
+        var users = (await manager.broadcastEval(`this.users.cache.size`)).reduce((prev, val) => prev + val, 0);
+        ipc.server.emit(socket, `STATS`, {guilds, users});
+    })
 
-manager.broadcastEval(`this.guilds.cache.size`).then(result => {
-	console.log("Total guilds: "+result.reduce((prev, val) => prev + val, 0));
-}).catch(e => console.log(e.message));
+    ipc.server.on('COMMANDS', async function (msg, socket) {
+        console.log("commands requested");
+        var commands = (await manager.broadcastEval(`
+            var cmds = this.commands.map(c => {
+                return {
+                    name: c.name,
+                    help: c.help(),
+                    usage: c.usage().map(u => 's!' + c.name + u),
+                    desc: c.desc ? c.desc() : null,
+                    alias: c.alias,
+                    guildOnly: c.guildOnly,
+                    permissions: c.permissions,
+                    subcommands: c.subcommands ? c.subcommands.map(sc => {
+                        return {
+                            name: sc.name,
+                            help: sc.help(),
+                            usage: sc.usage().map(u => 's!' + sc.name + u),
+                            desc: sc.desc ? sc.desc() : null,
+                            alias: sc.alias,
+                            guildOnly: sc.guildOnly,
+                            permissions: sc.permissions
+                        }
+                    }) : null
+                }
+            });
+
+            var mods = this.modules.map(m => {
+                return {
+                    name: m.name,
+                    color: m.color,
+                    description: m.description,
+                    alias: m.alias,
+                    commands: m.commands.map(c => c.name)
+                }
+            })
+
+            cmds.forEach((c, i) => cmds[i].module = mods.find(m => m.commands.includes(c.name)));
+            ({cmds, mods})
+        `))[0];
+        ipc.server.emit(socket, `COMMANDS`, commands);
+    })
+});
+
+ipc.server.start();
+
+manager.spawn(2);
+manager.on('shardCreate', shard => {
+    console.log(`Launched shard ${shard.id}`);
+});
 
 process.on(`SIGTERM`, ()=> {
-  console.log("Ending connections...");
-  try {
-    ipc.end();
-  } catch(e) {
-    console.log(e.message);
-  }
-  process.exit();
+    console.log("Ending connections...");
+    try {
+        ipc.server.stop();
+    } catch(e) {
+        console.log(e.message);
+    }
+    process.exit();
 })
 
 //for ctrl+c-ing
 process.on(`SIGINT`, ()=> {
-  console.log("Ending connections...");
-  try {
-    ipc.end();
-  } catch(e) {
-    console.log(e.message);
-  }
-  process.exit();
+    console.log("Ending connections...");
+    try {
+        ipc.server.stop();
+    } catch(e) {
+        console.log(e.message);
+    }
+    process.exit();
 })

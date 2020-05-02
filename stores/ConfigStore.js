@@ -27,6 +27,25 @@ class ConfigStore extends Collection {
 		})
 	}
 
+	async index(server, data = {}) {
+		return new Promise(async (res, rej) => {
+			try {
+				await this.db.query(`INSERT INTO configs (
+					server_id,
+					role_mode,
+					disabled,
+					pingable
+				) VALUES ($1,$2,$3,$4)`,
+				[server, data.role_mode || 0, data.disabled || [], data.pingable || false]);
+			} catch(e) {
+				console.log(e);
+		 		return rej(e.message);
+			}
+			
+			res();
+		})
+	}
+
 	async get(server, forceUpdate = false) {
 		return new Promise(async (res, rej) => {
 			if(!forceUpdate) {

@@ -26,6 +26,24 @@ class ColorStore extends Collection {
 		})
 	}
 
+	async index(user, name, data = {}) {
+		return new Promise(async (res, rej) => {
+			try {
+				await this.db.query(`INSERT INTO colors (
+					user_id,
+					name,
+					color
+				) VALUES ($1,$2,$3)`,
+				[user, name, data.color])
+			} catch(e) {
+				console.log(e);
+		 		return rej(e.message);
+			}
+			
+			res();
+		})
+	}
+
 	async get(user, name, forceUpdate = false) {
 		return new Promise(async (res, rej) => {
 			if(!forceUpdate) {
