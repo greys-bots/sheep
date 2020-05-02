@@ -167,5 +167,5 @@ app.use(async (req, res)=> {
 
 setup();
 console.log("Sheep ready.");
-// module.exports = app;
-app.listen(process.env.PORT || 8080);
+module.exports = app;
+// app.listen(process.env.PORT || 8080);
