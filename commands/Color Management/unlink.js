@@ -15,7 +15,7 @@ module.exports = {
 		if(!user) return "Couldn't find that user :(";
 		var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 		if(!role) return "You don't have a role to unlink!";
-		var role2 = await bot.stores.userRoles.get(msg.guild.id, user);
+		var role2 = await bot.stores.userRoles.get(msg.guild.id, user.id);
 		if(role != role2.id) return "Your roles aren't linked!";
 
 		try {

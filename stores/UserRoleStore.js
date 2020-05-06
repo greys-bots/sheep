@@ -101,6 +101,45 @@ class UserRoleStore extends Collection {
 		})
 	}
 
+	//specifically for getting roles to delete after a member leaves a server
+	//above function returns "unknown member," this won't
+	async getRaw(server, user) {
+		return new Promise(async (res, rej) => {
+			try {
+				var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1 AND user_id = $2`,[server, user]);
+			} catch(e) {
+				console.log(e);
+				return rej(e.message);
+			}
+
+			if(!this.bot) return res(data.rows[0]);
+
+			var guild = this.bot.guilds.resolve(server);
+			if(!guild) return rej("Couldn't get guild");
+			
+			if(data.rows && data.rows[0]) {
+				var role;
+				for(var i = 0; i < data.rows.length; i++) {
+					role = guild.roles.cache.find(r => r.id == data.rows[i].role_id);
+					if(!role || role.deleted) {
+						console.log(`deleting role ${data.rows[i].role_id}`);
+						this.deleteByRoleID(data.rows[i].server_id, data.rows[i].role_id);
+						data.rows[i] = "deleted";
+					} else data.rows[i].raw = role;
+				}
+				data.rows = data.rows.filter(x => x != "deleted");
+				if(!data.rows || !data.rows[0]) return res(undefined);
+				res(data.rows[0])
+			} else {
+				role = guild.roles.cache.find(r => r.name == user);
+				if(!role) res(undefined);
+				else {
+					return res(await this.create(server, user, role.id));
+				}
+			}
+		})
+	}
+
 	async getByRoleID(server, role) {
 		return new Promise(async (res, rej) => {
 			try {

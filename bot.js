@@ -5,7 +5,7 @@ const dblite		= require("dblite");
 
 const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER']});
 
-bot.prefix = ["s!","sh!","sheep!","baa!"];
+bot.prefix = ["sht!" /*,"sh!","sheep!","baa!"*/];
 bot.owner = process.env.OWNER;
 
 bot.tc = require('tinycolor2');
@@ -169,6 +169,8 @@ bot.on('error', (err)=> {
 	console.log(`Error:\n${err.stack}`);
 	bot.writeLog(`=====ERROR=====\r\nStack: ${err.stack}`)
 })
+
+process.on("unhandledRejection", (e) => console.log(e.message || e));
 
 setup();
 bot.login(process.env.TOKEN)
