@@ -193,7 +193,7 @@ class UserRoleStore extends Collection {
 
 	async handleReactions(bot, m, reaction, user) {
 		var config = (await bot.stores.configs.get(m.guild.id)) || {pingable: false};
-		var member = await m.guild.members.fetch(user);
+		var member = await m.guild.members.fetch(user.id);
 		switch(reaction.emoji.name) {
 			case '\u2705':
 				var srole = m.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
