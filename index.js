@@ -5,6 +5,7 @@ const manager = new ShardingManager('./bot.js', { token: process.env.TOKEN });
 const ipc       = require('node-ipc');
 
 ipc.config.id = 'sheep-bot';
+ipc.config.silent = 'true';
 
 ipc.serve(function() {
 
