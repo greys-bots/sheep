@@ -5,7 +5,7 @@ const dblite		= require("dblite");
 
 const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER']});
 
-bot.prefix = ["sht!" /*,"sh!","sheep!","baa!"*/];
+bot.prefix = ["s!","sh!","sheep!","baa!"];
 bot.owner = process.env.OWNER;
 
 bot.tc = require('tinycolor2');

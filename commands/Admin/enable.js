@@ -1,5 +1,5 @@
 module.exports = {
-	help: ()=> "Enables a command/module or a command's subcommands.",
+	help: ()=> "Enables a command/module or a command's subcommands",
 	usage: ()=> [" [command/module] <subcommand> - enables given command or its subcommand"],
 	execute: async (bot, msg, args) => {
 		if(!args[0]) return "Please provide a command or module to enable";

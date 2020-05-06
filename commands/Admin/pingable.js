@@ -1,5 +1,5 @@
 module.exports = {
-	help: ()=> "Set wether the roles that Sheep creates can be pinged or not. Defaults to false",
+	help: ()=> "Set whether the roles that Sheep creates can be pinged or not. Defaults to false",
 	usage: ()=> [" - Shows the current value",
 				 " enable - Gives Sheep-managed roles the ability to be pinged by anyone",
 				 " disable - Removes ability to ping Sheep-managed roles"],
