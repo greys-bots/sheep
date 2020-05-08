@@ -111,7 +111,7 @@ class ColorStore extends Collection {
 		return new Promise(async (res, rej) => {
 			var colors = await this.getAll(user);
 			try {
-				await this.db.query(`DELETE FROM colors WHERE user_id = $1 AND name = $2`, [user, name]);
+				await this.db.query(`DELETE FROM colors WHERE user_id = $1`, [user]);
 			} catch(e) {
 				console.log(e);
 				return rej(e.message);
@@ -133,7 +133,7 @@ class ColorStore extends Collection {
 			if(color) colors = colors.filter(x => x.name == color);
 			if(!colors || !colors[0]) return rej("Color not found");
 
-			return colors.map(c => { return {name: c.name, color: c.color} }); 
+			res(colors.map(c => { return {name: c.name, color: c.color} })); 
 		})
 	}
 

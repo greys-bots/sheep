@@ -26,6 +26,14 @@ module.exports = (bot) => {
 			role_id 	TEXT
 		);
 
+		CREATE TABLE IF NOT EXISTS usages (
+			id 			SERIAL PRIMARY KEY,
+			server_id 	TEXT,
+			whitelist 	TEXT[],
+			blacklist 	TEXT[],
+			type 		INTEGER
+		);
+
 		CREATE TABLE IF NOT EXISTS user_roles (
 			id 			SERIAL PRIMARY KEY,
 			server_id 	TEXT,

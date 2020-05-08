@@ -94,17 +94,23 @@ module.exports.subcommands.rename = {
 		var exists = await bot.stores.colors.get(msg.author.id, args[0]);
 		if(exists && color.name !== exists.name) return "Color with that name already exists! Aborting";
 
-		var scc = await bot.store.colors.update(msg.author.id, color.name, {name: args[1]});
-		if(scc) return "Color renamed!";
-		else return "Something went wrong"
+		try {
+			await bot.stores.colors.update(msg.author.id, color.name, {name: args[1]});
+		} catch(e) {
+			return "ERR: "+e;
+		}
+
+		return "Color renamed!";
 	},
 	alias: ["rn", "name"]
 }
 
 module.exports.subcommands.delete = {
 	help: ()=> "Delete a saved color",
-	usage: ()=> [" [name] - Deletes the given color"],
+	usage: ()=> [" [name] - Deletes the given color",
+				 " all|* - Deletes all saved colors"],
 	execute: async (bot, msg, args) => {
+		if(!args[0]) return "Please give me something to delete!";
 		var message;
 		var reaction;
 		if(["all", "*"].includes(args[0].toLowerCase())) {
@@ -118,9 +124,13 @@ module.exports.subcommands.delete = {
 			if(!reaction) return "ERR: timed out. Aborting";
 			if(reaction.emoji.name == "❌") return "Action cancelled";
 
-			var scc = await bot.stores.colors.deleteAll(msg.author.id);
-			if(scc) return "Colors deleted!";
-			else return "Something went wrong"
+			try {
+				await bot.stores.colors.deleteAll(msg.author.id);
+			} catch(e) {
+				return "ERR: "+e;
+			}
+			
+			return "Colors deleted!";
 		} else {
 			var color = await bot.stores.colors.get(msg.author.id, args[0].toLowerCase());
 			if(!color) return "Color not found! D:";
@@ -132,10 +142,14 @@ module.exports.subcommands.delete = {
 			if(!reaction) return "ERR: timed out. Aborting";
 			if(reaction.emoji.name == "❌") return "Action cancelled";
 
-			var scc = await bot.stores.colors.delete(msg.author.id, color.name);
-			if(scc) return "Color deleted!";
-			else return "Something went wrong"
+			try {
+				await bot.stores.colors.delete(msg.author.id, color.name);
+			} catch(e) {
+				return "ERR: "+e;
+			}
+			
+			return "Color deleted!";
 		}	
 	},
-	alias: ["del", "remove", "rmv"]
+	alias: ["del", "remove", "rmv", "rm"]
 }

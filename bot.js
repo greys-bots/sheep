@@ -3,7 +3,7 @@ const fs			= require("fs");
 const path 			= require("path");
 const dblite		= require("dblite");
 
-const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER']});
+const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER', 'REACTION']});
 
 bot.prefix = ["s!","sh!","sheep!","baa!"];
 bot.owner = process.env.OWNER;
@@ -65,6 +65,36 @@ const recursivelyReadDirectory = function(dir) {
 	return results;
 }
 
+//for handling commands
+const registerCommand = function({command, module, name} = {}) {
+	if(!command) return;
+	command.module = module;
+	command.name = name;
+	module.commands.set(name, command);
+	bot.commands.set(name, command);
+	bot.aliases.set(name, name);
+	if(command.alias) command.alias.forEach(a => bot.aliases.set(a, name));
+	
+	if(command.subcommands) {
+		var subcommands = command.subcommands;
+		command.subcommands = new Discord.Collection();
+		Object.keys(subcommands).forEach(c => {
+			var cmd = subcommands[c];
+			cmd.name = `${command.name} ${c}`;
+			cmd.parent = command;
+			cmd.module = command.module;
+			if(!command.sub_aliases) command.sub_aliases = new Discord.Collection();
+			command.sub_aliases.set(c, c);
+			if(cmd.alias) cmd.alias.forEach(a => command.sub_aliases.set(a, c));
+			if(command.permissions && !cmd.permissions) cmd.permissions = command.permissions;
+			if(command.guildOnly != undefined && cmd.guildOnly == undefined)
+				cmd.guildOnly = command.guildOnly;
+			command.subcommands.set(c, cmd);
+		})
+	}
+	return command;
+}
+
 async function setup() {
 	bot.db = require('./stores/__db')(bot);
 
@@ -82,12 +112,12 @@ async function setup() {
 	bot.commands = new Discord.Collection();
 	bot.aliases = new Discord.Collection();
 	for(f of files) {
-		var path_frags = f.split(/(?:\\|\/)/);
-		var mod = path_frags[path_frags.length - 2];
+		var path_frags = f.replace("./commands/","").split(/(?:\\|\/)/);
+		var mod = path_frags.length > 1 ? path_frags[path_frags.length - 2] : "Unsorted";
 		var file = path_frags[path_frags.length - 1];
 		if(!bot.modules.get(mod.toLowerCase())) {
 			var mod_info = require(file == "__mod.js" ? f : f.replace(file, "__mod.js"));
-			bot.modules.set(mod.toLowerCase(), {...mod_info, name: mod, commands: new Discord.Collection()});
+			bot.modules.set(mod.toLowerCase(), {...mod_info, name: mod, commands: new Discord.Collection()})
 			bot.mod_aliases.set(mod.toLowerCase(), mod.toLowerCase());
 			if(mod_info.alias) mod_info.alias.forEach(a => bot.mod_aliases.set(a, mod.toLowerCase()));
 		}
@@ -95,35 +125,11 @@ async function setup() {
 
 		mod = bot.modules.get(mod.toLowerCase());
 		if(!mod) {
-			console.log("??? Something went wrong I guess");
+			console.log("Whoopsies");
 			continue;
 		}
-
-		var command = require(f);
-		command.module = mod;
-		command.name = file.slice(0, -3).toLowerCase();
-		mod.commands.set(file.slice(0,-3).toLowerCase(), command);
-		bot.commands.set(file.slice(0, -3).toLowerCase(), command);
-		bot.aliases.set(command.name, command.name);
-		if(command.alias) {
-			command.alias.forEach(a => bot.aliases.set(a, command.name));
-		}
-		if(command.subcommands) {
-			var subcommands = command.subcommands;
-			command.subcommands = new Discord.Collection();
-			Object.keys(subcommands).forEach(c => {
-				var cmd = subcommands[c];
-				cmd.name = `${command.name} ${c}`;
-				cmd.parent = command;
-				cmd.module = command.module;
-				if(cmd.alias) {
-					if(!command.sub_aliases) command.sub_aliases = new Discord.Collection();
-					command.sub_aliases.set(c, c);
-					cmd.alias.forEach(a => command.sub_aliases.set(a, c));
-				}
-				command.subcommands.set(c, cmd);
-			})
-		}
+		
+		registerCommand({command: require(f), module: mod, name: file.slice(0, -3).toLowerCase()})
 	}
 }
 
@@ -170,7 +176,7 @@ bot.on('error', (err)=> {
 	bot.writeLog(`=====ERROR=====\r\nStack: ${err.stack}`)
 })
 
-process.on("unhandledRejection", (e) => console.log(e.message || e));
+process.on("unhandledRejection", (e) => console.log(/*e.message ||*/ e));
 
 setup();
 bot.login(process.env.TOKEN)

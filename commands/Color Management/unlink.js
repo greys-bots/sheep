@@ -20,13 +20,13 @@ module.exports = {
 
 		try {
 			await msg.member.roles.remove(role);
+			var scc = await bot.stores.userRoles.unlink(msg.guild.id, role, msg.author.id);
 		} catch(e) {
 			console.log(e);
-			return "ERR: "+e.message;
+			return "ERR: "+(e.message || e);
 		}
-		var scc = await bot.stores.userRoles.unlink(msg.guild.id, role, msg.author.id);
-		if(scc) return "Roles unlinked!";
-		else return "Something went wrong D:"
+		
+		return "Roles unlinked!";
 	},
 	guildOnly: true,
 	alias: ["share"]

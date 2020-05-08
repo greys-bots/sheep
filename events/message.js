@@ -11,8 +11,10 @@ module.exports = async (msg, bot)=>{
 	if(!args[0]) args.shift();
 	if(!args[0]) return msg.channel.send("Baaa!");
 	var config;
-	if(msg.guild) config = await bot.stores.configs.get(msg.guild.id);
-	else config = undefined;
+	if(msg.guild) {
+		config = (await bot.stores.configs.get(msg.guild.id)) || {};
+		config.usages = await bot.stores.usages.get(msg.guild.id);
+	} else config = {};
 	let {command, nargs} = await bot.parseCommand(bot, msg, args);
 	if(command) {
 		if(msg.guild) {
@@ -25,6 +27,21 @@ module.exports = async (msg, bot)=>{
 			if(check && !(["enable","disable"].includes(command.name))) {
 				console.log("- Command is disabled -")
 				return msg.channel.send("That command is disabled.");
+			}
+
+			if(config.usages && !msg.member.permissions.has('MANAGE_MESSAGES')) {
+				switch(config.usages.type) {
+					case 1:
+						if(!config.usages.whitelist.includes(msg.author.id) &&
+						   !config.usages.whitelist.find(x => msg.member.roles.cache.has(x)))
+							return msg.channel.send("You have not been whitelisted to use this bot!");
+						break;
+					case 2:
+						if(config.usages.blacklist.includes(msg.author.id) ||
+						   config.usages.blacklist.find(x => msg.member.roles.cache.has(x)))
+							return msg.channel.send("You have been blacklisted from using this bot!");
+						break;
+				}
 			}
 		} else {
 			if(command.guildOnly) {

@@ -1,5 +1,5 @@
 module.exports = async (reaction, user, bot)=> {
-	if(bot.user.id == user) return;
+	if(bot.user.id == user.id) return;
 
 	var msg;
 	if(reaction.message.partial) msg = await reaction.message.fetch();
@@ -9,7 +9,7 @@ module.exports = async (reaction, user, bot)=> {
 	if(msg.channel.guild) config = await bot.stores.configs.get(msg.channel.guild.id);
 	else config = undefined;
 
-	if(bot.menus && bot.menus[msg.id] && bot.menus[msg.id].user == user) {
+	if(bot.menus && bot.menus[msg.id] && bot.menus[msg.id].user == user.id) {
 		try {
 			await bot.menus[msg.id].execute(bot, msg, reaction, user, config);
 		} catch(e) {

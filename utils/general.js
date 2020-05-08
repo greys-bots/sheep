@@ -47,7 +47,7 @@ module.exports = {
 	},
 	paginateEmbeds: async function(bot, m, reaction) {
 		switch(reaction.emoji.name) {
-			case "\u2b05":
+			case "⬅️":
 				if(this.index == 0) {
 					this.index = this.data.length-1;
 				} else {
@@ -57,7 +57,7 @@ module.exports = {
 				await reaction.users.remove(this.user)
 				bot.menus[m.id] = this;
 				break;
-			case "\u27a1":
+			case "➡️":
 				if(this.index == this.data.length-1) {
 					this.index = 0;
 				} else {
@@ -67,7 +67,7 @@ module.exports = {
 				await reaction.users.remove(this.user)
 				bot.menus[m.id] = this;
 				break;
-			case "\u23f9":
+			case "⏹️":
 				await m.delete();
 				delete bot.menus[m.id];
 				break;
@@ -83,13 +83,8 @@ module.exports = {
 	
 	checkPermissions: async (bot, msg, cmd)=>{
 		return new Promise((res)=> {
-			if(cmd.permissions) {
-				console.log(msg.member.permissions);
-				console.log(msg.member.permissions.has(cmd.permissions))
-				res(msg.member.permissions.has(cmd.permissions))
-			} else {
-				res(true);
-			}
+			if(cmd.permissions) res(msg.member.permissions.has(cmd.permissions))
+			else res(true);
 		})
 	},
 	isDisabled: async (bot, srv, cmd, name) =>{
