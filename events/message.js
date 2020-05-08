@@ -13,7 +13,7 @@ module.exports = async (msg, bot)=>{
 	var config = {};
 	var usages = {whitelist: [], blacklist: []};
 	if(msg.guild) {
-		config = (await bot.stores.configs.get(msg.guild.id)) || {};
+		config = await bot.stores.configs.get(msg.guild.id);
 		usages = await bot.stores.usages.get(msg.guild.id);
 	}
 

@@ -3,6 +3,7 @@ module.exports = {
 	usage: ()=> [" [color] - Change your color to the one given"],
 	desc: ()=> "Colors can be hex codes or color names! Full list of names found [here](https://www.w3schools.com/colors/colors_names.asp)\nNote: Roles above the automatically-created Sheep role MUST be uncolored, or this won't work!",
 	execute: async (bot, msg, args, config = {role_mode: 0})=> {
+		console.log(config);
 		if(config.role_mode == 0) {
 			var color;
 			if(!args[0]) color = bot.tc.random();
