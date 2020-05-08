@@ -3,6 +3,7 @@ module.exports = {
 	usage: ()=> [" - toggles the color role mode"],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		var mode = Math.abs(config.role_mode - 1);
+		if(isNaN(mode)) mode = 0;
 		try {
 			await bot.stores.configs.update(msg.guild.id, {role_mode: mode});
 		} catch(e) {
