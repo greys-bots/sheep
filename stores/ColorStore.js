@@ -149,7 +149,7 @@ class ColorStore extends Collection {
 						await this.update(user, color.name.toLowerCase(), {color: color.color});
 						updated++;
 					} else {
-						await this.create(user, {name: color.name.toLowerCase(), color: color.color});
+						await this.create(user, color.name.toLowerCase(), {color: color.color});
 						created++;
 					}
 				}
