@@ -145,7 +145,7 @@ class ColorStore extends Collection {
 				for(var color of data) {
 					//gotta normalize all incoming color names to lowercase
 					//in case of tampering
-					if(colors.find(c => c.name == color.name.toLowerCase())) {
+					if(colors && colors.find(c => c.name == color.name.toLowerCase())) {
 						await this.update(user, color.name.toLowerCase(), {color: color.color});
 						updated++;
 					} else {
