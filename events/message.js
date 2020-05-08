@@ -10,11 +10,13 @@ module.exports = async (msg, bot)=>{
 	let args = msg.content.replace(new RegExp(`^(${bot.prefix.join("|")})`,"i"), "").split(" ");
 	if(!args[0]) args.shift();
 	if(!args[0]) return msg.channel.send("Baaa!");
-	var config;
+	var config = {};
+	var usages = {whitelist: [], blacklist: []};
 	if(msg.guild) {
 		config = (await bot.stores.configs.get(msg.guild.id)) || {};
-		config.usages = await bot.stores.usages.get(msg.guild.id);
-	} else config = {};
+		usages = await bot.stores.usages.get(msg.guild.id);
+	}
+
 	let {command, nargs} = await bot.parseCommand(bot, msg, args);
 	if(command) {
 		if(msg.guild) {
@@ -29,16 +31,16 @@ module.exports = async (msg, bot)=>{
 				return msg.channel.send("That command is disabled.");
 			}
 
-			if(config.usages && !msg.member.permissions.has('MANAGE_MESSAGES')) {
-				switch(config.usages.type) {
+			if(usages && !msg.member.permissions.has('MANAGE_MESSAGES')) {
+				switch(usages.type) {
 					case 1:
-						if(!config.usages.whitelist.includes(msg.author.id) &&
-						   !config.usages.whitelist.find(x => msg.member.roles.cache.has(x)))
+						if(!usages.whitelist.includes(msg.author.id) &&
+						   !usages.whitelist.find(x => msg.member.roles.cache.has(x)))
 							return msg.channel.send("You have not been whitelisted to use this bot!");
 						break;
 					case 2:
-						if(config.usages.blacklist.includes(msg.author.id) ||
-						   config.usages.blacklist.find(x => msg.member.roles.cache.has(x)))
+						if(usages.blacklist.includes(msg.author.id) ||
+						   usages.blacklist.find(x => msg.member.roles.cache.has(x)))
 							return msg.channel.send("You have been blacklisted from using this bot!");
 						break;
 				}
