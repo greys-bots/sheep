@@ -104,10 +104,12 @@ module.exports.subcommands.edit = {
 				 " color [name] [color] - Changes a role's color. This doesn't need a new line"],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		if(config.role_mode == 0) return "Current mode set to user-based roles; can't edit server-based ones! Use `s!tg` to toggle modes";
+		if(!args[0]) return "Please provide what to edit (`role` or `color`), as well as the role name and new value\nExample: `s!rl edit color test role #ffcc00`";
 		var data = {};
 		switch(args[0].toLowerCase()) {
 			case "name":
 				var newArgs = args.slice(1).join(" ").split("\n");
+				if(!newArgs[1]) return "This command requires the new role name to be on a new line!";
 				var role = msg.guild.roles.cache.find(r => r.name == newArgs[0]);
 				if(!role) return "Role not found";
 				data = {name: newArgs[1]};
