@@ -3,7 +3,7 @@ const fs  	= require('fs');
 var utils 	= {};
 
 module.exports = (app, ipc) => {
-	files = fs.readdirSync("../utils");
+	files = fs.readdirSync(__dirname + "/../utils");
 	files.forEach(f => Object.assign(utils, require("../utils/"+f)));
 	console.log("utils loaded");
 
