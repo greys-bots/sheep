@@ -26,11 +26,12 @@ function App() {
   return (
     <div className="App">
       <div className="App-header">
-        <img src="/favicon.ico" className="App-avatar"/>
+        <img src="/favicon.ico" className="App-avatar" alt="Sheep avatar"/>
         <p className="App-title">Sheep </p>
         <a className="App-button" href="https://discordapp.com/api/oauth2/authorize?client_id=585271178180952064&permissions=8&scope=bot">add me!</a>
         <a className="App-button" href="https://discord.gg/EvDmXGt">need help?</a>
         <a className="App-button" href="https://github.com/greys-bots/sheep">view source</a>
+        <a className="App-button" href="/dash">dashboard</a>
       </div>
       <div className="App-container">
         <section className="App-about">
@@ -45,7 +46,7 @@ function App() {
           </p>
           </div>
           <div style={{textAlign: "center"}}>
-          <img className="App-sheep" src={"/sheep/"+color} />
+          <img className="App-sheep" src={"/sheep/"+color} alt="Sheep image" />
           </div>
         </section>
         <Stats />

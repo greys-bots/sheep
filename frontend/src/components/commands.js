@@ -14,7 +14,7 @@ class Commands extends Component {
 	}
 
 	async componentDidMount() {
-		var data = await axios('/commands');
+		var data = await axios('/api/commands');
 		data = data.data;
 		data.commands = data.commands.sort((a,b) => a.name > b.name ? 1 : (a.name < b.name ? -1 : 0));
 		this.setState({...data, filters: data.modules.map(m => m.name).concat(["Unsorted"])});

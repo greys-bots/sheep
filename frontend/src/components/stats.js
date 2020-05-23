@@ -8,9 +8,9 @@ class Stats extends Component {
 	}
 
 	async componentDidMount() {
-		var stats = await fetch('/info');
+		var stats = await fetch('/api/info');
 		console.log(stats);
-		var stats = await stats.json();
+		stats = await stats.json();
 		console.log(stats);
 		this.setState({stats: stats});
 	}
