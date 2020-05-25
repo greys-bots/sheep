@@ -1,7 +1,10 @@
 module.exports = {
 	help: ()=> "Change your color",
-	usage: ()=> [" [color] - Change your color to the one given"],
-	desc: ()=> "Colors can be hex codes or color names! Full list of names found [here](https://www.w3schools.com/colors/colors_names.asp)\nNote: Roles above the automatically-created Sheep role MUST be uncolored, or this won't work!",
+	usage: ()=> [" [color] - Change your color to the one given",
+				 " index [user] [role] - Set an existing role as the given user's role. For mods only!"],
+	desc: ()=> ["Colors can be hex codes or color names! Full list of names found [here](https://www.w3schools.com/colors/colors_names.asp)",
+				"Note: Roles above the automatically-created Sheep role MUST be uncolored, or this won't work!",
+				"The role you're trying to edit must be below my highest role as well!"].join("\n"),
 	execute: async (bot, msg, args, config = {role_mode: 0})=> {
 		console.log(config);
 		if(config.role_mode == 0) {
@@ -71,5 +74,34 @@ module.exports = {
 		}
 	},
 	guildOnly: true,
-	alias: ['c', 'cl', 'colour', 'color', 'ch']
+	alias: ['c', 'cl', 'colour', 'color', 'ch'],
+	subcommands: {}
+}
+
+module.exports.subcommands.index = {
+	help: ()=> "Associate an existing role as a user's color role",
+	usage: ()=> [" [user] [role] - Set the given role as the one the user can change the color of"],
+	desc: ()=> "The user can be their ID or @mention; the role can be the name, ID, or @mention",
+	execute: async (bot, msg, args) => {
+		if(!args[1]) return "This command needs a user ID and the role to index!";
+
+		var member = msg.guild.members.cache.find(m => m.id == args[0].replace(/[<@!>]/g, ""));
+		if(!member) return "Member not found!";
+
+		var role = await bot.stores.userRoles.get(msg.guild.id, member.id);
+		if(role) return "They already have a color role!";
+
+		role = msg.guild.roles.cache.find(r => r.id == args[1].replace(/[<@&>]/g, "") || r.name.toLowerCase() == args.slice(1).join(" ").toLowerCase());
+		if(!role) return "Role not found :(";
+
+		try {
+			bot.stores.userRoles.create(msg.guild.id, member.id, role.id);
+			member.roles.add(role.id);
+		} catch(e) {
+			return "ERR: "+(e.message || e);
+		}
+
+		return "Role indexed! They can now change its color with `s!c`";
+	},
+	permissions: ["MANAGE_ROLES"]
 }

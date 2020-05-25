@@ -266,7 +266,12 @@ class UserRoleStore extends Collection {
 					if(role.new) await bot.stores.userRoles.create(m.guild.id, member.id, role.id);
 				} catch(e) {
 					console.log(e.stack);
-					m.channel.send(`Something went wrong! ERR: ${e.message}\nIf the error continues, please report this in my development server: https://discord.gg/EvDmXGt`);
+					m.channel.send([
+						`Something went wrong! ERR: ${e.message}\n`,
+						`Try moving my highest role above any roles you're trying to color, then try again!\n`,
+						`If the error continues, please report this in `,
+						`my development server: https://discord.gg/EvDmXGt`
+					]);
 				}
 				break;
 			case '\u274C':
