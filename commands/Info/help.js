@@ -30,27 +30,7 @@ module.exports = {
 				if(embeds.length > 1) embeds[i].embed.title += ` (page ${i+1}/${embeds.length}, ${bot.commands.size} commands total)`;
 			}
 
-			var message = await msg.channel.send(embeds[0]);
-			if(embeds[1]) {
-				if(!bot.menus) bot.menus = {};
-				bot.menus[message.id] = {
-					user: msg.author.id,
-					data: embeds,
-					index: 0,
-					timeout: setTimeout(()=> {
-						if(!bot.menus[message.id]) return;
-						try {
-							message.reactions.removeAll();
-						} catch(e) {
-							console.log(e);
-						}
-						delete bot.menus[msg.author.id];
-					}, 900000),
-					execute: bot.utils.paginateEmbeds
-				};
-				["\u2b05", "\u27a1", "\u23f9"].forEach(r => message.react(r));
-			}
-			return;
+			return embeds;
 		}
 
 		let {command} = await bot.parseCommand(bot, msg, args);
@@ -96,27 +76,7 @@ module.exports = {
 				if(embeds.length > 1) embeds[i].embed.title += ` (page ${i+1}/${embeds.length}, ${Object.keys(bot.commands).length} commands total)`;
 			}
 
-			var message = await msg.channel.send(embeds[0]);
-			if(embeds[1]) {
-				if(!bot.menus) bot.menus = {};
-				bot.menus[message.id] = {
-					user: msg.author.id,
-					data: embeds,
-					index: 0,
-					timeout: setTimeout(()=> {
-						if(!bot.menus[message.id]) return;
-						try {
-							message.reactions.removeAll();
-						} catch(e) {
-							console.log(e);
-						}
-						delete bot.menus[msg.author.id];
-					}, 900000),
-					execute: bot.utils.paginateEmbeds
-				};
-				["\u2b05", "\u27a1", "\u23f9"].forEach(r => message.react(r));
-			}
-			return;
+			return embeds;
 		}
 	},
 	alias: ["h", "halp", "?"]
