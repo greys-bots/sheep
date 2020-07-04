@@ -1,0 +1,171 @@
+.Docs-container {
+  flex: 1 1 auto;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+  position: relative;
+  overflow-y: hidden;
+}
+
+.Docs-navLinks > * {
+  margin-right: 10px;
+}
+
+/*.Docs-header {
+	display: flex;
+	flex-direction: row;
+	padding: 0 5px;
+  height: 8vmin;
+}
+
+.Docs-header a.active {
+  background: #333;
+  border-radius: 10px;
+  padding: 10px;
+}*/
+
+.Docs-main {
+  flex: 1 1 auto;
+	height: 95%;
+  width: 95%;
+  display: flex;
+  flex-direction: row;
+  border-radius: 10px;
+  background: #202020;
+  margin-bottom: 10px;
+}
+
+.Docs-sidebar {
+	width: 25%;
+	display: flex;
+	flex-direction: column;
+  background: #333;
+  border-radius: 10px;
+  padding: 5px 0;
+  overflow-y: auto;
+}
+
+:is(.Docs-sidebar, .Docs-navSidebar) ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+:is(.Docs-sidebar, .Docs-navSidebar) :is(h1, h2, h3) {
+  margin: 5px;
+}
+
+:is(.Docs-sidebar, .Docs-navSidebar) > ul {
+  padding: 0;
+}
+
+.Docs-info {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+  overflow-y: auto;
+}
+
+.Docs-info * {
+	margin: 5px;
+}
+
+.Docs-button {
+  position: relative;
+  font-size: inherit;
+  color: #ccc;
+  text-decoration: none;
+  transition: .25s linear;
+}
+
+.Docs-button:hover {
+  text-decoration: none;
+}
+
+.Docs-button::before {
+  content: "";
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: all .2s ease-in-out 0s;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+}
+
+.Docs-button:hover::before {
+  width: 100%;
+  left: 0;
+}
+
+.Docs-mobileLinks {
+  display: none;
+}
+
+.Docs-mobileLinks > * {
+  margin: 0 5px 0 0;
+  color: #ccc;
+  padding: 0;
+}
+
+.Docs-navSidebar {
+  display: flex;
+  flex-direction: column;
+  background: #333;
+  position: absolute;
+  z-index: 9;
+  left: -100%;
+  width: 0;
+  height: 100%;
+  transition: .25s;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.Docs-navSidebar a {
+  margin: 0;
+}
+
+/*.Docs-navHeader {
+  width: 100%;
+  height: 5vmin;
+  position: relative;
+  background: #202020;
+}*/
+
+.Docs-close {
+  height: 100%;
+  width: 5vmin;
+  background: #333;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+@media(max-width: 900px) {
+  .Docs-navSidebar.open {
+    left: 0;
+    width: 100%;
+  }
+
+  .Docs-mobileLinks {
+    display: flex;
+    align-items: baseline;
+  }
+
+  .Docs-navLinks {
+    display: none;
+  }
+
+  .Docs-sidebar {
+    display: none;
+  }
+
+  .Docs-info {
+    width: 100%;
+  }
+}

@@ -21,11 +21,12 @@ module.exports = {
 			}
 
 			if(options.info != undefined) {
-				text = [
-				`Hex: ${color.toHexString().toUpperCase()}`,
-				`RGB: ${color.toRgbString()}`,
-				`HSV: ${color.toHsvString()}`
-				]
+				if(text[0] === color.toHexString().toUpperCase()) text = [];
+				text = text.concat([
+					`Hex: ${color.toHexString().toUpperCase()}`,
+					`RGB: ${color.toRgbString()}`,
+					`HSV: ${color.toHsvString()}`
+				]);
 
 				size = [512, 512];
 				fontsize = 32;

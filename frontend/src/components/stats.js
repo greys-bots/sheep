@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import * as fetch from 'node-fetch';
+import axios from 'axios';
 
 class Stats extends Component {
 	constructor(props) {
@@ -8,9 +8,8 @@ class Stats extends Component {
 	}
 
 	async componentDidMount() {
-		var stats = await fetch('/api/info');
-		console.log(stats);
-		stats = await stats.json();
+		var stats = await axios('/api/info');
+		stats = stats.data;
 		console.log(stats);
 		this.setState({stats: stats});
 	}

@@ -2,72 +2,81 @@ html {
   scroll-behavior: smooth;
 }
 
+body, #root, .App {
+  height: 100vh;
+}
+
 body {
   background-color: #111;
   color: white;
+  font-size: calc(10px + 1.5vmin);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
 }
 
 .App {
+  flex: 1 1 auto;
   text-align: left;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
 }
 
-.App-avatar {
-  border-radius: 10px;
-  height: 7vmin;
-  width: 7vmin;
-  border-width: .5vh;
-  border-color: white;
-  border-style: solid;
-  pointer-events: none;
-}
-
 .App-header {
-  border-radius: 10px;
-  background-color: transparent;
-  height: 8vmin;
+  background-color: rgba(20, 20, 20, 1);
   display: flex;
   flex-direction: row;
-  align-items: center;
-  position: absolute;
-  top: 0;
+  align-items: baseline;
   z-index: 10;
   width: 100%;
 }
 
-.App-header p {
-  margin: auto 5px;
-}
-
 .App-title {
-  font-size: calc(8px + 2vmin);
-  padding-right: 5px;
-  border-right: 1px solid white;
+  margin: 0 5px;
 }
 
 .App-button {
-  background-color: #3a3a3a;
-  border-radius: 5px;
-  margin: 20px;
-  padding: 10px 5px;
-  color: white;
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  margin: 0 10px;
+  position: relative;
+  color: #fff;
   text-decoration: none;
   transition: .25s linear;
 }
 
-.App-button:hover {
-  background-color: #555;
-  border-radius: 5px;
-  margin: 20px;
-  padding: 10px 5px;
-  color: white;
+.App-header .App-button:hover {
   text-decoration: none;
-  transform: scale(1.025);
-  transition: .25s linear;
+}
+
+.App-header .App-button::before {
+  content: "";
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: all .2s ease-in-out 0s;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+}
+
+.App-header .App-button:hover::before {
+  width: 100%;
+  left: 0;
+}
+
+.App-footer .App-button {
+  background: #333;
+  padding: 10px;
+}
+
+.App-footer .App-button:hover {
+  transform: scale(1.1);
 }
 
 .App-container {
@@ -77,6 +86,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  overflow-y: auto;
 }
 
 .App-about {
@@ -94,8 +104,33 @@ body {
   width: 50%;
   text-align: justify;
   overflow-x: hidden;
-  font-size: calc(10px + 1.5vmin);
   padding: 10px;
+}
+
+.App-features {
+  background: #333;
+  width: 90%;
+  padding: 10px;
+}
+
+.App-features h1 {
+  font-size: 32px;
+  text-align: center;
+}
+
+.App-features .inner {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.App-features .inner div {
+  max-height: 500px;
+  background: #202020;
+  padding: 10px;
+  margin: 10px;
+  width: 45%;
 }
 
 .App-footer {
@@ -219,11 +254,64 @@ a:hover {
 }
 
 .App-note {
-  font-size: calc(6px + 1.5vmin);
   padding: 10px;
   margin: 20px;
   width: 90%;
   background-color: #333;
+}
+
+.App-generator {
+  width: 90%;
+  background: #222;
+  padding: 10px;
+  margin: 50px 0;
+  text-align: center;
+}
+
+.App-generator form {
+  width: 100%;
+}
+
+.App-generator p {
+  margin: 10px 0;
+}
+
+.App-generator a {
+  text-align: center;
+}
+
+.App-generator img {
+  max-width: 90%;
+}
+
+.App-generator button {
+  color: white;
+  font-size: inherit;
+  border: none;
+  margin: 10px 0;
+  padding: 5px;
+  width: 50%;
+  background: #333;
+  border-radius: 3px;
+}
+
+.App-warning {
+  color: #aa5555;
+}
+
+input[type="text"] {
+  color: white;
+  background: #111;
+  border: none;
+  padding: 5px;
+  font-size: inherit;
+  width: 50%;
+  border-radius: 3px;
+}
+
+input:disabled {
+  opacity: .5;
+  cursor: not-allowed;
 }
 
 table {
@@ -306,6 +394,18 @@ td {
 
 }
 
+@media (max-width: 900px) {
+  .App-features .inner {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .App-features .inner div {
+    width: 90%;
+    margin: 10px 0;
+  }
+}
+
 @media (min-width: 651px) {
   .App-commandsContainer .App-command:nth-child(even) {
     background-color: #202020;
@@ -313,6 +413,13 @@ td {
 
   .App-commandsContainer .App-command:nth-child(odd) {
     background-color: #333;
+  }
+}
+
+@media (max-width: 500px) {
+  .App-header {
+    flex-direction: column;
+    align-items: center;
   }
 }
 

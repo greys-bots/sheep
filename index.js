@@ -27,4 +27,4 @@ app.use(async (req, res)=> {
 
 console.log("Sheep ready!");
 module.exports = app;
-// app.listen(process.env.PORT || 8080);
+app.listen(process.env.PORT || 8080);

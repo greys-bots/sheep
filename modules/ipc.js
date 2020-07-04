@@ -15,6 +15,10 @@ ipc.connectTo('sheep-bot', function() {
 	ipc.of['sheep-bot'].on('COMMANDS', function(msg) {
 		console.log('commands received!');
 		ipc.data.commands = msg.cmds;
+		msg.mods.forEach(m => {
+			m.commands = msg.cmds.filter(x => m.commands.includes(x.name));
+		})
+
 		ipc.data.modules = msg.mods;
 	})
 })
