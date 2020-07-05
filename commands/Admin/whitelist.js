@@ -6,7 +6,7 @@ module.exports = {
 				 " clear - Clears the whitelist",
 				 " on - Turns on the whitelist. Turns off the blacklist if it's active",
 				 " off - Turns off the whitelist, but preserves the data there"],
-	desc: ()=> "NOTE: Mods (aka those permission to `MANAGE_MESSAGES`) will still be able to use the bot no matter what",
+	desc: ()=> "NOTE: Mods (aka those with permission to `MANAGE_MESSAGES`) will still be able to use the bot no matter what",
 	execute: async (bot, msg, args) => {
 		var config = await bot.stores.usages.get(msg.guild.id);
 		if(!config) return "No config registered!";
