@@ -50,8 +50,9 @@ class DocsHome extends Component {
 	          <a className="App-buttton" href="/">home</a>
 	          {this.state.modules.map(m =>
 	          	(<NavLink className="Docs-button"
-	          	to={`/docs/${m.name.replace(" ", "-").toLowerCase()}`}>
-	          	{m.name.toLowerCase()}
+		          	key={m.name.toLowerCase()}
+		          	to={`/docs/${m.name.replace(" ", "-").toLowerCase()}`}>
+		          	{m.name.toLowerCase()}
 	          	</NavLink>))}
 	          </nav>
 	        </div>
@@ -62,6 +63,7 @@ class DocsHome extends Component {
 	        			<Frag>
 	        			<h1>
 	        			<NavLink className="Docs-button"
+	        				key={`mobile-${m.name}`}
 				          	to={`/docs/${m.name.replace(" ", "-").toLowerCase()}`}>
 				          	{m.name}
 				        </NavLink>
@@ -69,12 +71,18 @@ class DocsHome extends Component {
 				        <ul>
 				        {m.commands && m.commands.map(c => {
 							if(!c.subcommands || !c.subcommands[0])
-								return (<li><h3><Link to={`/docs/${m.name}/#${c.name}`}>{c.name}</Link></h3></li>);
+								return (
+									<li>
+										<h3>
+										<Link key={`mobile-${m.name}-${c.name}`} to={`/docs/${m.name}/#${c.name}`}>{c.name}</Link>
+										</h3>
+									</li>
+								);
 							else {
 								return (
-									<li><h3><Link to={`#${c.name}`}>{c.name}</Link></h3>
+									<li><h3><Link key={`mobile-${m.name}-${c.name}`} to={`#${c.name}`}>{c.name}</Link></h3>
 										<ul>
-										{c.subcommands.map(sc => <l1><Link to={`/docs/${m.name}/#${sc.name.replace(" ", "-")}`}>{sc.name.replace(c.name + " ", "")}</Link></l1>)}
+										{c.subcommands.map(sc => <l1><Link key={`mobile-${m.name}-${c.name}-${sc.name}`} to={`/docs/${m.name}/#${sc.name.replace(" ", "-")}`}>{sc.name.replace(c.name + " ", "")}</Link></l1>)}
 										</ul>
 									</li>
 								)
