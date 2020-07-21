@@ -12,7 +12,7 @@ bot.tc = require('tinycolor2');
 bot.jimp = require('jimp');
 bot.fetch = require('axios');
 
-bot.status = -1;
+bot.status = 0;
 bot.guildCount = 0;
 bot.statuses = [
 	async ()=> {
@@ -27,28 +27,12 @@ bot.statuses = [
 ];
 
 bot.updateStatus = async function(){
-	//wait for all guilds to show up before setting the status again
-	if(bot.status == -1) {
-		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
-		if(guilds != bot.guildCount) {
-			console.log("updating guilds...", guilds);
-			bot.guildCount = guilds;
-			setTimeout(()=> bot.updateStatus(), 10000);
-		} else {
-			bot.status = 0;
-			bot.updateStatus();
-		}
-		return;
-	}
 	var target = bot.statuses[bot.status % bot.statuses.length];
-	console.log(target);
-	if(typeof target == "function") {
-		console.log(target());
-		bot.user.setActivity(await target());
-	} else bot.user.setActivity(target);
+	if(typeof target == "function") bot.user.setActivity(await target());
+	else bot.user.setActivity(target);
 	bot.status++;
 		
-	setTimeout(()=> bot.updateStatus(), 600000)
+	setTimeout(()=> bot.updateStatus(), 5 * 60 * 1000) // 5 mins
 }
 
 const recursivelyReadDirectory = function(dir) {
@@ -96,23 +80,23 @@ const registerCommand = function({command, module, name} = {}) {
 }
 
 async function setup() {
-	bot.db = require('./stores/__db')(bot);
+	bot.db = require(__dirname + '/../common/stores/__db')(bot);
 
-	files = fs.readdirSync("./events");
-	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require("./events/"+f)(...args,bot)));
+	files = fs.readdirSync(__dirname + "/events");
+	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require(__dirname + "/events/"+f)(...args,bot)));
 
 	bot.utils = {};
-	files = fs.readdirSync("./utils");
-	files.forEach(f => Object.assign(bot.utils, require("./utils/"+f)));
+	files = fs.readdirSync(__dirname + "/utils");
+	files.forEach(f => Object.assign(bot.utils, require(__dirname + "/utils/"+f)));
 
-	files = recursivelyReadDirectory("./commands");
+	files = recursivelyReadDirectory(__dirname + "/commands");
 
 	bot.modules = new Discord.Collection();
 	bot.mod_aliases = new Discord.Collection();
 	bot.commands = new Discord.Collection();
 	bot.aliases = new Discord.Collection();
 	for(f of files) {
-		var path_frags = f.replace("./commands/","").split(/(?:\\|\/)/);
+		var path_frags = f.replace(__dirname + "/commands/","").split(/(?:\\|\/)/);
 		var mod = path_frags.length > 1 ? path_frags[path_frags.length - 2] : "Unsorted";
 		var file = path_frags[path_frags.length - 1];
 		if(!bot.modules.get(mod.toLowerCase())) {
@@ -164,11 +148,10 @@ bot.writeLog = async (log) => {
 }
 
 bot.on("ready", async ()=> {
-	console.log('Ready!');
+	console.log(`Shard ${bot.shard.ids.join(", ")} ready!`);
 	bot.writeLog('=====LOG START=====')
 	await bot.user.setActivity("s!h | booting...");
-	if(bot.shard.ids.find(id => id+1 == bot.shard.count))
-		await bot.shard.broadcastEval('this.updateStatus()');
+	bot.shard.send('READY');
 })
 
 bot.on('error', (err)=> {
@@ -176,7 +159,7 @@ bot.on('error', (err)=> {
 	bot.writeLog(`=====ERROR=====\r\nStack: ${err.stack}`)
 })
 
-process.on("unhandledRejection", (e) => console.log(/*e.message ||*/ e));
+process.on("unhandledRejection", (e) => console.log(e.message || e));
 
 setup();
 bot.login(process.env.TOKEN)

@@ -44,7 +44,6 @@ class ServerRoleStore extends Collection {
 
 	async get(server, role) {
 		return new Promise(async (res, rej) => {
-			console.log(server, role);
 			try {
 				var data = await this.db.query(`SELECT * FROM server_roles WHERE server_id = $1 AND role_id = $2`, [server, role]);
 			} catch(e) {
@@ -66,6 +65,21 @@ class ServerRoleStore extends Collection {
 				}
 				data.rows = data.rows.filter(x => x != "deleted");
 				if(!data.rows || !data.rows[0]) return res(undefined);
+				res(data.rows[0])
+			} else res(undefined);
+		})
+	}
+
+	async getRaw(server, role) {
+		return new Promise(async (res, rej) => {
+			try {
+				var data = await this.db.query(`SELECT * FROM server_roles WHERE server_id = $1 AND role_id = $2`, [server, role]);
+			} catch(e) {
+				console.log(e);
+				return rej(e.message);
+			}
+
+			if(data.rows && data.rows[0]) {
 				res(data.rows[0])
 			} else res(undefined);
 		})
@@ -94,6 +108,21 @@ class ServerRoleStore extends Collection {
 				}
 				data.rows = data.rows.filter(x => x != "deleted");
 				if(!data.rows || !data.rows[0]) return res(undefined);
+				res(data.rows)
+			} else res(undefined);
+		})
+	}
+
+	async getAllRaw(server) {
+		return new Promise(async (res, rej) => {
+			try {
+				var data = await this.db.query(`SELECT * FROM server_roles WHERE server_id = $1`,[server]);
+			} catch(e) {
+				console.log(e);
+				return rej(e.message);
+			}
+
+			if(data.rows && data.rows[0]) {
 				res(data.rows)
 			} else res(undefined);
 		})
