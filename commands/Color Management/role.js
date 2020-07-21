@@ -6,11 +6,12 @@ module.exports = {
 				 " reset - Deletes all indexed color roles and switches to user-based roles"],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		var roles = await bot.stores.serverRoles.getAll(msg.guild.id);
-		console.log(roles);
 		if(!roles || !roles[0]) return "No indexed roles";
 		
 		var embeds = await bot.utils.genEmbeds(bot, roles.filter(x => x.name != "invalid"), (r) => {
-			return {name: r.raw.name, value: `#${r.raw.color ? r.raw.color.toString(16).toUpperCase() : "(no color)"}`}
+			var color = r.raw.color.toString(16).toUpperCase();
+			if(color.length == 5) color = "0"+color;
+			return {name: r.raw.name, value: `#${r.raw.color ? color : "(no color)"}`}
 		}, {
 			title: "Server Color Roles",
 			description: "name : color"
@@ -55,7 +56,9 @@ module.exports.subcommands.index = {
 		if(config.role_mode == 0) return "Current mode set to user-based roles; can't add new server-based ones! Use `s!tg` to toggle modes";
 		var role = await msg.guild.roles.cache.find(r => r.name == args.join(" ").toLowerCase() || r.id == args[0].replace(/[<@&>]/g,""));
 		if(!role) return "Couldn't find that role.";
+		if(!role.color) return "That role doesn't have a color, and can't be indexed :(";
 		var color = bot.tc(role.color.toString(16));
+		if(!color.isValid()) color = bot.tc("0"+role.color.toString(16)); //add leading 0 in case it gets removed
 		if(!color.isValid()) return "That role doesn't have a valid color, so I can't index it :(";
 		var exists = await bot.stores.serverRoles.get(msg.guild.id, role.id);
 		if(exists) return "Role already indexed!";
