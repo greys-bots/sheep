@@ -95,7 +95,7 @@ module.exports.subcommands.remove = {
 	},
 	guildOnly: true,
 	permissions: ["MANAGE_ROLES"],
-	alias: ['ind']
+	alias: ['unind']
 }
 
 module.exports.subcommands.edit = {
