@@ -105,6 +105,29 @@ module.exports.subcommands.rename = {
 	alias: ["rn", "name"]
 }
 
+module.exports.subcommands.repick = {
+	help: ()=> "Repicks a saved color",
+	usage: ()=> [" [name] [new color] - Sets a new color for the given saved one"],
+	execute: async (bot, msg, args) => {
+		if(!args[1]) return "Please provide a color and the new value";
+		
+		var color = await bot.stores.colors.get(msg.author.id, args[0].toLowerCase());
+		if(!color) return msg.channel.send("Color not found! D:");
+
+		var cl = bot.tc(args.slice(1).join(""));
+		if(!cl.isValid()) return "That color isn't valid!";
+
+		try {
+			await bot.stores.colors.update(msg.author.id, color.name, {color: cl.toHex()});
+		} catch(e) {
+			return "ERR: "+e;
+		}
+
+		return "Color repicked!";
+	},
+	alias: ["rp", "color"]
+}
+
 module.exports.subcommands.delete = {
 	help: ()=> "Delete a saved color",
 	usage: ()=> [" [name] - Deletes the given color",
