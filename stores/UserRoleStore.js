@@ -112,31 +112,9 @@ class UserRoleStore extends Collection {
 				return rej(e.message);
 			}
 
-			if(!this.bot) return res(data.rows[0]);
-
-			var guild = this.bot.guilds.resolve(server);
-			if(!guild) return rej("Couldn't get guild");
-			
 			if(data.rows && data.rows[0]) {
-				var role;
-				for(var i = 0; i < data.rows.length; i++) {
-					role = guild.roles.cache.find(r => r.id == data.rows[i].role_id);
-					if(!role || role.deleted) {
-						console.log(`deleting role ${data.rows[i].role_id}`);
-						this.deleteByRoleID(data.rows[i].server_id, data.rows[i].role_id);
-						data.rows[i] = "deleted";
-					} else data.rows[i].raw = role;
-				}
-				data.rows = data.rows.filter(x => x != "deleted");
-				if(!data.rows || !data.rows[0]) return res(undefined);
 				res(data.rows[0])
-			} else {
-				role = guild.roles.cache.find(r => r.name == user);
-				if(!role) res(undefined);
-				else {
-					return res(await this.create(server, user, role.id));
-				}
-			}
+			} else res(undefined);
 		})
 	}
 
@@ -162,11 +140,14 @@ class UserRoleStore extends Collection {
 				return rej(e.message);
 			}
 
+			var guild = this.bot.guilds.resolve(server);
+			if(!guild) return rej("Couldn't get guild");
+
 			if(data.rows && data.rows[0]) {
-				var role;
 				for(var i = 0; i < data.rows.length; i++) {
+					var role;
 					role = guild.roles.cache.find(r => r.id == data.rows[i].role_id);
-					if(!role || role.deleted || !member.roles.cache.find(r => r.id == data.rows[i].role_id)) {
+					if(!role || role.deleted) {
 						console.log(`deleting role ${data.rows[i].role_id}`);
 						this.deleteByRoleID(data.rows[i].server_id, data.rows[i].role_id);
 						data.rows[i] = "deleted";
@@ -175,11 +156,37 @@ class UserRoleStore extends Collection {
 				data.rows = data.rows.filter(x => x != "deleted");
 				if(!data.rows || !data.rows[0]) return res(undefined);
 				res(data.rows)
-			} else {
-				role = guild.roles.cache.find(r => r.name == user);
-				if(!role) res(undefined);
-				else res(role);
+			} else res(undefined);
+		})
+	}
+
+	async getAllRaw(server) {
+		return new Promise(async (res, rej) => {
+			try {
+				var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1`, [server]);
+			} catch(e) {
+				console.log(e);
+				return rej(e.message);
 			}
+
+			if(data.rows && data.rows[0]) {
+				res(data.rows)
+			} else res(undefined);
+		})
+	}
+
+	async getAllByUserRaw(user) {
+		return new Promise(async (res, rej) => {
+			try {
+				var data = await this.db.query(`SELECT * FROM user_roles WHERE user_id = $1`, [user]);
+			} catch(e) {
+				console.log(e);
+				return rej(e.message);
+			}
+
+			if(data.rows && data.rows[0]) {
+				res(data.rows)
+			} else res(undefined);
 		})
 	}
 
