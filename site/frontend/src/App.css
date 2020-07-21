@@ -1,0 +1,435 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body, #root, .App {
+  height: 100vh;
+}
+
+body {
+  background-color: #111;
+  color: white;
+  font-size: calc(10px + 1.5vmin);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+.App {
+  flex: 1 1 auto;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.App-header {
+  background-color: rgba(20, 20, 20, 1);
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  z-index: 10;
+  width: 100%;
+}
+
+.App-title {
+  margin: 0 5px;
+}
+
+.App-button {
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  margin: 0 10px;
+  position: relative;
+  color: #fff;
+  text-decoration: none;
+  transition: .25s linear;
+}
+
+.App-header .App-button:hover {
+  text-decoration: none;
+}
+
+.App-header .App-button::before {
+  content: "";
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: all .2s ease-in-out 0s;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+}
+
+.App-header .App-button:hover::before {
+  width: 100%;
+  left: 0;
+}
+
+.App-footer .App-button {
+  background: #333;
+  padding: 10px;
+}
+
+.App-footer .App-button:hover {
+  transform: scale(1.1);
+}
+
+.App-container {
+  text-align: left;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.App-about {
+  height: 200px;
+  background-color: #202020;
+  width: 100%;
+  padding: 100px 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.App-about div {
+  width: 50%;
+  text-align: justify;
+  overflow-x: hidden;
+  padding: 10px;
+}
+
+.App-features {
+  background: #333;
+  width: 90%;
+  padding: 10px;
+}
+
+.App-features h1 {
+  font-size: 32px;
+  text-align: center;
+}
+
+.App-features .inner {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.App-features .inner div {
+  max-height: 500px;
+  background: #202020;
+  padding: 10px;
+  margin: 10px;
+  width: 45%;
+}
+
+.App-footer {
+  height: 200px;
+  background-color: #202020;
+  width: 100%;
+  padding: 100px 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.App-footer div {
+  width: 90%;
+  text-align: justify;
+  overflow-x: hidden;
+  font-size: calc(10px + 1.5vmin);
+  padding: 10px;
+}
+
+.App-footer .App-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.App-footer .App-links>* {
+  flex: 1 1 0;
+  width: 90%;
+}
+
+a {
+  text-decoration: none;
+  color: #ccc;
+}
+
+a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.App-color {
+  padding: 0 3px;
+  border-radius: 5px;
+}
+
+.App-commandsContainer {
+  font-size: calc(6px + 1.5vmin);
+  padding: 100px 10px 0 10px;
+  width: 90%;
+}
+
+.App-commandsHeader {
+  display: flex;
+  flex-direction: row !important;
+  padding: 10px;
+}
+
+.App-command {
+  display: flex;
+  flex-direction: column;
+  margin: 10px auto;
+  transition: .5s;
+  padding: 10px;
+}
+
+.App-commandInner {
+  display: flex;
+  flex-direction: row;
+}
+
+.App-commandInner>* {
+  flex: 1 1 0;
+  padding: 10px;
+}
+
+.App-command>* {
+  flex: 1 1 0;
+}
+
+.App-subcommand {
+  display: none;
+  position: relative;
+  border-top: 2px solid #202020;
+}
+
+.App-command.active .App-subcommand {
+  display: flex;
+  animation: App-cardAnim .25s forwards;
+}
+
+.App-extras {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  background-color: transparent !important;
+}
+
+.App-extra {
+  padding: 10px;
+  margin: 2px;
+  border-radius: 10px;
+  background-color: #444;
+}
+
+.App-filters {
+  background-color: #202020;
+  padding: 10px;
+}
+
+.App-filters div {
+  display: flex;
+  justify-content: space-around;
+}
+
+.App-filters p {
+  padding: 10px 20px;
+  background-color: #333;
+}
+
+.App-note {
+  padding: 10px;
+  margin: 20px;
+  width: 90%;
+  background-color: #333;
+}
+
+.App-generator {
+  width: 90%;
+  background: #222;
+  padding: 10px;
+  margin: 50px 0;
+  text-align: center;
+}
+
+.App-generator form {
+  width: 100%;
+}
+
+.App-generator p {
+  margin: 10px 0;
+}
+
+.App-generator a {
+  text-align: center;
+}
+
+.App-generator img {
+  max-width: 90%;
+}
+
+.App-generator button {
+  color: white;
+  font-size: inherit;
+  border: none;
+  margin: 10px 0;
+  padding: 5px;
+  width: 50%;
+  background: #333;
+  border-radius: 3px;
+}
+
+.App-warning {
+  color: #aa5555;
+}
+
+input[type="text"] {
+  color: white;
+  background: #111;
+  border: none;
+  padding: 5px;
+  font-size: inherit;
+  width: 50%;
+  border-radius: 3px;
+}
+
+input:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+table {
+  border-collapse: collapse;
+  color: black;
+  padding: 10px;
+}
+
+table {
+  border: 1px solid white;
+}
+
+td {
+  width: 200px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #333;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+@media (max-width: 940px) {
+  .App-about {
+    padding: 150px 0;
+  }
+
+  .App-footer {
+    padding: 150px 0;
+  }
+
+  .App-sheep {
+    width: 50%;
+    height: auto;
+  }
+}
+
+@media (max-width: 650px) {
+
+  .App-about {
+    height: 100%;
+    flex-direction: column;
+  }
+
+  .App-footer {
+    height: 100%;
+    flex-direction: column;
+  }
+
+  .App-commandsHeader {
+    display: none;
+  }
+
+  .App-commandInner {
+    flex-direction: column;
+  }
+
+  .App-command {
+    background-color: #333;
+  }
+
+  .App-commandInner div:nth-child(odd) {
+    background-color: #333;
+  }
+
+  .App-commandInner div:nth-child(even) {
+    background-color: #202020;
+  }
+
+}
+
+@media (max-width: 900px) {
+  .App-features .inner {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .App-features .inner div {
+    width: 90%;
+    margin: 10px 0;
+  }
+}
+
+@media (min-width: 651px) {
+  .App-commandsContainer .App-command:nth-child(even) {
+    background-color: #202020;
+  }
+
+  .App-commandsContainer .App-command:nth-child(odd) {
+    background-color: #333;
+  }
+}
+
+@media (max-width: 500px) {
+  .App-header {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@keyframes App-cardAnim {
+  0% {
+    top: 20px;
+    opacity: 0;
+  }
+  100% {
+    top: 0px;
+    opacity: 1;
+  }
+}

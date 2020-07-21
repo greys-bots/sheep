@@ -1,0 +1,118 @@
+.Dash-header {
+  background-color: rgba(20, 20, 20, 1);
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+.Dash-container {
+	flex: 1 1 auto;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	position: relative;
+	overflow-y: hidden;
+}
+
+.Dash-main {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	background: #202020;
+	overflow-y: auto;
+}
+
+.Dash-login {
+	padding: 10px;
+	background-color: transparent;
+	border: 2px solid white;
+	color: white;
+	position: absolute;
+	right: 5px;
+}
+
+.Dash-sidebar {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	width: 25%;
+	position: relative;
+}
+
+.Dash-sideLink {
+	background: #333;
+	margin-bottom: 5px;
+	width: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.Dash-sideLink.active {
+	background: #555;
+}
+
+.Dash-sideLink img {
+	width: 32px;
+	height: 32px;
+	margin: 5px;
+}
+
+.Dash-sideLink span {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow-x: hidden;
+	max-width: 80%;
+}
+
+#saved-colors {
+	width: 90%;
+	text-align: center;
+}
+
+.Dash-savedColor {
+	display: flex;
+	flex-wrap: nowrap;
+	padding: 10px;
+	border-radius: 10px;
+	background: #444;
+	margin: 10px;
+}
+
+.Dash-savedColor > * {
+	max-width: 30%;
+	margin: 10px;
+}
+
+.Dash-savedColor button {
+	border: none;
+	box-shadow: none;
+	background: #111;
+	color: white;
+	padding: 5px;
+	border-radius: 10px;
+}
+
+.Dash-savedColor input[type="text"] {
+	border: none;
+	box-shadow: none;
+	background: #222;
+	color: white;
+	padding: 5px;
+	border-radius: 10px;
+}
+
+@media (max-width: 500px) {
+  .Dash-header {
+    flex-direction: column;
+    align-items: center;
+  }
+}
