@@ -16,7 +16,7 @@ module.exports = {
 
 module.exports.subcommands.refresh = {
 	help: ()=> "Creates a new token for your account",
-	usage: ()=> [" = Resets your account's API token, in case it gets leaked"],
+	usage: ()=> [" - Resets your account's API token, in case it gets leaked"],
 	execute: async (bot, msg, args) => {
 		var token = await bot.stores.tokens.get(msg.author.id);
 		if(!token) token = await bot.stores.tokens.create(msg.author.id, [...Array(32)].map(i=>(~~(Math.random()*36)).toString(36)).join(''));

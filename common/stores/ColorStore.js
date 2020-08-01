@@ -1,4 +1,5 @@
 const {Collection} = require("discord.js");
+const tc 		   = require('tinycolor2');
 
 class ColorStore extends Collection {
 	constructor(bot, db) {
@@ -89,7 +90,7 @@ class ColorStore extends Collection {
 				return rej(e.message);
 			}
 
-			res(await this.get(user, name, true));
+			res(await this.get(user, data.name?.toLowerCase() || name, true));
 		})
 	}
 
@@ -143,13 +144,11 @@ class ColorStore extends Collection {
 				var colors = await this.getAll(user);
 				var updated = 0, created = 0;
 				for(var color of data) {
-					//gotta normalize all incoming color names to lowercase
-					//in case of tampering
-					if(colors && colors.find(c => c.name == color.name.toLowerCase())) {
-						await this.update(user, color.name.toLowerCase(), {color: color.color});
+					if(colors && colors.find(c => c.name.toLowerCase() == color.name.toLowerCase())) {
+						await this.update(user, color.name, {color: tc(color.color).toHex()});
 						updated++;
 					} else {
-						await this.create(user, color.name.toLowerCase(), {color: color.color});
+						await this.create(user, color.name, {color: tc(color.color).toHex()});
 						created++;
 					}
 				}
@@ -158,6 +157,26 @@ class ColorStore extends Collection {
 			}
 
 			return res({updated, created, colors: await this.getAll(user)});
+		})
+	}
+
+	//normalize colors in the database
+	//to all be hex strings
+	async normalize() {
+		return new Promise(async (res, rej) => {
+			try {
+				var data = await this.db.query(`SELECT * FROM colors`);
+			} catch(e) {
+				return rej(e.message);
+			}
+
+			if(!data?.rows) return res();
+
+			for(var color of data.rows) {
+				await this.update(color.user_id, color.name.toLowerCase(), {color: tc(color.color).toHex()});
+			}
+
+			res();
 		})
 	}
 }

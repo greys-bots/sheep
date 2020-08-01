@@ -14,7 +14,10 @@ class GuildSettings extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {user: this.props.user, guild: this.props.guilds.find(g => g.id == this.props.match.params.id)};
+		this.state = {
+			user: this.props.user,
+			guild: this.props.guilds.find(g => g.id == this.props.match.params.id)
+		}
 	}
 
 	render() {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment as Frag } from 'react';
 import { Link } from 'react-router-dom';
 
 import Header from '../components/header';
@@ -24,8 +24,10 @@ class NotFound extends Component {
         }
 
         return (
-        	<div className="App-container">
+            <Frag>
             <Header />
+        	<div className="App-container">
+            
             <section className="App-about">
             <div>
             <p>
@@ -38,6 +40,7 @@ class NotFound extends Component {
             </div>
             </section>
             </div>
+            </Frag>
         );
 	}
 }

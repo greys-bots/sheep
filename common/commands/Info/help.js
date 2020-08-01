@@ -1,8 +1,8 @@
 module.exports = {
-	help: ()=> "Displays help embed.",
-	usage: ()=> [" - Displays help for all commands.",
-				" [command] - Displays help for specfic command.",
-				" [command] [subcommand]... - Displays help for a command's subcommands"],
+	help: ()=> "Displays help embed",
+	usage: ()=> [" - Displays help for all commands",
+				" [command] - Displays help for specfic command",
+				" [command] [subcommand] - Displays help for a command's subcommands"],
 	execute: async (bot, msg, args) => {
 		if(!args[0]) {
 			//setup
@@ -18,7 +18,7 @@ module.exports = {
 					description: modules[i].description,
 					color: parseInt(modules[i].color, 16) || parseInt("555555", 16),
 					footer: {
-							icon_url: bot.user.avatarURL,
+							icon_url: bot.user.avatarURL(),
 							text: "I'm Sheep! I help you change your name color :D"
 						}
 				}, 10, {addition: ""})
@@ -47,7 +47,7 @@ module.exports = {
 				],
 				color: parseInt(command.module.color, 16) || parseInt("555555", 16),
 				footer: {
-					icon_url: bot.user.avatarURL,
+					icon_url: bot.user.avatarURL(),
 					text: "Arguments like [this] are required, arguments like <this> are optional."
 				}
 			}};
@@ -67,7 +67,7 @@ module.exports = {
 				description: module.description,
 				color: parseInt(module.color, 16) || parseInt("555555", 16),
 				footer: {
-						icon_url: bot.user.avatarURL,
+						icon_url: bot.user.avatarURL(),
 						text: "I'm Sheep! I help you change your name color :D"
 					}
 			}, 10, {addition: ""});

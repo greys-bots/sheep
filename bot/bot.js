@@ -1,7 +1,6 @@
 const Discord		= require("discord.js");
 const fs			= require("fs");
 const path 			= require("path");
-const dblite		= require("dblite");
 
 const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER', 'REACTION']});
 
@@ -35,50 +34,6 @@ bot.updateStatus = async function(){
 	setTimeout(()=> bot.updateStatus(), 5 * 60 * 1000) // 5 mins
 }
 
-const recursivelyReadDirectory = function(dir) {
-	var results = [];
-	var files = fs.readdirSync(dir, {withFileTypes: true});
-	for(file of files) {
-		if(file.isDirectory()) {
-			results = results.concat(recursivelyReadDirectory(dir+"/"+file.name));
-		} else {
-			results.push(dir+"/"+file.name);
-		}
-	}
-
-	return results;
-}
-
-//for handling commands
-const registerCommand = function({command, module, name} = {}) {
-	if(!command) return;
-	command.module = module;
-	command.name = name;
-	module.commands.set(name, command);
-	bot.commands.set(name, command);
-	bot.aliases.set(name, name);
-	if(command.alias) command.alias.forEach(a => bot.aliases.set(a, name));
-	
-	if(command.subcommands) {
-		var subcommands = command.subcommands;
-		command.subcommands = new Discord.Collection();
-		Object.keys(subcommands).forEach(c => {
-			var cmd = subcommands[c];
-			cmd.name = `${command.name} ${c}`;
-			cmd.parent = command;
-			cmd.module = command.module;
-			if(!command.sub_aliases) command.sub_aliases = new Discord.Collection();
-			command.sub_aliases.set(c, c);
-			if(cmd.alias) cmd.alias.forEach(a => command.sub_aliases.set(a, c));
-			if(command.permissions && !cmd.permissions) cmd.permissions = command.permissions;
-			if(command.guildOnly != undefined && cmd.guildOnly == undefined)
-				cmd.guildOnly = command.guildOnly;
-			command.subcommands.set(c, cmd);
-		})
-	}
-	return command;
-}
-
 async function setup() {
 	bot.db = require(__dirname + '/../common/stores/__db')(bot);
 
@@ -89,32 +44,11 @@ async function setup() {
 	files = fs.readdirSync(__dirname + "/utils");
 	files.forEach(f => Object.assign(bot.utils, require(__dirname + "/utils/"+f)));
 
-	files = recursivelyReadDirectory(__dirname + "/commands");
+	Object.assign(bot.utils, require(__dirname + "/../common/utils"));
 
-	bot.modules = new Discord.Collection();
-	bot.mod_aliases = new Discord.Collection();
-	bot.commands = new Discord.Collection();
-	bot.aliases = new Discord.Collection();
-	for(f of files) {
-		var path_frags = f.replace(__dirname + "/commands/","").split(/(?:\\|\/)/);
-		var mod = path_frags.length > 1 ? path_frags[path_frags.length - 2] : "Unsorted";
-		var file = path_frags[path_frags.length - 1];
-		if(!bot.modules.get(mod.toLowerCase())) {
-			var mod_info = require(file == "__mod.js" ? f : f.replace(file, "__mod.js"));
-			bot.modules.set(mod.toLowerCase(), {...mod_info, name: mod, commands: new Discord.Collection()})
-			bot.mod_aliases.set(mod.toLowerCase(), mod.toLowerCase());
-			if(mod_info.alias) mod_info.alias.forEach(a => bot.mod_aliases.set(a, mod.toLowerCase()));
-		}
-		if(file == "__mod.js") continue;
-
-		mod = bot.modules.get(mod.toLowerCase());
-		if(!mod) {
-			console.log("Whoopsies");
-			continue;
-		}
-		
-		registerCommand({command: require(f), module: mod, name: file.slice(0, -3).toLowerCase()})
-	}
+	var data = bot.utils.loadCommands(__dirname + "/../common/commands");
+	
+	Object.keys(data).forEach(k => bot[k] = data[k]);
 }
 
 bot.parseCommand = async function(bot, msg, args) {
@@ -125,7 +59,7 @@ bot.parseCommand = async function(bot, msg, args) {
 
 	args.shift();
 
-	if(args[0] && command.subcommands && command.subcommands.get(command.sub_aliases.get(args[0].toLowerCase()))) {
+	if(args[0] && command.subcommands?.get(command.sub_aliases.get(args[0].toLowerCase()))) {
 		command = command.subcommands.get(command.sub_aliases.get(args[0].toLowerCase()));
 		args.shift();
 	}

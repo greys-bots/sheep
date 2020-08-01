@@ -1,11 +1,10 @@
 .Docs-container {
-	flex: 1 1 auto;
-	height: 100%;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	position: relative;
+	justify-self: stretch;
+    align-self: stretch;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    grid: 100% / 100%;
 	overflow-y: hidden;
 }
 
@@ -14,7 +13,7 @@
 }
 
 .Docs-main {
-	flex: 1 1 auto;
+	grid-area: 1 / 1 / 1 / 1;
 	height: 95%;
 	width: 95%;
 	display: flex;
@@ -105,10 +104,8 @@
 }
 
 .Docs-navSidebar {
-	display: flex;
-	flex-direction: column;
 	background: #333;
-	position: absolute;
+	position: relative;
 	z-index: 9;
 	left: -100%;
 	width: 0;
@@ -116,6 +113,7 @@
 	transition: .25s;
 	overflow-x: hidden;
 	overflow-y: auto;
+	grid-area: 1 / 1 / 1 / 1;
 }
 
 .Docs-navSidebar a {

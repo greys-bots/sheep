@@ -17,13 +17,19 @@ body {
   flex-direction: column;
 }
 
-.App {
+/*.App {
   flex: 1 1 auto;
   text-align: left;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+}*/
+
+.App {
+  display: grid;
+  grid-template-columns: 100vw;
+  grid-template-rows: auto 1fr;
 }
 
 .App-header {
@@ -175,8 +181,7 @@ a:hover {
 }
 
 .App-color {
-  padding: 0 3px;
-  border-radius: 5px;
+  text-shadow: -2px -2px black, 2px 2px black;
 }
 
 .App-commandsContainer {

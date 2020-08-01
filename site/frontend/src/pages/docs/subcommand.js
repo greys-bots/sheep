@@ -28,7 +28,6 @@ class Subcommand extends Component {
 	}
 
 	componentDidUpdate(prev) {
-		console.log(prev, this.props)
 		if(JSON.stringify(prev) == JSON.stringify(this.props)) return null;
 		this.setState({cmd: this.props.cmd, scroll: this.props.scroll});
 		if(this.props.scroll) this.scroll();

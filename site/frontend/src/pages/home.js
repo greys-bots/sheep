@@ -5,32 +5,16 @@ import axios from 'axios';
 import Stats from '../components/stats';
 import Header from '../components/header';
 
-function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-}
-
 class Home extends Component {
     render() {
         var color = Math.floor(Math.random()*16777215).toString(16);
-        var rgb = hexToRgb(color);
-        var bg;
-        if(rgb) bg = (rgb.r * 0.299) + (rgb.g * 0.587) + (rgb.b * 0.114) < 186 ? "white" : "black";
-        else {
-          color = "000";
-          bg = "white"
-        }
         return (
             <Frag>
             <Header />
             <div className="App-container">
             <section className="App-about">
             <div>
-            <h3><em>A <span className="App-color" style={{color: `#${color}`, backgroundColor: bg}}>color&nbsp;changing</span> bot for Discord</em></h3>
+            <h3><em>A <span className="App-color" style={{color: `#${color}`}}>color&nbsp;changing</span> bot for Discord</em></h3>
             <p><strong>Sheep</strong> is a Discord bot created by <a href="https://github.com/greysdawn">@greysdawn</a>{" "}
             just for changing role colors on Discord. With short commands and easy syntax, Sheep is made to be as simple{" "}
             and accessible as possible. To get started,{" "}

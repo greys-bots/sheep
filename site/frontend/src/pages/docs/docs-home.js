@@ -22,7 +22,6 @@ class DocsHome extends Component {
 	async componentDidMount() {
 		var data = await axios('/api/commands');
 		data = data.data;
-		console.log(data);
 		this.setState({...data});
 	}
 

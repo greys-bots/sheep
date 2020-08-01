@@ -10,8 +10,8 @@ import {
 import axios from 'axios';
 import * as tc from 'tinycolor2';
 
-import UserSettings from './usersettings.js';
-import GuildSettings from './guildsettings.js';
+import UserSettings from './user/usersettings.js';
+import GuildSettings from './guild/guildsettings.js';
 import NotFound from '../notfound';
 
 import './dash.css';
@@ -70,24 +70,25 @@ class DashHome extends Component {
 						Login
 					</a>
 				)}
+				{user && (
+					<button className="App-button" onClick={this.toggle()}>menu</menu>
+				)}
 			</div>
 			<div className="Dash-container" onClick={() => this.hideMenu()} >
-			<div className="Dash-sidebar">
 			{guilds && (
-				<Frag>
-				<Link to="/user" className="Dash-sideLink">
+				<div className=`Dash-sidebar${this.state.open ? " open" : ''}`>
+				<NavLink to="/user" className="Dash-sideLink">
 					<img src={user.avatar.startsWith("a_") ? `${img_url}/avatars/${user.id}/${user.avatar}.gif` : `${img_url}/avatars/${user.id}/${user.avatar}.png`} />
 					<span>User Settings</span>
-				</Link>
+				</NavLink>
 				{guilds.map(g => {
-					return (<Link to={`/guild/${g.id}`} className="Dash-sideLink" key={g.id}>
+					return (<NavLink to={`/guild/${g.id}`} className="Dash-sideLink" key={g.id}>
 						<img src={g.icon ? (g.icon.startsWith("a_") ? `${img_url}/icons/${g.id}/${g.icon}.gif` : `${img_url}/icons/${g.id}/${g.icon}.png`) : "https://cdn.discordapp.com/embed/avatars/0.png"} />
 						<span>{g.name}</span>
-					</Link>);
+					</NavLink>);
 				})}
-				</Frag>
+				</div>
 			)}
-			</div>
 			<Switch>
 			<Route path="/" exact render={()=> {
 				return (

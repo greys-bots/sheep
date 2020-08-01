@@ -15,7 +15,7 @@ module.exports = async (msg, bot)=>{
 		return;
 	}
 	var log = [
-		`Guild: ${msg.guild ? msg.guild.name : "DMs"} (${msg.guild ? msg.guild.id : msg.channel.id})`,
+		`Guild: ${msg.guild?.name || "DMs"} (${msg.guild?.id || msg.channel.id})`,
 		`User: ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})`,
 		`Message: ${msg.content}`,
 		`--------------------`
@@ -23,33 +23,42 @@ module.exports = async (msg, bot)=>{
 	let args = msg.content.replace(new RegExp(`^(${bot.prefix.join("|")})`,"i"), "").split(" ");
 	if(!args[0]) args.shift();
 	if(!args[0]) return msg.channel.send("Baaa!");
-	var config = {};
-	var usages = {whitelist: [], blacklist: []};
-	if(msg.guild) {
-		config = await bot.stores.configs.get(msg.guild.id);
-		usages = await bot.stores.usages.get(msg.guild.id);
-	}
 
 	let {command, nargs} = await bot.parseCommand(bot, msg, args);
 	if(!command) {
-		await msg.channel.send("Command not found!");
-		log.push('- Command Not Found -')
+		log.push('- Command not found -');
+		console.log(log.join('\r\n'));
+		bot.writeLog(log.join('\r\n'));
+		return await msg.channel.send("Command not found!");
 	}
 
 	if(!msg.guild && command.guildOnly) {
 		console.log("- Command is guild only -")
 		return await msg.channel.send("That command can only be used in guilds.");
 	}
-	
-	var check = await bot.utils.checkPermissions(bot, msg, command);
-	if(!check) {
-		console.log("- Missing Permissions -")
-		return await msg.channel.send('You do not have permission to use that command.');
-	}
-	check = await bot.utils.isDisabled(bot, msg.guild.id, command, command.name);
-	if(check && !(["enable","disable"].includes(command.name))) {
-		console.log("- Command is disabled -")
-		return await msg.channel.send("That command is disabled.");
+
+	if(msg.guild) {
+		var config = {};
+		var usages = {whitelist: [], blacklist: []};
+		if(msg.guild) {
+			config = await bot.stores.configs.get(msg.guild.id);
+			usages = await bot.stores.usages.get(msg.guild.id);
+		}
+
+		var check = await bot.utils.checkPermissions(bot, msg, command);
+		if(!check) {
+			log.push('- Missing permissions -');
+			console.log(log.join('\r\n'));
+			bot.writeLog(log.join('\r\n'));
+			return await msg.channel.send('You do not have permission to use that command.');
+		}
+		check = await bot.utils.isDisabled(bot, msg.guild.id, command, command.name);
+		if(check && !(["enable","disable"].includes(command.name))) {
+			log.push('- Command disabled -');
+			console.log(log.join('\r\n'));
+			bot.writeLog(log.join('\r\n'));
+			return await msg.channel.send("That command is disabled.");
+		}
 	}
 
 	if(usages && !msg.member.permissions.has('MANAGE_MESSAGES')) {

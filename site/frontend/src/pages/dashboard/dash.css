@@ -8,14 +8,13 @@
   width: 100%;
 }
 
-.Dash-container {
-	flex: 1 1 auto;
-	height: 100%;
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	position: relative;
+.Docs-container {
+	justify-self: stretch;
+    align-self: stretch;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    grid: 100% / 100%;
 	overflow-y: hidden;
 }
 
@@ -23,8 +22,8 @@
 	height: 100%;
 	width: 100%;
 	display: flex;
-	flex-direction: row;
-	justify-content: center;
+	flex-direction: column;
+	align-items: center;
 	background: #202020;
 	overflow-y: auto;
 }
@@ -38,14 +37,29 @@
 	right: 5px;
 }
 
+.Dash-info {
+	width: 90%;
+}
+
 .Dash-sidebar {
 	height: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
-	width: 25%;
 	position: relative;
+	z-index: 9;
+	left: -100%;
+	width: 0;
+	height: 100%;
+	transition: .25s;
+	overflow-x: hidden;
+	overflow-y: auto;
+	grid-area: 1 / 1 / 1 / 1;
+}
+
+.Dash-sidebar.open {
+	
 }
 
 .Dash-sideLink {
@@ -54,6 +68,11 @@
 	width: 100%;
 	display: flex;
 	align-items: center;
+}
+
+.Dash-sideLink:hover {
+	background: #555;
+    text-decoration: none;
 }
 
 .Dash-sideLink.active {
@@ -75,21 +94,18 @@
 
 #saved-colors {
 	width: 90%;
-	text-align: center;
 }
 
 .Dash-savedColor {
 	display: flex;
 	flex-wrap: nowrap;
-	padding: 10px;
-	border-radius: 10px;
+	border-radius: 2px;
 	background: #444;
-	margin: 10px;
+	margin-bottom: 5px;
 }
 
 .Dash-savedColor > * {
-	max-width: 30%;
-	margin: 10px;
+	margin: 5px;
 }
 
 .Dash-savedColor button {
@@ -98,7 +114,11 @@
 	background: #111;
 	color: white;
 	padding: 5px;
-	border-radius: 10px;
+	border-radius: 3px;
+}
+
+.Dash-savedColor button:hover {
+	background: #222;
 }
 
 .Dash-savedColor input[type="text"] {
@@ -107,7 +127,7 @@
 	background: #222;
 	color: white;
 	padding: 5px;
-	border-radius: 10px;
+	border-radius: 3px;
 }
 
 @media (max-width: 500px) {
