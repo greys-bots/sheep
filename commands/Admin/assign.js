@@ -11,7 +11,7 @@ module.exports = {
 			if(exists) return "That user already has a color role associated with them!";
 
 			try {
-				await bot.stores.userRoles.create(msg.guild.id, member.id, userrole.id);
+				await bot.stores.userRoles.create(msg.guild.id, member.id, role.id);
 			} catch(e) {
 				return "ERR: "+e.message;
 			}
