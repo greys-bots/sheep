@@ -63,7 +63,7 @@ ipc.serve(function() {
 
 ipc.server.start();
 
-manager.spawn(2);
+manager.spawn();
 manager.on('shardCreate', shard => {
     console.log(`Launched shard ${shard.id}`);
 });
