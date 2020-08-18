@@ -2,7 +2,12 @@ const Discord		= require("discord.js");
 const fs			= require("fs");
 const path 			= require("path");
 
-const bot = new Discord.Client({partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER', 'REACTION']});
+const bot = new Discord.Client({
+	partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER', 'REACTION'],
+	messageCacheMaxSize: 0,
+	messageCacheLifetime: 1,
+	messageSweepInterval: 5 * 60
+});
 
 bot.prefix = ["s!","sh!","sheep!","baa!"];
 bot.owner = process.env.OWNER;

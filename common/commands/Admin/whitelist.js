@@ -91,10 +91,10 @@ module.exports.subcommands.remove = {
 
 		for(var arg of args) {
 			arg = arg.replace(/[<@!&>]/g, "");
-			var role = msg.guild.roles.cache.find(r => r.id == arg || r.name.toLowerCase() == arg.toLowerCase());
+			var role = msg.guild.roles.cache.find(r => [r.id, r.name.toLowerCase()].includes(arg.toLowerCase()));
 			var user = bot.users.cache.find(u => u.id == arg);
-			if((role || user) && whitelist.includes(arg)) {
-				whitelist = whitelist.filter(x => ![role.id, user.id].includes(x));
+			if((role || user) && whtitelist.includes((role || user).id)) {
+				whtitelist = whtitelist.filter(x => x != (role?.id || user?.id));
 				removed.push(role || user);
 			} else invalid.push(arg);
 		}
