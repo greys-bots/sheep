@@ -4,8 +4,9 @@ module.exports = {
 	execute: async (bot, msg, args) => {
 		var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 		if(!role) return "Either you don't have a color role or I couldn't get it :(";
+		if(!role.raw?.color) return "Your role has no color!";
 
-		var conv = role.color.toString(16);
+		var conv = role.raw.color.toString(16);
 		if(conv.length < 6) while(conv.length < 6) conv = "0"+conv; //number padding
 		var color = bot.tc(conv);
 
