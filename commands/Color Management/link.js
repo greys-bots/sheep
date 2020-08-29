@@ -32,14 +32,14 @@ module.exports = {
 		}
 
 		try {
-			await user.roles.add(role.id);
+			await user.roles.add(role.role_id);
 		} catch(e) {
 			console.log(e);
 			return "ERR: "+e.message;
 		}
 
 		try {
-			await bot.stores.userRoles.create(msg.guild.id, user.id, role.id);
+			await bot.stores.userRoles.create(msg.guild.id, user.id, role.role_id);
 		} catch(e) {
 			return "ERR: "+e.message;
 		}
