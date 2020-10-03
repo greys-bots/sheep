@@ -6,7 +6,7 @@ module.exports = {
 				"Note: Roles above the automatically-created Sheep role MUST be uncolored, or this won't work!",
 				"The role you're trying to edit must be below my highest role as well!"].join("\n"),
 	execute: async (bot, msg, args)=> {
-		var config = await bot.stores.configs.get(msg.guild.id);
+		var config = (await bot.stores.configs.get(msg.guild.id)) || {role_mode: 0};
 		if(config.role_mode == 0) {
 			var color;
 			if(!args[0]) color = bot.tc.random();
