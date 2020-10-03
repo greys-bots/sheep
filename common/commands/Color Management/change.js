@@ -5,8 +5,8 @@ module.exports = {
 	desc: ()=> ["Colors can be hex codes or color names! Full list of names found [here](https://www.w3schools.com/colors/colors_names.asp)",
 				"Note: Roles above the automatically-created Sheep role MUST be uncolored, or this won't work!",
 				"The role you're trying to edit must be below my highest role as well!"].join("\n"),
-	execute: async (bot, msg, args, config = {role_mode: 0})=> {
-		console.log(config);
+	execute: async (bot, msg, args)=> {
+		var config = await bot.stores.configs.get(msg.guild.id);
 		if(config.role_mode == 0) {
 			var color;
 			if(!args[0]) color = bot.tc.random();
@@ -27,20 +27,101 @@ module.exports = {
 				footer: {
 					text: `${color.toRgbString()}`
 				}
-			}})
+			}});
+			['✅', '❌', '🔀'].forEach(r => message.react(r));
 
-			if(!bot.menus) bot.menus = {};
-			bot.menus[message.id] = {
-				user: msg.author.id,
-				data: color,
-				timeout: setTimeout(()=> {
-					if(!bot.menus[message.id]) return;
-					message.reactions.removeAll()
-					delete bot.menus[message.id];
-				}, 900000),
-				execute: bot.stores.userRoles.handleReactions
-			};
-			["\u2705", "\u274C", "🔀"].forEach(r => message.react(r));
+			var done = false;
+			var member = await msg.guild.members.fetch(msg.author.id);
+			var timeout = setTimeout(async ()=> {
+				done = true;
+				await message.edit('Action timed out', {embed: null});
+				await message.reactions.removeAll();
+			}, 3 * 60 * 1000);
+			while(!done) {
+				var choice = await bot.utils.handleChoices(bot, message, msg.author, [
+					{
+						name: "yes",
+						accepted: ['yes', 'y', '✅']
+					},
+					{
+						name: 'no',
+						accepted: ['no', 'n', '❌'],
+						msg: 'Action cancelled!'
+					},
+					{
+						name: 'random',
+						accepted: ['random', 'r', '🔀']
+					}
+				]);
+
+				switch(choice.name) {
+					case 'yes':
+						var srole = msg.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
+						var role = await bot.stores.userRoles.get(msg.guild.id, msg.author.id);
+						console.log(srole ? srole.position : "No sheep role");
+						var options = {
+							name: role ? role.raw.name : msg.author.id,
+							color: color.toHex(),
+							position: srole ? srole.position - 1 : 0,
+							mentionable: config.pingable
+						}
+
+						try {
+							if(role && role.raw && !role.raw.deleted) {
+								console.log(role.raw.position);
+								role = await role.raw.edit(options);
+							} else {
+								role = await msg.guild.roles.create({data: options});
+								role.new = true;
+							}
+							console.log(role.position);
+							await member.roles.add(role.id);
+							await message.edit("Color successfully changed to "+color.toHexString()+"! :D", {embed: null});
+							await message.reactions.removeAll();
+							if(role.new) await bot.stores.userRoles.create(msg.guild.id, member.id, role.id);
+						} catch(e) {
+							console.log(e.stack);
+							msg.channel.send([
+								`Something went wrong! ERR: ${e.message}\n`,
+								`Try moving my highest role above any roles you're trying to color, then try again!\n`,
+								`If the error continues, please report this in `,
+								`my development server: https://discord.gg/EvDmXGt`
+							]);
+						}
+
+						done = true;
+						clearTimeout(timeout);
+						timeout = setTimeout(async ()=> {
+							done = true;
+							await message.edit('Action timed out', {embed: null});
+							await message.reactions.removeAll();
+						}, 3 * 60 * 1000);
+						break;
+					case 'random':
+						var color = bot.tc.random();
+						message.edit({embed: {
+							title: "Color "+color.toHexString().toUpperCase(),
+							image: {
+								url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+							},
+							color: parseInt(color.toHex(), 16),
+							footer: {
+								text: `${color.toRgbString()}`
+							}
+						}});
+						if(choice.react) await choice.react.users.remove(member.id);
+						else if(choice.message) await choice.message.delete();
+						clearTimeout(timeout);
+						break;
+					default:
+						message.edit("Action cancelled", {embed: null});
+						message.reactions.removeAll();
+						done = true;
+						clearTimeout(timeout);
+						break;
+				}
+			}
+
 			return;
 		} else {
 			var role = await msg.guild.roles.cache.find(r => r.name.toLowerCase() == args.join(" "));

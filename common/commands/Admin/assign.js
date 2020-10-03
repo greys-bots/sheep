@@ -11,7 +11,7 @@ module.exports = {
 			if(exists) return "That user already has a color role associated with them!";
 
 			try {
-				await bot.stores.userRoles.create(msg.guild.id, member.id, userrole.id);
+				await bot.stores.userRoles.create(msg.guild.id, member.id, role.id);
 			} catch(e) {
 				return "ERR: "+e.message;
 			}
@@ -42,7 +42,7 @@ module.exports = {
 				userrole = await msg.guild.roles.create({data: options});
 				userrole.new = true;
 			}
-			await member.roles.add(role.id);
+			await member.roles.add(userrole.id);
 			if(userrole.new) await bot.stores.userRoles.create(msg.guild.id, member.id, userrole.id);
 			return "Color successfully changed to "+color.toHexString()+"! :D";
 		} catch(e) {
