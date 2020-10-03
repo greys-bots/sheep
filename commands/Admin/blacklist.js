@@ -128,10 +128,8 @@ module.exports.subcommands.clear = {
 		var message = await msg.channel.send("Are you sure you want to clear everything from the blacklist?");
 		["✅","❌"].forEach(r => message.react(r));
 
-		var reaction = await message.awaitReactions((r, u) => ["✅","❌"].includes(r.emoji.name) && u.id == msg.author.id, {time: 30000, max: 1});
-		reaction = reaction.first();
-		if(!reaction) return "ERR: timed out!";
-		if(reaction.emoji.name == "❌") return "Action cancelled!";
+		var confirm = await bot.utils.getConfirmation(bot, message, msg.author);
+		if(confirm.msg) return confirm.msg;
 
 		try {
 			bot.stores.usages.update(msg.guild.id, {blacklist: []});
@@ -153,10 +151,8 @@ module.exports.subcommands.on = {
 			var message = await msg.channel.send("Whitelist is already turned on! Turn on the blacklist instead?");
 			["✅","❌"].forEach(r => message.react(r));
 
-			var reaction = await message.awaitReactions((r, u) => ["✅","❌"].includes(r.emoji.name) && u.id == msg.author.id, {time: 30000, max: 1});
-			reaction = reaction.first();
-			if(!reaction) return "ERR: timed out!";
-			if(reaction.emoji.name == "❌") return "Action cancelled!";
+			var confirm = await bot.utils.getConfirmation(bot, message, msg.author);
+			if(confirm.msg) return confirm.msg;
 		}
 
 		try {

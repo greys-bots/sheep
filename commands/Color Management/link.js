@@ -19,29 +19,25 @@ module.exports = {
 		if(!role) return "You don't have a role to link!";
 		var role2 = await bot.stores.userRoles.get(msg.guild.id, user.id);
 		if(role2) {
-			msg.channel.send(`Other user has a color role already! ${user}, would you like to overwrite it? (y/n)`);
-			var resp = await msg.channel.awaitMessages(m => m.author.id == user.id, {time: 60000, max: 1});
-			if(!resp || !resp.first()) return "ERR: timed out! Aborting...";
-			else if(["y","yes"].includes(resp[0].first().content.toLowerCase())) await role2.delete("User accepted color overwrite");
-			else return "ERR: user declined role overwrite! Aborting...";
+			var message = msg.channel.send(`Other user has a color role already! ${user}, would you like to overwrite it?`);
+			["✅","❌"].forEach(r => message.react(r));
+
+			var confirm = await bot.utils.getConfirmation(bot, message, user);
+			if(confirm.msg) return confirm.msg;
 		} else {
-			await msg.channel.send(`${user}, please confirm that you want to link roles! (y/n)`);
-			var resp = await msg.channel.awaitMessages(m => m.author.id == user.id, {time: 60000, max: 1});
-			if(!resp || !resp.first()) return "ERR: timed out! Aborting...";
-			else if(!["y","yes"].includes(resp.first().content.toLowerCase())) return "ERR: user declined role link! Aborting...";
+			var message = await msg.channel.send(`${user}, please confirm that you want to link roles!`);
+			["✅","❌"].forEach(r => message.react(r));
+
+			var confirm = await bot.utils.getConfirmation(bot, message, user);
+			if(confirm.msg) return confirm.msg;
 		}
 
 		try {
 			await user.roles.add(role.role_id);
-		} catch(e) {
-			console.log(e);
-			return "ERR: "+e.message;
-		}
-
-		try {
 			await bot.stores.userRoles.create(msg.guild.id, user.id, role.role_id);
 		} catch(e) {
-			return "ERR: "+e.message;
+			console.log(e);
+			return "ERR: "+(e.message || e);
 		}
 
 		return "Roles linked!";

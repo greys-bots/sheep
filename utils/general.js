@@ -99,5 +99,120 @@ module.exports = {
 				res(false);
 			}
 		})
+	},
+
+	getConfirmation: async (bot, msg, user) => {
+		return new Promise(res => {
+
+			function msgListener(message) {
+				if(message.channel.id != msg.channel.id ||
+				   message.author.id != user.id) return;
+
+				clearTimeout(timeout);
+				bot.removeListener('message', msgListener);
+				bot.removeListener('messageReactionAdd', reactListener);
+				switch(message.content.toLowerCase()) {
+					case 'y':
+					case 'yes':
+					case '✅':
+						return res({confirmed: true, message});
+						break;
+					default:
+						return res({confirmed: false, message, msg: 'Action cancelled!'});
+						break;
+				}
+			}
+
+			function reactListener(react, ruser) {
+				if(react.message.channel.id != msg.channel.id ||
+				   ruser.id != user.id) return;
+
+				clearTimeout(timeout);
+				bot.removeListener('message', msgListener);
+				bot.removeListener('messageReactionAdd', reactListener);
+				switch(react.emoji.name) {
+					case '✅':
+						return res({confirmed: true, react});
+						break;
+					default:
+						return res({confirmed: false, react, msg: 'Action cancelled!'});
+						break;
+				}
+			}
+
+			const timeout = setTimeout(async () => {
+				bot.removeListener('message', msgListener);
+				bot.removeListener('messageReactionAdd', reactListener);
+				res({confirmed: false, msg: 'Action timed out :('})
+			}, 30000);
+
+			bot.on('message', msgListener);
+			bot.on('messageReactionAdd', reactListener);
+		})
+	},
+	handleChoices: async (bot, msg, user, choices) => {
+		/*
+			example usage pseudo-code:
+			choices = [
+				{
+					accepted: ['y', 'yes', 'yeah', '✅'],
+					name: 'yes',
+					msg: 'You picked `yes`.'
+				},
+				{
+					accepted: ['n', 'no', 'nah', '❌'],
+					name: 'no',
+					msg: 'You picked `no`.'
+				}
+			]
+			chosen = await handleChoices(...args);
+			switch(chosen.name) {
+				case 'yes':
+				case 'no':
+					return chosen.msg;
+					break;
+				case 'invalid':
+					return 'You picked something else.';
+					break;
+				default:
+					return 'You picked nothing.'
+					break;
+			}
+		*/
+		return new Promise(res => {
+
+			function msgListener(message) {
+				if(message.channel.id != msg.channel.id ||
+				   message.author.id != user.id) return;
+
+				clearTimeout(timeout);
+				bot.removeListener('message', msgListener);
+				bot.removeListener('messageReactionAdd', reactListener);
+				var choice = choices.find(c => c.accepted.includes(message.content.toLowerCase()));
+				if(choice) return res({...choice, message});
+				else return res({choice: 'invalid', message, msg: 'Invalid choice!'});
+			}
+
+			function reactListener(react, ruser) {
+				if(react.message.channel.id != msg.channel.id ||
+				   ruser.id != user.id) return;
+
+				clearTimeout(timeout);
+				bot.removeListener('message', msgListener);
+				bot.removeListener('messageReactionAdd', reactListener);
+				var choice = choices.find(c => c.accepted.includes(react.emoji.name));
+				if(choice) return res({...choice, react});
+				else return res({choice: 'invalid', react, msg: 'Invalid choice!'});
+			}
+
+			const timeout = setTimeout(async () => {
+				bot.removeListener('message', msgListener);
+				bot.removeListener('messageReactionAdd', reactListener);
+				res({choice: 'none', msg: 'Action timed out :('})
+			}, 30000);
+
+			bot.on('message', msgListener);
+			bot.on('messageReactionAdd', reactListener);
+		})
 	}
 }

@@ -146,29 +146,26 @@ module.exports.subcommands.reset = {
 	help: ()=> "Deletes all server-based roles, setting the config back to user-based",
 	usage: ()=> [" - Resets server-based roles"],
 	execute: async (bot, msg, args) => {
-		await msg.channel.send("WARNING: This will delete all of your indexed server-based roles. Are you sure you want to continue? (y/n)");
-		var messages = await msg.channel.awaitMessages(m => m.author.id == msg.author.id, {max: 1, time: 30000});
-		if(messages && messages[0]) {
-			var conf = messages[0].content.toLowerCase();
-			if(conf == "yes" || conf == "y") {
-				try {
-					var roles = await bot.stores.serverRoles.getAll(msg.guild);
-					if(!roles) return "No roles to delete";
-					for(var i = 0; i < roles.length; i++) {
-						await roles[i].delete();
-					}
-					await bot.stores.configs.update(msg.guild.id, {role_mode: 0});
-					await bot.stores.serverRoles.deleteAll(msg.guild.id);
-					return "Roles deleted!";
-				} catch(e) {
-					return "ERR: "+(e.message || e);
-				}
+		var roles = await bot.stores.serverRoles.getAll(msg.guild);
+		if(!roles) return "No roles to delete";
 
-				return "Roles deleted and role mode reset to user-based roles!";
-			} else {
-				return "Action cancelled!";
+		var message = await msg.channel.send("WARNING: This will delete all of your indexed server-based roles. Are you sure you want to continue?");
+		["✅","❌"].forEach(r => message.react(r));
+
+		var confirm = await bot.utils.getConfirmation(bot, message, msg.author);
+		if(confirm.msg) return confirm.msg;
+		
+		try {
+			for(var i = 0; i < roles.length; i++) {
+				await roles[i].delete();
 			}
+			await bot.stores.configs.update(msg.guild.id, {role_mode: 0});
+			await bot.stores.serverRoles.deleteAll(msg.guild.id);
+		} catch(e) {
+			return "ERR: "+(e.message || e);
 		}
+
+		return "Roles deleted and role mode reset to user-based roles!";
 	},
 	guildOnly: true,
 	permissions: ['MANAGE_ROLES']

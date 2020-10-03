@@ -48,11 +48,8 @@ module.exports = {
 				var message = await msg.channel.send("A saved color with that name already exists! Would you like to override it?");
 				["✅","❌"].forEach(r => message.react(r));
 
-				reaction = await message.awaitReactions((r, u) => ["✅","❌"].includes(r.emoji.name) && u.id == msg.author.id, {time: 30000, max: 1});
-				reaction = reaction.first();
-				await message.reactions.removeAll();
-				if(!reaction) return "ERR: timed out. Aborting";
-				if(reaction.emoji.name == "❌") return "Action cancelled";
+				var confirm = await bot.utils.getConfirmation(bot, message, msg.author);
+				if(confirm.msg) return confirm.msg;
 			}
 
 			c = bot.tc(name);
@@ -60,11 +57,8 @@ module.exports = {
 				var message = await msg.channel.send("That name is already used as an official color! Would you like to override it?");
 				["✅","❌"].forEach(r => message.react(r));
 
-				reaction = await message.awaitReactions((r, u) => ["✅","❌"].includes(r.emoji.name) && u.id == msg.author.id, {time: 30000, max: 1});
-				reaction = reaction.first();
-				await message.reactions.removeAll();
-				if(!reaction) return "ERR: timed out. Aborting";
-				if(reaction.emoji.name == "❌") return "Action cancelled";
+				var confirm = await bot.utils.getConfirmation(bot, message, msg.author);
+				if(confirm.msg) return confirm.msg;
 			}
 
 			try {
@@ -142,10 +136,9 @@ module.exports.subcommands.delete = {
 
 			message = await msg.channel.send("Are you sure you want to delete ALL your saved colors?");
 			["✅","❌"].forEach(r => message.react(r));
-			reaction = await message.awaitReactions((r, u) => ["✅","❌"].includes(r.emoji.name) && u.id == msg.author.id, {time: 30000, max: 1});
-			reaction = reaction.first();
-			if(!reaction) return "ERR: timed out. Aborting";
-			if(reaction.emoji.name == "❌") return "Action cancelled";
+			
+			var confirm = await bot.utils.getConfirmation(bot, message, msg.author);
+			if(confirm.msg) return confirm.msg;
 
 			try {
 				await bot.stores.colors.deleteAll(msg.author.id);
@@ -160,10 +153,9 @@ module.exports.subcommands.delete = {
 
 			message = await msg.channel.send("Are you sure you want to delete this color?");
 			["✅","❌"].forEach(r => message.react(r));
-			reaction = await message.awaitReactions((r, u) => ["✅","❌"].includes(r.emoji.name) && u.id == msg.author.id, {time: 30000, max: 1});
-			reaction = reaction.first();
-			if(!reaction) return "ERR: timed out. Aborting";
-			if(reaction.emoji.name == "❌") return "Action cancelled";
+
+			var confirm = await bot.utils.getConfirmation(bot, message, msg.author);
+			if(confirm.msg) return confirm.msg;
 
 			try {
 				await bot.stores.colors.delete(msg.author.id, color.name);
