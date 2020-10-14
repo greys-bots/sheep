@@ -1,3 +1,19 @@
+const CHOICES = [
+	{
+		name: "yes",
+		accepted: ['yes', 'y', '✅']
+	},
+	{
+		name: 'no',
+		accepted: ['no', 'n', '❌'],
+		msg: 'Action cancelled!'
+	},
+	{
+		name: 'random',
+		accepted: ['random', 'r', '🔀']
+	}
+]
+
 module.exports = {
 	help: ()=> "Change your color",
 	usage: ()=> [" [color] - Change your color to the one given",
@@ -8,11 +24,11 @@ module.exports = {
 	execute: async (bot, msg, args)=> {
 		var config = (await bot.stores.configs.get(msg.guild.id)) || {role_mode: 0};
 		if(config.role_mode == 0) {
-			var color;
+			var color, saved;
 			if(!args[0]) color = bot.tc.random();
 			else {
-				color = await bot.stores.colors.get(msg.author.id, args.join("").toLowerCase());
-				if(color) color = bot.tc(color.color);
+				saved = await bot.stores.colors.get(msg.author.id, args.join("").toLowerCase());
+				if(saved) color = bot.tc(saved.color);
 				else color = bot.tc(args.join(""));
 			}
 
@@ -38,29 +54,16 @@ module.exports = {
 				await message.reactions.removeAll();
 			}, 3 * 60 * 1000);
 			while(!done) {
-				var choice = await bot.utils.handleChoices(bot, message, msg.author, [
-					{
-						name: "yes",
-						accepted: ['yes', 'y', '✅']
-					},
-					{
-						name: 'no',
-						accepted: ['no', 'n', '❌'],
-						msg: 'Action cancelled!'
-					},
-					{
-						name: 'random',
-						accepted: ['random', 'r', '🔀']
-					}
-				]);
+				var choice = await bot.utils.handleChoices(bot, message, msg.author, CHOICES);
 
 				switch(choice.name) {
 					case 'yes':
-						var srole = msg.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
 						var role = await bot.stores.userRoles.get(msg.guild.id, msg.author.id);
+						var srole = msg.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
+						var name = (saved?.name || role?.raw.name || msg.author.username);
 						console.log(srole ? srole.position : "No sheep role");
 						var options = {
-							name: role ? role.raw.name : msg.author.id,
+							name,
 							color: color.toHex(),
 							position: srole ? srole.position - 1 : 0,
 							mentionable: config.pingable
