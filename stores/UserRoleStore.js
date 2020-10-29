@@ -21,8 +21,10 @@ class UserRoleStore extends Collection {
 	// }
 
 	async create(server, user, role) {
+		console.log(server, user, role);
 		return new Promise(async (res, rej) => {
 			try {
+				console.log('querying...');
 				await this.db.query(`INSERT INTO user_roles (
 					server_id,
 					user_id,
@@ -33,7 +35,7 @@ class UserRoleStore extends Collection {
 				console.log(e);
 		 		return rej(e.message);
 			}
-			
+
 			res(await this.get(server, user));
 		})
 	}
@@ -82,7 +84,7 @@ class UserRoleStore extends Collection {
 				var role;
 				for(var i = 0; i < data.rows.length; i++) {
 					role = guild.roles.cache.find(r => r.id == data.rows[i].role_id);
-					if(!role || role.deleted || !member.roles.cache.find(r => r.id == data.rows[i].role_id)) {
+					if(!role || role.deleted /*|| !member.roles.cache.find(r => r.id == data.rows[i].role_id)*/) {
 						console.log(`deleting role ${data.rows[i].role_id}`);
 						this.deleteByRoleID(data.rows[i].server_id, data.rows[i].role_id);
 						data.rows[i] = "deleted";

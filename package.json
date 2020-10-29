@@ -12,14 +12,14 @@
   "dependencies": {
     "axios": "^0.19.2",
     "dblite": "^1.1.3",
-    "discord.js": "^12.3.1",
+    "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "eris": "^0.9.0",
     "eris-additions": "^1.4.1",
     "jimp": "^0.10.3",
     "node-fetch": "^2.6.1",
     "node-ipc": "^9.1.1",
-    "pg": "^8.3.3",
+    "pg": "^8.4.2",
     "pg-ipc": "^1.0.4",
     "tinycolor2": "^1.4.2"
   }
