@@ -21,10 +21,8 @@ class UserRoleStore extends Collection {
 	// }
 
 	async create(server, user, role) {
-		console.log(server, user, role);
 		return new Promise(async (res, rej) => {
 			try {
-				console.log('querying...');
 				await this.db.query(`INSERT INTO user_roles (
 					server_id,
 					user_id,
