@@ -71,7 +71,7 @@ class UserRoleStore extends Collection {
 			var guild = this.bot.guilds.resolve(server);
 			if(!guild) return rej("Couldn't get guild");
 			try {
-				var member = await guild.members.fetch(user);	
+				var member = await guild.members.fetch({user, force: true});	
 			} catch(e) {
 				console.log("Couldn't get user: "+e.message);
 			}
@@ -82,7 +82,7 @@ class UserRoleStore extends Collection {
 				var role;
 				for(var i = 0; i < data.rows.length; i++) {
 					role = guild.roles.cache.find(r => r.id == data.rows[i].role_id);
-					if(!role || role.deleted /*|| !member.roles.cache.find(r => r.id == data.rows[i].role_id)*/) {
+					if(!role || role.deleted || !member.roles.cache.find(r => r.id == data.rows[i].role_id)) {
 						console.log(`deleting role ${data.rows[i].role_id}`);
 						this.deleteByRoleID(data.rows[i].server_id, data.rows[i].role_id);
 						data.rows[i] = "deleted";
