@@ -71,7 +71,8 @@ class UserRoleStore extends Collection {
 			var guild = this.bot.guilds.resolve(server);
 			if(!guild) return rej("Couldn't get guild");
 			try {
-				var member = await guild.members.fetch({user, force: true});	
+				var member = await guild.members.fetch({user, force: true});
+				// var member = await guild.members.fetch({user});
 			} catch(e) {
 				console.log("Couldn't get user: "+e.message);
 			}
