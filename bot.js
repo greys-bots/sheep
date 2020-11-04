@@ -24,10 +24,6 @@ bot.statuses = [
 		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
 		return `s!h | in ${guilds} guilds!`;
 	},
-	async ()=> {
-		var users = (await bot.shard.broadcastEval('this.users.cache.size')).reduce((prev, val) => prev + val, 0);
-		return `s!h | serving ${users} users!`;
-	},
 	"s!h | https://sheep.greysdawn.com"
 ];
 
@@ -36,7 +32,6 @@ bot.updateStatus = async function(){
 	if(bot.status == -1) {
 		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
 		if(guilds != bot.guildCount) {
-			console.log("updating guilds...", guilds);
 			bot.guildCount = guilds;
 			setTimeout(()=> bot.updateStatus(), 10000);
 		} else {
@@ -46,7 +41,6 @@ bot.updateStatus = async function(){
 		return;
 	}
 	var target = bot.statuses[bot.status % bot.statuses.length];
-	console.log(target);
 	if(typeof target == "function") {
 		console.log(target());
 		bot.user.setActivity(await target());
