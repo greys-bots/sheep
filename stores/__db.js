@@ -34,6 +34,12 @@ module.exports = (bot) => {
 			type 		INTEGER
 		);
 
+		CREATE TABLE IF NOT EXISTS user_configs (
+			id			SERIAL PRIMARY KEY,
+			user_id		TEXT,
+			auto_rename BOOLEAN
+		);
+
 		CREATE TABLE IF NOT EXISTS user_roles (
 			id 			SERIAL PRIMARY KEY,
 			server_id 	TEXT,

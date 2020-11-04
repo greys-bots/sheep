@@ -23,6 +23,7 @@ module.exports = {
 				"The role you're trying to edit must be below my highest role as well!"].join("\n"),
 	execute: async (bot, msg, args)=> {
 		var config = (await bot.stores.configs.get(msg.guild.id)) || {role_mode: 0};
+		var ucfg = (await bot.stores.userConfigs.get(msg.author.id)) || {auto_rename: false};
 		if(config.role_mode == 0) {
 			var color, saved;
 			if(!args[0]) color = bot.tc.random();
@@ -60,7 +61,10 @@ module.exports = {
 					case 'yes':
 						var role = await bot.stores.userRoles.get(msg.guild.id, msg.author.id);
 						var srole = msg.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
-						var name = (saved?.name || role?.raw.name || msg.author.username);
+						var name;
+						if(ucfg.auto_rename && saved?.name) name = saved.name;
+						else name = (role?.raw.name || msg.author.username);
+						
 						console.log(srole ? srole.position : "No sheep role");
 						var options = {
 							name,
@@ -94,11 +98,6 @@ module.exports = {
 
 						done = true;
 						clearTimeout(timeout);
-						timeout = setTimeout(async ()=> {
-							done = true;
-							await message.edit('Action timed out', {embed: null});
-							await message.reactions.removeAll();
-						}, 3 * 60 * 1000);
 						break;
 					case 'random':
 						var color = bot.tc.random();
@@ -115,6 +114,11 @@ module.exports = {
 						if(choice.react) await choice.react.users.remove(member.id);
 						else if(choice.message) await choice.message.delete();
 						clearTimeout(timeout);
+						timeout = setTimeout(async ()=> {
+							done = true;
+							await message.edit('Action timed out', {embed: null});
+							await message.reactions.removeAll();
+						}, 3 * 60 * 1000);
 						break;
 					default:
 						message.edit("Action cancelled", {embed: null});
