@@ -1,4 +1,4 @@
-import React, { Component, Fragment as Frag } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import * as tc from 'tinycolor2';
 

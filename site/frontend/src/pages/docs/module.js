@@ -1,8 +1,5 @@
 import React, { Component, Fragment as Frag } from 'react';
 import {
-	HashRouter as Router,
-	Switch,
-	Route,
 	Link,
 	withRouter
 } from 'react-router-dom';

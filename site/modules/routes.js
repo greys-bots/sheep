@@ -62,7 +62,7 @@ module.exports = async (app, manager) => {
 			path: "/",
 			function: async (req, res)=> {
 				var index = fs.readFileSync(path.join(__dirname,'..','frontend','build','index.html'),'utf8');
-				index = index.replace('$TITLE','Sheep')
+				index = index.replace('$TITLE','SheepHomepage')
 							 .replace('$DESC','Homepage for a bot called Sheep')
 							 .replace('$TWITDESC','Homepage for a bot called Sheep')
 							 .replace('$TWITTITLE','Sheep')
@@ -257,10 +257,6 @@ module.exports = async (app, manager) => {
 				var color = await manager.stores.colors.create(user.id, data.name, {color: tc(data.color).toHex()});
 
 				req.session.user.colors.push(color);
-				req.session.user.colors = req.session.user.colors.sort((a, b) => {
-					a.name.toLowerCase() > b.name.toLowerCase() ? 1
-					: a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 0
-				});
 
 				req.session.save();
 
@@ -303,10 +299,6 @@ module.exports = async (app, manager) => {
 					return c.id == color.id
 				});
 				req.session.user.colors[index] = color;
-				req.session.user.colors = req.session.user.colors.sort((a, b) => {
-					a.name.toLowerCase() > b.name.toLowerCase() ? 1
-					: a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 0
-				});
 
 				req.session.save();
 
@@ -322,6 +314,7 @@ module.exports = async (app, manager) => {
 				var user = req.session.user;
 
 				var color = await manager.stores.colors.get(user.id, req.params.color.toLowerCase());
+				console.log(color);
 				if(!color) return res.status(404).send();
 
 				await manager.stores.colors.delete(user.id, req.params.color.toLowerCase());

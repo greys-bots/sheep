@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "supervisor -e .js,.json -i logs,data.sqlite,data.sqlite-journal index.js"
+    "build-site": "cd site/frontend && npm run build && cd ../.. && node site/index"
   },
   "author": "",
   "license": "ISC",
@@ -13,19 +13,19 @@
     "axios": "^0.19.2",
     "cookie-parser": "^1.4.5",
     "dblite": "^1.1.3",
-    "discord.js": "^12.2.0",
+    "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "eris": "^0.9.0",
     "eris-additions": "^1.4.1",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "jimp": "^0.10.3",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "node-ipc": "^9.1.1",
-    "pg": "^8.3.0",
+    "pg": "^8.4.1",
     "pg-ipc": "^1.0.4",
     "qs": "^6.9.4",
     "sharp": "^0.25.4",
-    "tinycolor2": "^1.4.1"
+    "tinycolor2": "^1.4.2"
   }
 }

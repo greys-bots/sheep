@@ -1,6 +1,5 @@
 import React, { Component, Fragment as Frag } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import * as showdown from 'showdown';
 
 showdown.setOption('strikethrough', true);

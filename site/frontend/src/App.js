@@ -1,5 +1,4 @@
-import React, {Fragment as Frag} from 'react';
-import axios from 'axios';
+import React from 'react';
 import {
   BrowserRouter as Router,
   Switch,

@@ -1,5 +1,4 @@
 import React, { Component, Fragment as Frag } from 'react';
-import { Link } from 'react-router-dom';
 
 import Header from '../components/header';
 
@@ -16,12 +15,7 @@ class NotFound extends Component {
 	render() {
 		var color = Math.floor(Math.random()*16777215).toString(16);
         var rgb = hexToRgb(color);
-        var bg;
-        if(rgb) bg = (rgb.r * 0.299) + (rgb.g * 0.587) + (rgb.b * 0.114) < 186 ? "white" : "black";
-        else {
-          color = "000";
-          bg = "white"
-        }
+        if(!rgb) color = "000";
 
         return (
             <Frag>
@@ -36,7 +30,7 @@ class NotFound extends Component {
             </p>
             </div>
             <div style={{textAlign: "center"}}>
-            <img className="App-sheep" src={"/sheep/"+color} alt="Sheep image" />
+            <img className="App-sheep" src={"/sheep/"+color} alt="Sheep" />
             </div>
             </section>
             </div>

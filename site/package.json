@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "heroku-postbuild": "cd frontend && npm install --only=dev && npm install && npm run build",
-    "build": "cd frontend && yarn build && cd .. && node index.js"
+    "build": "cd frontend && npm run build && cd .. && node index.js"
   },
   "keywords": [],
   "author": "",
@@ -19,12 +19,12 @@
     "eris": "^0.10.1",
     "express": "^4.17.1",
     "jimp": "^0.6.8",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "node-ipc": "^9.1.1",
-    "pg": "^8.2.1",
+    "pg": "^8.4.1",
     "pg-ipc": "^1.0.4",
     "qs": "^6.9.4",
-    "sharp": "^0.25.3",
-    "tinycolor2": "^1.4.1"
+    "sharp": "^0.25.4",
+    "tinycolor2": "^1.4.2"
   }
 }

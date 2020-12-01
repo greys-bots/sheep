@@ -23,7 +23,7 @@ app.use(session({
 
 	manager.on('message', (shard, msg) => {
 	    if(msg == "READY" && shard.id == manager.totalShards - 1) {
-	        console.log("Sheep ready!");
+	        console.log("sheep site ready");
 			module.exports = app;
 			app.listen(process.env.PORT || 8080);
 	    }

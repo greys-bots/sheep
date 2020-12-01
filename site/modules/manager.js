@@ -1,7 +1,7 @@
 const { ShardingManager } 	= require('discord.js');
 const manager 				= new ShardingManager(__dirname + '/bot.js', {token: process.env.TOKEN});
 
-var shardCount = process.env.SHARDCOUNT ? parseInt(process.env.SHARDCOUNT) : null;
+var shardCount = process.env.SHARDCOUNT ? parseInt(process.env.SHARDCOUNT) : undefined;
 
 manager.spawn(shardCount);
 manager.on('shardCreate', shard => {

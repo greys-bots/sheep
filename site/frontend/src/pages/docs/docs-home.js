@@ -4,8 +4,7 @@ import {
 	Switch,
 	Route,
 	Link,
-	NavLink,
-	withRouter
+	NavLink
 } from 'react-router-dom';
 import axios from 'axios';
 

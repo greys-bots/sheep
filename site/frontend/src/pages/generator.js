@@ -31,6 +31,8 @@ class Generator extends Component {
 			case 'info':
 				this.setState({info: target.checked});
 				break;
+			default:
+				break;
 		}
 	}
 
@@ -59,7 +61,7 @@ class Generator extends Component {
       	            </p>
       	            </div>
       	            <div style={{textAlign: "center"}}>
-      	            <img className="App-sheep" src={"/sheep/"+this.state.sheepcolor} alt="Sheep image" />
+      	            <img className="App-sheep" src={"/sheep/"+this.state.sheepcolor} alt="Sheep" />
       	            </div>
                   </section>
                   
@@ -134,8 +136,8 @@ class Generator extends Component {
                         </form>
                   {this.state.img && (
                   	<Frag>
-                  	<a href={this.state.img} target="_blank">
-                  	<img src={this.state.img} alt="Generated image"/>
+                  	<a href={this.state.img} target="_blank" rel="noopener noreferrer">
+                  	<img src={this.state.img} alt="Generated"/>
                   	</a>
                   	<p>(Click for direct link!)</p>
                   	</Frag>

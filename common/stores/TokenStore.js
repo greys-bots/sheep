@@ -43,7 +43,6 @@ class TokenStore extends Collection {
 	}
 
 	async get(user, forceUpdate = false) {
-		console.log("user", user);
 		return new Promise(async (res, rej) => {
 			if(!forceUpdate) {
 				var token = super.get(user);

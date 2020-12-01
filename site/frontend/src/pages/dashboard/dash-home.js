@@ -8,7 +8,6 @@ import {
 	NavLink
 } from 'react-router-dom';
 import axios from 'axios';
-import * as tc from 'tinycolor2';
 
 import UserSettings from './user/usersettings.js';
 import GuildSettings from './guild/guildsettings.js';
@@ -17,7 +16,7 @@ import NotFound from '../notfound';
 import './dash.css';
 
 const login_url = "https://discord.com/api/oauth2/authorize?client_id=585271178180952064&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Flogin&response_type=code&scope=identify%20guilds";
-const login_url2 = "https://discord.com/api/oauth2/authorize?client_id=585271178180952064&redirect_uri=https%3A%2F%2Fsheep.greysdawn.com%2Fapi%2Flogin&response_type=code&scope=identify%20guilds";
+// "https://discord.com/api/oauth2/authorize?client_id=585271178180952064&redirect_uri=https%3A%2F%2Fsheep.greysdawn.com%2Fapi%2Flogin&response_type=code&scope=identify%20guilds";
 
 const img_url = "https://cdn.discordapp.com";
 
@@ -58,7 +57,7 @@ class DashHome extends Component {
 		return (
 			<Router basename="/dash">
 			<Frag>
-			<div className="Dash-header">
+			<div className="Dash-header" role="navigation">
 				<h1 className="App-title"><Link to="/">Sheep Dash</Link></h1>
 				<div className="App-navLinks">
 				<a className="App-button" href="/">home</a>
@@ -66,24 +65,24 @@ class DashHome extends Component {
 				<a className="App-button" href="/gen">generator</a>
 				</div>
 				{(!user && this.state.fetched) && (
-					<a style={{display: 'inline-block', float: 'right'}} href={login_url} className="Dash-login">
+					<a style={{display: 'inline-block'}} href={login_url} className="Dash-login">
 						Login
 					</a>
 				)}
 				{user && (
-					<button className="App-button" onClick={this.toggle()}>menu</menu>
+					<button className="App-button" onClick={() => this.toggle()}>menu</button>
 				)}
 			</div>
 			<div className="Dash-container" onClick={() => this.hideMenu()} >
 			{guilds && (
-				<div className=`Dash-sidebar${this.state.open ? " open" : ''}`>
-				<NavLink to="/user" className="Dash-sideLink">
-					<img src={user.avatar.startsWith("a_") ? `${img_url}/avatars/${user.id}/${user.avatar}.gif` : `${img_url}/avatars/${user.id}/${user.avatar}.png`} />
+				<div className={`Dash-sidebar${this.state.open ? " open" : ''}`} role="navigation" aria-hidden={this.state.open ? "false" : "true"}>
+				<NavLink to="/user" className="Dash-sideLink" aria-label="user settings">
+					<img alt="User avatar" role="presentation" src={user.avatar.startsWith("a_") ? `${img_url}/avatars/${user.id}/${user.avatar}.gif` : `${img_url}/avatars/${user.id}/${user.avatar}.png`} />
 					<span>User Settings</span>
 				</NavLink>
 				{guilds.map(g => {
-					return (<NavLink to={`/guild/${g.id}`} className="Dash-sideLink" key={g.id}>
-						<img src={g.icon ? (g.icon.startsWith("a_") ? `${img_url}/icons/${g.id}/${g.icon}.gif` : `${img_url}/icons/${g.id}/${g.icon}.png`) : "https://cdn.discordapp.com/embed/avatars/0.png"} />
+					return (<NavLink to={`/guild/${g.id}`} className="Dash-sideLink" key={g.id} aria-label="guild settings">
+						<img alt={`${g.name} avatar`} role="presentation" src={g.icon ? (g.icon.startsWith("a_") ? `${img_url}/icons/${g.id}/${g.icon}.gif` : `${img_url}/icons/${g.id}/${g.icon}.png`) : "https://cdn.discordapp.com/embed/avatars/0.png"} />
 						<span>{g.name}</span>
 					</NavLink>);
 				})}

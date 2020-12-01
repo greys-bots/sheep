@@ -1,6 +1,4 @@
 import React, { Component, Fragment as Frag } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
 
 import Stats from '../components/stats';
 import Header from '../components/header';
@@ -23,7 +21,7 @@ class Home extends Component {
             </p>
             </div>
             <div style={{textAlign: "center"}}>
-            <img className="App-sheep" src={"/sheep/"+color} alt="Sheep image" />
+            <img className="App-sheep" src={"/sheep/"+color} alt="Sheep" />
             </div>
             </section>
             <Stats />

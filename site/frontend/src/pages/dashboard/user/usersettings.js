@@ -17,7 +17,8 @@ class UserSettings extends Component {
 		super(props);
 		this.state = {
 			user: this.props.user,
-			edit: {name: '', color: ''}
+			edit: {name: '', color: ''},
+			error: ''
 		};
 	}
 
@@ -44,13 +45,9 @@ class UserSettings extends Component {
 
 		this.setState(state => {
 			state.user.colors.push(data.data);
-			state.user.colors.sort((a, b) => {
-				if(a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-				else if(b.name.toLowerCase() > a.name.toLowerCase()) return -1;
-				else return 0;
-			})
 
 			state.edit = {name: '', color: ''};
+			state.error = '';
 
 			return state;
 		})
@@ -60,7 +57,6 @@ class UserSettings extends Component {
 		this.setState(state => {
 			var index = state.user.colors.findIndex(c => c.id == color.id);
 			state.user.colors.splice(index, 1);
-			console.log(state.user.colors);
 			return state;
 		})
 	}
@@ -69,11 +65,6 @@ class UserSettings extends Component {
 		this.setState(state => {
 			var index = state.user.colors.findIndex(c => c.id == color.id);
 			state.user.colors[index] = color;
-			state.user.colors.sort((a, b) => {
-				if(a.name.toLowerCase() > b.name.toLowerCase()) return 1;
-				else if(b.name.toLowerCase() > a.name.toLowerCase()) return -1;
-				else return 0;
-			})
 			return state;
 		})
 	}
