@@ -2,3 +2,6 @@
 node_modules/
 logs/
 *.sqlite
+
+# for switching branches
+site/
