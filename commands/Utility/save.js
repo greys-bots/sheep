@@ -63,7 +63,7 @@ module.exports = {
 
 			try {
 				if(!exists) await bot.stores.colors.create(msg.author.id, name, {color: color});
-				else await bot.stores.colors.update(msg.author.id, name, {color: color});
+				else await bot.stores.colors.update(msg.author.id, name.toLowerCase(), {color: color});
 			} catch(e) {
 				console.log(e);
 				return "ERR: "+e;
@@ -85,11 +85,11 @@ module.exports.subcommands.rename = {
 		var color = await bot.stores.colors.get(msg.author.id, args[0].toLowerCase());
 		if(!color) return msg.channel.send("Color not found! D:");
 
-		var exists = await bot.stores.colors.get(msg.author.id, args[0]);
+		var exists = await bot.stores.colors.get(msg.author.id, args[0].toLowerCase());
 		if(exists && color.name !== exists.name) return "Color with that name already exists! Aborting";
 
 		try {
-			await bot.stores.colors.update(msg.author.id, color.name, {name: args[1]});
+			await bot.stores.colors.update(msg.author.id, color.name.toLowerCase(), {name: args[1]});
 		} catch(e) {
 			return "ERR: "+e;
 		}
@@ -112,7 +112,7 @@ module.exports.subcommands.repick = {
 		if(!cl.isValid()) return "That color isn't valid!";
 
 		try {
-			await bot.stores.colors.update(msg.author.id, color.name, {color: cl.toHex()});
+			await bot.stores.colors.update(msg.author.id, color.name.toLowerCase(), {color: cl.toHex()});
 		} catch(e) {
 			return "ERR: "+e;
 		}
@@ -158,7 +158,7 @@ module.exports.subcommands.delete = {
 			if(confirm.msg) return confirm.msg;
 
 			try {
-				await bot.stores.colors.delete(msg.author.id, color.name);
+				await bot.stores.colors.delete(msg.author.id, color.name.toLowerCase());
 			} catch(e) {
 				return "ERR: "+e;
 			}

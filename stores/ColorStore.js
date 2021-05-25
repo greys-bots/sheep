@@ -96,7 +96,7 @@ class ColorStore extends Collection {
 	async delete(user, name) {
 		return new Promise(async (res, rej) => {
 			try {
-				await this.db.query(`DELETE FROM colors WHERE user_id = $1 AND name = $2`, [user, name]);
+				await this.db.query(`DELETE FROM colors WHERE user_id = $1 AND LOWER(name) = $2`, [user, name]);
 			} catch(e) {
 				console.log(e);
 				return rej(e.message);
