@@ -57,3 +57,6 @@ If you're having trouble with the bot, feel free to join the support server [her
 If you'd like to support *us*, check out these links:  
 [patreon](https://patreon.com/greysdawn)  
 [ko-fi](https://ko-fi.com/greysdawn)
+
+### Commissions
+We do commissions! If you're interested in a bot or website, check out [this doc](https://docs.google.com/document/d/1hvqvqdWj0mpHeNjo_mr2AHF7La32nkp4BDLxO1dvTHw/edit?usp=drivesdk) for more info!
