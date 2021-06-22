@@ -15,9 +15,10 @@ class ConfigStore extends Collection {
 					server_id,
 					role_mode,
 					disabled,
-					pingable
-				) VALUES ($1,$2,$3,$4)`,
-				[server, data.role_mode || 0, data.disabled || [], data.pingable || false]);
+					pingable,
+					readable
+				) VALUES ($1,$2,$3,$4,$5)`,
+				[server, data.role_mode || 0, data.disabled || [], data.pingable || false, data.readable || false]);
 			} catch(e) {
 				console.log(e);
 		 		return rej(e.message);
@@ -34,9 +35,10 @@ class ConfigStore extends Collection {
 					server_id,
 					role_mode,
 					disabled,
-					pingable
-				) VALUES ($1,$2,$3,$4)`,
-				[server, data.role_mode || 0, data.disabled || [], data.pingable || false]);
+					pingable,
+					readable
+				) VALUES ($1,$2,$3,$4,$5)`,
+				[server, data.role_mode || 0, data.disabled || [], data.pingable || false, data.readable || false]);
 			} catch(e) {
 				console.log(e);
 		 		return rej(e.message);

@@ -13,9 +13,10 @@ class UserConfigStore extends Collection {
 			try {
 				await this.db.query(`INSERT INTO user_configs (
 					user_id,
-					auto_rename
-				) VALUES ($1,$2)`,
-				[user, data.auto_rename || false]);
+					auto_rename,
+					a11y
+				) VALUES ($1,$2,$3)`,
+				[user, data.auto_rename || false, data.a11y || false]);
 			} catch(e) {
 				console.log(e);
 		 		return rej(e.message);
@@ -30,9 +31,10 @@ class UserConfigStore extends Collection {
 			try {
 				await this.db.query(`INSERT INTO user_configs (
 					user_id,
-					auto_rename
-				) VALUES ($1,$2)`,
-				[user, data.auto_rename || false]);
+					auto_rename,
+					a11y
+				) VALUES ($1,$2,$3)`,
+				[user, data.auto_rename || false, data.a11y || false]);
 			} catch(e) {
 				console.log(e);
 		 		return rej(e.message);

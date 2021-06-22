@@ -14,6 +14,23 @@ const CHOICES = [
 	}
 ]
 
+const BG_COLORS = {
+	dark: `36393f`,
+	light: `ffffff`
+}
+
+function getA11y(bot, color) {
+	var text = [];
+	for(var k in BG_COLORS) {
+		var c = bot.tc(BG_COLORS[k]);
+		var readable = bot.tc.isReadable(color, c);
+		if(readable) text.push(`✅ this color is readable on ${k} mode`);
+		else text.push(`❌ this color might not be readable on ${k} mode`);
+	}
+
+	return text;
+}
+
 module.exports = {
 	help: ()=> "Change your color",
 	usage: ()=> [" [color] - Change your color to the one given",
@@ -22,8 +39,8 @@ module.exports = {
 				"Note: Roles above the automatically-created Sheep role MUST be uncolored, or this won't work!",
 				"The role you're trying to edit must be below my highest role as well!"].join("\n"),
 	execute: async (bot, msg, args)=> {
-		var config = (await bot.stores.configs.get(msg.guild.id)) || {role_mode: 0};
-		var ucfg = (await bot.stores.userConfigs.get(msg.author.id)) || {auto_rename: false};
+		var config = (await bot.stores.configs.get(msg.guild.id)) ?? {role_mode: 0};
+		var ucfg = (await bot.stores.userConfigs.get(msg.author.id)) ?? {auto_rename: false};
 		if(config.role_mode == 0) {
 			var color, saved;
 			if(!args[0]) color = bot.tc.random();
@@ -34,7 +51,11 @@ module.exports = {
 			}
 
 			if(!color.isValid()) return ("That color isn't valid :(");
-			if(color.toHex()=="000000") color = bot.tc('001')
+			if(color.toHex()=="000000") color = bot.tc('001');
+
+			var a11y = getA11y(bot, color);
+			if(config.readable && a11y.find(a => a.includes("not"))) return `This server requires readable colors! This color's info:\n${a11y.join("\n")}`;
+
 			var message = await msg.channel.send({embed: {
 				title: "Color "+color.toHexString().toUpperCase(),
 				image: {
@@ -42,7 +63,7 @@ module.exports = {
 				},
 				color: parseInt(color.toHex(), 16),
 				footer: {
-					text: `${color.toRgbString()}`
+					text: ucfg.a11y ? a11y.join(" | ") : ""
 				}
 			}});
 			['✅', '❌', '🔀'].forEach(r => message.react(r));
@@ -83,7 +104,10 @@ module.exports = {
 							}
 							console.log(role.position);
 							await member.roles.add(role.id);
-							await message.edit("Color successfully changed to "+color.toHexString()+"! :D", {embed: null});
+
+							var m = "Color successfully changed to "+color.toHexString()+"! :D";
+							if(ucfg.a11y) m += "\nAccessibility info:\n" + a11y.join("\n");
+							await message.edit(m, {embed: null});
 							await message.reactions.removeAll();
 							if(role.new) await bot.stores.userRoles.create(msg.guild.id, member.id, role.id);
 						} catch(e) {

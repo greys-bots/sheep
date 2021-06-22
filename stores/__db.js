@@ -17,7 +17,8 @@ module.exports = (bot) => {
 			server_id 	TEXT,
 			role_mode 	INTEGER,
 			disabled 	TEXT[],
-			pingable 	BOOLEAN
+			pingable 	BOOLEAN,
+			readable 	BOOLEAN
 		);
 
 		CREATE TABLE IF NOT EXISTS server_roles (
@@ -37,7 +38,8 @@ module.exports = (bot) => {
 		CREATE TABLE IF NOT EXISTS user_configs (
 			id			SERIAL PRIMARY KEY,
 			user_id		TEXT,
-			auto_rename BOOLEAN
+			auto_rename BOOLEAN,
+			a11y 		BOOLEAN
 		);
 
 		CREATE TABLE IF NOT EXISTS user_roles (
