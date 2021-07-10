@@ -34,6 +34,6 @@ module.exports = {
 		return 'Config updated!'
 	},
 	guildOnly: true,
-	permissions: ['MANAGE_SERVER'],
+	permissions: ['MANAGE_GUILD'],
 	alias: ['a11y', 'readability']
 }
