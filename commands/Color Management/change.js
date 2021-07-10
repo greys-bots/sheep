@@ -81,7 +81,9 @@ module.exports = {
 				switch(choice.name) {
 					case 'yes':
 						var role = await bot.stores.userRoles.get(msg.guild.id, msg.author.id);
-						var srole = msg.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
+						var srole;
+						if(config.hoist) srole = await msg.guild.roles.fetch(config.hoist);
+						else srole = msg.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
 						var name;
 						if(ucfg.auto_rename && saved?.name) name = saved.name;
 						else name = (role?.raw.name || msg.author.username);
