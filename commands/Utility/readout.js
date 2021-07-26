@@ -1,6 +1,6 @@
 module.exports = {
 	help: ()=> "Set whether the bot shows the accessibility readout when changing colors",
-	usage: [
+	usage: ()=> [
 		" - Views and optionally clears the current setting",
 		" [true|false] - Sets the value"
 	],
