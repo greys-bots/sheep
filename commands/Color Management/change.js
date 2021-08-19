@@ -56,7 +56,7 @@ module.exports = {
 			var a11y = getA11y(bot, color);
 			if(config.readable && a11y.find(a => a.includes("not"))) return `This server requires readable colors! This color's info:\n${a11y.join("\n")}`;
 
-			var message = await msg.channel.send({embed: {
+			var message = await msg.channel.send({embeds: [{
 				title: "Color "+color.toHexString().toUpperCase(),
 				image: {
 					url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
@@ -65,7 +65,7 @@ module.exports = {
 				footer: {
 					text: ucfg.a11y ? a11y.join(" | ") : ""
 				}
-			}});
+			}]});
 			['✅', '❌', '🔀'].forEach(r => message.react(r));
 
 			var done = false;
@@ -119,7 +119,7 @@ module.exports = {
 								`Try moving my highest role above any roles you're trying to color, then try again!\n`,
 								`If the error continues, please report this in `,
 								`my development server: https://discord.gg/EvDmXGt`
-							]);
+							].join(""));
 						}
 
 						done = true;
@@ -127,7 +127,7 @@ module.exports = {
 						break;
 					case 'random':
 						var color = bot.tc.random();
-						message.edit({embed: {
+						message.edit({embeds: [{
 							title: "Color "+color.toHexString().toUpperCase(),
 							image: {
 								url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
@@ -136,7 +136,7 @@ module.exports = {
 							footer: {
 								text: `${color.toRgbString()}`
 							}
-						}});
+						}]});
 						if(choice.react) await choice.react.users.remove(member.id);
 						else if(choice.message) await choice.message.delete();
 						clearTimeout(timeout);

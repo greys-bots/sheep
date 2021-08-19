@@ -22,14 +22,14 @@ module.exports = {
 			else if(user) users.push(user.toString());
 		}
 
-		return {embed: {
+		return {
 			title: "Whitelist",
 			description: "Users and roles that can use this bot",
 			fields: [
 				{name: "Roles", value: roles.join("\n") || "none"},
 				{name: "Users", value: users.join("\n") || "none"}
 			]
-		}}
+		}
 	},
 	permissions: ["MANAGE_GUILD"],
 	alias: ["wl"],
@@ -66,13 +66,13 @@ module.exports.subcommands.add = {
 			return "ERR: "+e;
 		}
 
-		return {embed: {
+		return {
 			title: "Whitelisted",
 			fields: [
 				{name: "Added", value: added[0] ? added.map(x => x.toString()).join("\n") : "none"},
 				{name: "Not added", value: invalid[0] ? invalid.join("\n") : "none"}
 			]
-		}}
+		}
 	},
 	alias: ["a", "+"]
 }
@@ -110,13 +110,13 @@ module.exports.subcommands.remove = {
 			return "ERR: "+e;
 		}
 
-		return {embed: {
+		return {
 			title: "Whitelisted",
 			fields: [
 				{name: "Removed", value: removed[0] ? removed.map(x => x.toString()).join("\n") : "none"},
 				{name: "Not removed", value: invalid[0] ? invalid.join("\n") : "none"}
 			]
-		}}
+		}
 	},
 	alias: ["r", "rmv", "-"]
 }

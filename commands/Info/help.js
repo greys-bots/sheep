@@ -27,15 +27,16 @@ module.exports = {
 			}
 
 			for(let i=0; i<embeds.length; i++) {
-				if(embeds.length > 1) embeds[i].embed.title += ` (page ${i+1}/${embeds.length}, ${bot.commands.size} commands total)`;
+				if(embeds.length > 1) embeds[i].title += ` (page ${i+1}/${embeds.length}, ${bot.commands.size} commands total)`;
 			}
 
 			return embeds;
 		}
 
-		let {command} = await bot.parseCommand(bot, msg, args);
+		
+		let {command} = await bot.handlers.command.parse(args);
 		if(command) {
-			var embed = {embed: {
+			var embed = {
 				title: `Help | ${command.name.toLowerCase()}`,
 				description: command.help(),
 				fields: [
@@ -50,7 +51,7 @@ module.exports = {
 					icon_url: bot.user.avatarURL,
 					text: "Arguments like [this] are required, arguments like <this> are optional."
 				}
-			}};
+			};
 			if(command.desc) embed.embed.fields.push({name: "**Extra Info**", value: command.desc()});
 			if(command.permissions) embed.embed.fields.push({name: "**Permissions**", value: command.permissions.join(", ")});
 
@@ -73,7 +74,7 @@ module.exports = {
 			}, 10, {addition: ""});
 
 			for(let i=0; i<embeds.length; i++) {
-				if(embeds.length > 1) embeds[i].embed.title += ` (page ${i+1}/${embeds.length}, ${Object.keys(bot.commands).length} commands total)`;
+				if(embeds.length > 1) embeds[i].title += ` (page ${i+1}/${embeds.length}, ${Object.keys(bot.commands).length} commands total)`;
 			}
 
 			return embeds;

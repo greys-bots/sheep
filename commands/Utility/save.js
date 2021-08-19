@@ -23,7 +23,7 @@ module.exports = {
 			if(!color) return "Color not found! D:";
 			color = bot.tc(color.color); //color doesn't seem like a real word anymore huh
 
-			return {embed: {
+			return {
 				title: "Color "+color.toHexString().toUpperCase(),
 				image: {
 					url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
@@ -32,7 +32,7 @@ module.exports = {
 				footer: {
 					text: `${color.toRgbString()}`
 				}
-			}}
+			}
 		} else {
 			var name = args[0];
 			var color = args.slice(1).join("");

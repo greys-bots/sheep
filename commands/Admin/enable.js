@@ -21,7 +21,7 @@ module.exports = {
 			return "Module enabled!";
 		} else {
 			try {
-				var {command} = await bot.parseCommand(bot, msg, args);
+				var {command} = await bot.handlers.command.parse(args);
 			} catch (e) {
 				command = undefined;
 			}

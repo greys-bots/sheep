@@ -1,13 +1,26 @@
-const Discord		= require("discord.js");
-const fs			= require("fs");
-const path 			= require("path");
-const dblite		= require("dblite");
+const { Client, Intents } = require("discord.js");
+const fs				  = require("fs");
+const path 				  = require("path");
+const dblite			  = require("dblite");
 
-const bot = new Discord.Client({
-	partials: ['MESSAGE', 'USER', 'CHANNEL', 'GUILD_MEMBER', 'REACTION'],
+const bot = new Client({
+	intents: [
+		Intents.FLAGS.GUILDS,
+		Intents.FLAGS.GUILD_MESSAGES,
+		Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+		Intents.FLAGS.DIRECT_MESSAGES,
+		Intents.FLAGS.DIRECT_MESSAGE_REACTIONS
+	],
+	partials: [
+		'MESSAGE',
+		'USER',
+		'CHANNEL',
+		'GUILD_MEMBER',
+		'REACTION'
+	],
 	messageCacheMaxSize: 0,
 	messageCacheLifetime: 1,
-	messageSweepInterval: 5 * 60
+	messageSweepInterval: 1
 });
 
 bot.prefix = ["s!","sh!","sheep!","baa!"];
@@ -50,102 +63,19 @@ bot.updateStatus = async function(){
 	setTimeout(()=> bot.updateStatus(), 600000)
 }
 
-const recursivelyReadDirectory = function(dir) {
-	var results = [];
-	var files = fs.readdirSync(dir, {withFileTypes: true});
-	for(file of files) {
-		if(file.isDirectory()) {
-			results = results.concat(recursivelyReadDirectory(dir+"/"+file.name));
-		} else {
-			results.push(dir+"/"+file.name);
-		}
-	}
-
-	return results;
-}
-
-//for handling commands
-const registerCommand = function({command, module, name} = {}) {
-	if(!command) return;
-	command.module = module;
-	command.name = name;
-	module.commands.set(name, command);
-	bot.commands.set(name, command);
-	bot.aliases.set(name, name);
-	if(command.alias) command.alias.forEach(a => bot.aliases.set(a, name));
-	
-	if(command.subcommands) {
-		var subcommands = command.subcommands;
-		command.subcommands = new Discord.Collection();
-		Object.keys(subcommands).forEach(c => {
-			var cmd = subcommands[c];
-			cmd.name = `${command.name} ${c}`;
-			cmd.parent = command;
-			cmd.module = command.module;
-			if(!command.sub_aliases) command.sub_aliases = new Discord.Collection();
-			command.sub_aliases.set(c, c);
-			if(cmd.alias) cmd.alias.forEach(a => command.sub_aliases.set(a, c));
-			if(command.permissions && !cmd.permissions) cmd.permissions = command.permissions;
-			if(command.guildOnly != undefined && cmd.guildOnly == undefined)
-				cmd.guildOnly = command.guildOnly;
-			command.subcommands.set(c, cmd);
-		})
-	}
-	return command;
-}
-
 async function setup() {
 	bot.db = require('./stores/__db')(bot);
 
 	files = fs.readdirSync("./events");
 	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require("./events/"+f)(...args,bot)));
 
+	bot.handlers = {};
+	files = fs.readdirSync(__dirname + "/handlers");
+	files.forEach(f => bot.handlers[f.slice(0,-3)] = require(__dirname + "/handlers/"+f)(bot));
+
 	bot.utils = {};
 	files = fs.readdirSync("./utils");
 	files.forEach(f => Object.assign(bot.utils, require("./utils/"+f)));
-
-	files = recursivelyReadDirectory("./commands");
-
-	bot.modules = new Discord.Collection();
-	bot.mod_aliases = new Discord.Collection();
-	bot.commands = new Discord.Collection();
-	bot.aliases = new Discord.Collection();
-	for(f of files) {
-		var path_frags = f.replace("./commands/","").split(/(?:\\|\/)/);
-		var mod = path_frags.length > 1 ? path_frags[path_frags.length - 2] : "Unsorted";
-		var file = path_frags[path_frags.length - 1];
-		if(!bot.modules.get(mod.toLowerCase())) {
-			var mod_info = require(file == "__mod.js" ? f : f.replace(file, "__mod.js"));
-			bot.modules.set(mod.toLowerCase(), {...mod_info, name: mod, commands: new Discord.Collection()})
-			bot.mod_aliases.set(mod.toLowerCase(), mod.toLowerCase());
-			if(mod_info.alias) mod_info.alias.forEach(a => bot.mod_aliases.set(a, mod.toLowerCase()));
-		}
-		if(file == "__mod.js") continue;
-
-		mod = bot.modules.get(mod.toLowerCase());
-		if(!mod) {
-			console.log("Whoopsies");
-			continue;
-		}
-		
-		registerCommand({command: require(f), module: mod, name: file.slice(0, -3).toLowerCase()})
-	}
-}
-
-bot.parseCommand = async function(bot, msg, args) {
-	if(!args[0]) return undefined;
-	
-	var command = bot.commands.get(bot.aliases.get(args[0].toLowerCase()));
-	if(!command) return {command, nargs: args};
-
-	args.shift();
-
-	if(args[0] && command.subcommands && command.subcommands.get(command.sub_aliases.get(args[0].toLowerCase()))) {
-		command = command.subcommands.get(command.sub_aliases.get(args[0].toLowerCase()));
-		args.shift();
-	}
-
-	return {command, nargs: args};
 }
 
 bot.writeLog = async (log) => {

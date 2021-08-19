@@ -7,10 +7,10 @@ module.exports = {
 		if(!args[0]) {
 			if(!cfg || !cfg.disabled || !cfg.disabled[0]) return "Nothing is disabled in this server";
 			
-			return {embed: {
+			return {
 				title: "Disabled Commands",
 				description: cfg.disabled.commands.sort().join("\n")
-			}}
+			}
 		}
 		if(["disable", "enable"].includes(args[0].toLowerCase())) return "You can't disable or enable this command.";
 		var dis;
@@ -30,7 +30,7 @@ module.exports = {
 			return "Module disabled!";
 		} else {
 			try {
-				var {command} = await bot.parseCommand(bot, msg, args);
+				var {command} = await bot.handlers.command.parse(args);
 			} catch (e) {
 				command = undefined;
 			}

@@ -12,31 +12,31 @@ module.exports = {
 
 		switch(form) {
 			case 'hex':
-				return {embed: {
+				return {
 					description: `${color.toString()} = ${color.toHexString().toUpperCase()}`,
 					color: parseInt(color.toHex(), 16)
-				}}
+				}
 				return;
 				break;
 			case 'rgb':
-				return {embed: {
+				return {
 					description: `${color.toString()} = ${color.toRgbString().toUpperCase()}`,
 					color: parseInt(color.toHex(), 16)
-				}}
+				}
 				return;
 				break;
 			case 'hsv':
-				return {embed: {
+				return {
 					description: `${color.toString()} = ${color.toHsvString().toUpperCase()}`,
 					color: parseInt(color.toHex(), 16)
-				}}
+				}
 				break;
 			case 'cmyk':
 				var cmyk = await bot.utils.toCmyk(color);
-				return {embed: {
+				return {
 					description: `${color.toString()} = CMYK(${cmyk.c}, ${cmyk.m}, ${cmyk.y}, ${cmyk.k})`,
 					color: parseInt(color.toHex(), 16)
-				}}
+				}
 				break;
 			default:
 				return "I can't convert to that form :(";

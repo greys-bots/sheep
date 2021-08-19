@@ -5,7 +5,7 @@ module.exports = {
 		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
 		var users = (await bot.shard.broadcastEval('this.users.cache.size')).reduce((prev, val) => prev + val, 0);
 		
-		return ({embed: {
+		return ({
 			title: '**About**',
 			description: "Baa! I'm Sheep! I help people change their name color here on Discord.\nMy prefixes are `s!`, `sh!`, `sheep!`, and `baa!`",
 			fields:[
@@ -16,7 +16,7 @@ module.exports = {
 				{name: "Stats", value: `Guilds: ${guilds} | Users: ${users}`},
 				{name: "Support my creators!", value: "[Ko-Fi](https://ko-fi.com/greysdawn) | [Patreon](https://patreon.com/greysdawn)"}
 			]
-		}})
+		})
 	},
 	alias: ['abt', 'a']
 }

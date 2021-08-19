@@ -1,4 +1,21 @@
+const fs = require('fs');
+
+const recursivelyReadDirectory = (dir) => {
+	var results = [];
+	var files = fs.readdirSync(dir, {withFileTypes: true});
+	for(file of files) {
+		if(file.isDirectory()) {
+			results = results.concat(recursivelyReadDirectory(dir+"/"+file.name));
+		} else {
+			results.push(dir+"/"+file.name);
+		}
+	}
+
+	return results;
+}
+
 module.exports = {
+	recursivelyReadDirectory,
 	genEmbeds: async (bot, arr, genFunc, info = {}, fieldnum, extras = {}) => {
 		return new Promise(async res => {
 			var embeds = [];
@@ -15,7 +32,7 @@ module.exports = {
 			
 			for(let i=0; i<arr.length; i++) {
 				if(current.embed.fields.length < (fieldnum || 10)) {
-					current.embed.fields.push(await genFunc(arr[i], bot));
+					current.embed.fields.push(await genFunc(arr[i], i, arr));
 				} else {
 					embeds.push(current);
 					current = { embed: {
@@ -26,7 +43,7 @@ module.exports = {
 						color: typeof info.color == "function" ?
 								info.color(arr[i], i) : info.color,
 						footer: info.footer,
-						fields: [await genFunc(arr[i], bot)]
+						fields: [await genFunc(arr[i], i, arr)]
 					}};
 				}
 			}
@@ -53,8 +70,8 @@ module.exports = {
 				} else {
 					this.index -= 1;
 				}
-				await m.edit(this.data[this.index]);
-				await reaction.users.remove(this.user)
+				await m.edit({embeds: [this.data[this.index].embed ?? this.data[this.index]]});
+				if(m.channel.type != "dm") await reaction.users.remove(this.user)
 				bot.menus[m.id] = this;
 				break;
 			case "➡️":
@@ -63,8 +80,8 @@ module.exports = {
 				} else {
 					this.index += 1;
 				}
-				await m.edit(this.data[this.index]);
-				await reaction.users.remove(this.user)
+				await m.edit({embeds: [this.data[this.index].embed ?? this.data[this.index]]});
+				if(m.channel.type != "dm") await reaction.users.remove(this.user)
 				bot.menus[m.id] = this;
 				break;
 			case "⏹️":
@@ -72,33 +89,6 @@ module.exports = {
 				delete bot.menus[m.id];
 				break;
 		}
-	},
-	cleanText: function(text){
-		if (typeof(text) === "string") {
-			return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
-		} else	{
-			return text;
-		}
-	},
-	
-	checkPermissions: async (bot, msg, cmd)=>{
-		return new Promise((res)=> {
-			if(cmd.permissions) res(msg.member.permissions.has(cmd.permissions))
-			else res(true);
-		})
-	},
-	isDisabled: async (bot, srv, cmd, name) =>{
-		return new Promise(async res=>{
-			var cfg = await bot.stores.configs.get(srv);
-			if(!cfg || !cfg.disabled || !cfg.disabled[0]) return res(false);
-			let dlist = cfg.disabled;
-			name = name.split(" ");
-			if(dlist && (dlist.includes(name[0]) || dlist.includes(name.join(" ")))) {
-				res(true);
-			} else {
-				res(false);
-			}
-		})
 	},
 
 	getConfirmation: async (bot, msg, user) => {
@@ -109,18 +99,11 @@ module.exports = {
 				   message.author.id != user.id) return;
 
 				clearTimeout(timeout);
-				bot.removeListener('message', msgListener);
+				bot.removeListener('messageCreate', msgListener);
 				bot.removeListener('messageReactionAdd', reactListener);
-				switch(message.content.toLowerCase()) {
-					case 'y':
-					case 'yes':
-					case '✅':
-						return res({confirmed: true, message});
-						break;
-					default:
-						return res({confirmed: false, message, msg: 'Action cancelled!'});
-						break;
-				}
+				bot.removeListener('interactionCreate', intListener)
+				if(STRINGS[0].includes(message.content.toLowerCase())) return res({confirmed: true, message});
+				else return res({confirmed: false, message, msg: 'Action cancelled!'});
 			}
 
 			function reactListener(react, ruser) {
@@ -128,26 +111,35 @@ module.exports = {
 				   ruser.id != user.id) return;
 
 				clearTimeout(timeout);
-				bot.removeListener('message', msgListener);
+				bot.removeListener('messageCreate', msgListener);
 				bot.removeListener('messageReactionAdd', reactListener);
-				switch(react.emoji.name) {
-					case '✅':
-						return res({confirmed: true, react});
-						break;
-					default:
-						return res({confirmed: false, react, msg: 'Action cancelled!'});
-						break;
-				}
+				bot.removeListener('interactionCreate', intListener)
+				if(react.emoji.name == REACTS[0]) return res({confirmed: true, react});
+				else return res({confirmed: false, react, msg: 'Action cancelled!'});
+			}
+
+			function intListener(intr) {
+				if(!intr.isButton()) return;
+				if(intr.channelId !== msg.channel.id ||
+				   intr.user.id !== user.id) return;
+
+				clearTimeout(timeout);
+				bot.removeListener('messageCreate', msgListener);
+				bot.removeListener('messageReactionAdd', reactListener);
+				bot.removeListener('interactionCreate', intListener)
+				if(BUTTONS[0].includes(intr.customId)) return res({confirmed: true, interaction: intr});
+				else return res({confirmed: false, interaction: intr, msg: 'Action cancelled!'});
 			}
 
 			const timeout = setTimeout(async () => {
-				bot.removeListener('message', msgListener);
+				bot.removeListener('messageCreate', msgListener);
 				bot.removeListener('messageReactionAdd', reactListener);
-				res({confirmed: false, msg: 'Action timed out :('})
+				res({confirmed: false, msg: 'ERR! Timed out!'})
 			}, 30000);
 
-			bot.on('message', msgListener);
+			bot.on('messageCreate', msgListener);
 			bot.on('messageReactionAdd', reactListener);
+			bot.on('interactionCreate', intListener)
 		})
 	},
 	handleChoices: async (bot, msg, user, choices) => {

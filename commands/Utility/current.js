@@ -11,15 +11,13 @@ module.exports = {
 		var color = bot.tc(conv);
 
 		return {
-			embed: {
-				title: "Current color: "+color.toHexString().toUpperCase(),
-				image: {
-					url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
-				},
-				color: parseInt(color.toHex(), 16),
-				footer: {
-					text: `${color.toRgbString()}`
-				}
+			title: "Current color: "+color.toHexString().toUpperCase(),
+			image: {
+				url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+			},
+			color: parseInt(color.toHex(), 16),
+			footer: {
+				text: `${color.toRgbString()}`
 			}
 		}
 	},
