@@ -1,27 +1,24 @@
 module.exports = {
-	help: ()=> "Cleans up Hex roles and makes them compatible with Sheep",
-	usage: ()=> [" - Removes the `USER-` prefix on roles created by Hex to make the compatible with this bot"],
-	desc: ()=> "NOTE: this role requires the `manageRoles` permission from the user. This effectively makes it moderator-only",
+	help: ()=> "Cleans up unused roles from users that have left",
+	usage: ()=> [" - Deletes any roles that are no longer needed"],
 	execute: async (bot, msg, args)=> {
-		var roles = msg.guild.roles.cache.array();
+		var roles = await bot.stores.userRoles.getAll(msg.guild.id);
+		if(!roles?.[0]) return "No roles to delete!";
+		
+		var members = await msg.guild.members.fetch();
 		var err = false;
 		for(var i = 0; i < roles.length; i++) {
-			if(roles[i].name && roles[i].name.startsWith('USER-')) {
-				try {
-					await roles[i].edit({name: roles[i].name.replace('USER-','')})
-					await bot.stores.userRoles.create(msg.guild.id, roles[i].id, roles[i].name.replace("USER-",""))
-					res('');
-				} catch(e) {
-					console.log(e);
-					err = true;
-					continue;
-				}
-			} else {
-				continue;
+			if(members.get(roles[i].user_id)) continue;
+
+			try {
+				await roles[i].raw.delete();
+			} catch(e) {
+				err = true;
 			}
 		}
 
-		return err ? 'Some roles could not be cleaned because they are above my highest role :(' : 'Roles cleaned!'
+		if(err) return 'Some roles could not be cleaned because they are above my highest role :(';
+		else return 'Roles cleaned!'
 	},
 	guildOnly: true,
 	alias: ['cu', 'clean'],
