@@ -112,15 +112,16 @@ class InteractionHandler {
 		var cmd = this.parse(ctx);
 		if(!cmd) return;
 
+		if(cmd.guildOnly && !ctx.guildId) return await ctx.reply({
+			content: "That command is guild only!",
+			ephemeral: true
+		})
+		
 		var check = this.checkPerms(cmd, ctx);
 		if(!check) return await ctx.reply({
 			content: "You don't have permission to use this command!",
 			ephemeral: true
 		});
-		if(cmd.guildOnly && !ctx.guildId) return await ctx.reply({
-			content: "That command is guild only!",
-			ephemeral: true
-		})
 		
 		try {
 			var res = await cmd.execute(ctx);
@@ -224,7 +225,6 @@ class InteractionHandler {
 	checkPerms(cmd, ctx) {
 		if(cmd.ownerOnly && ctx.user.id !== process.env.OWNER)
 			return false;
-		if(ctx.guildOnly && !ctx.member) return false; // pre-emptive in case of dm slash cmds
 		if(!cmd.perms || !cmd.perms[0]) return true;
 		return ctx.member.permissions.has(cmd.permissions);
 	}
