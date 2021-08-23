@@ -80,7 +80,7 @@ class UserRoleStore extends Collection {
 				var role;
 				for(var i = 0; i < data.rows.length; i++) {
 					try { 
-						role = await guild.roles.fetch(data.rows[i].role_id);
+						role = await guild.roles.fetch(data.rows[i].role_id, {force: true});
 					} catch(e) { }
 					
 					if(!role || role.deleted) {

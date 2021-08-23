@@ -35,7 +35,7 @@ module.exports.subcommands.create = {
 		var role;
 
 		try {
-			role = await msg.guild.roles.create({data: {name: args.slice(0, args.length - 1).join(" "), color: color.toHex()}});
+			role = await msg.guild.roles.create({name: args.slice(0, args.length - 1).join(" "), color: color.toHex()});
 			await bot.stores.serverRoles.create(msg.guild.id, role.id);
 		} catch(e) {
 			console.log(e);

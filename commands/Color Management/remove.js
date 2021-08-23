@@ -14,7 +14,7 @@ module.exports = {
 			
 			return 'Color successfully removed! :D';
 		} else {
-			var roles = await bot.stores.serverRoles.get(msg.guild.id);
+			var roles = await bot.stores.serverRoles.getAll(msg.guild.id);
 			var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 			if(role) {
 				try {
@@ -26,9 +26,9 @@ module.exports = {
 			}
 			if(roles) {
 				for(var i = 0; i < roles.length; i++) {
-					if(msg.member.roles.cache.find(r => r.id == roles[i].id)) {
+					if(msg.member.roles.cache.find(r => r.id == roles[i].role_id)) {
 						try {
-							await msg.member.roles.remove(roles[i].id);
+							await msg.member.roles.remove(roles[i].role_id);
 						} catch(e) {
 							console.log(e);
 							return "ERR: "+e.message;
@@ -54,7 +54,7 @@ module.exports.subcommands.all = {
 		var confirm = await bot.utils.getConfirmation(bot, message, msg.author);
 		if(confirm.msg) return confirm.msg;
 
-		var roles = await bot.stores.serverRoles.get(msg.guild.id);
+		var roles = await bot.stores.serverRoles.getAll(msg.guild.id);
 		if(roles) {
 			try {
 				for(var r of roles) await bot.deleteRole(msg.guild.id, r.id);

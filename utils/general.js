@@ -1,4 +1,9 @@
 const fs = require('fs');
+const {
+	confirmVals: STRINGS,
+	confirmReacts: REACTS,
+	confirmBtns: BUTTONS
+} = require('../extras');
 
 const recursivelyReadDirectory = (dir) => {
 	var results = [];

@@ -16,11 +16,11 @@ module.exports = {
 		var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 		if(!role) return "You don't have a role to unlink!";
 		var role2 = await bot.stores.userRoles.get(msg.guild.id, user.id);
-		if(role != role2.id) return "Your roles aren't linked!";
+		if(role.role_id != role2?.role_id) return "Your roles aren't linked!";
 
 		try {
-			await msg.member.roles.remove(role);
-			var scc = await bot.stores.userRoles.unlink(msg.guild.id, role, msg.author.id);
+			await msg.member.roles.remove(role.role_id);
+			var scc = await bot.stores.userRoles.unlink(msg.guild.id, role.role_id, msg.author.id);
 		} catch(e) {
 			console.log(e);
 			return "ERR: "+(e.message || e);
@@ -28,6 +28,5 @@ module.exports = {
 		
 		return "Roles unlinked!";
 	},
-	guildOnly: true,
-	alias: ["share"]
+	guildOnly: true
 }

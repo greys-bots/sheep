@@ -101,17 +101,18 @@ module.exports = {
 								console.log(role.raw.position);
 								role = await role.raw.edit(options);
 							} else {
-								role = await msg.guild.roles.create({data: options});
+								role = await msg.guild.roles.create(options);
 								role.new = true;
 							}
 							console.log(role.position);
 							await member.roles.add(role.id);
-
+							if(role.new) await bot.stores.userRoles.create(msg.guild.id, member.id, role.id);
+							role.new = false;
+							
 							var m = "Color successfully changed to "+color.toHexString()+"! :D";
 							if(ucfg.a11y) m += "\nAccessibility info:\n" + a11y.join("\n");
 							await message.edit(m, {embed: null});
 							await message.reactions.removeAll();
-							if(role.new) await bot.stores.userRoles.create(msg.guild.id, member.id, role.id);
 						} catch(e) {
 							console.log(e.stack);
 							msg.channel.send([

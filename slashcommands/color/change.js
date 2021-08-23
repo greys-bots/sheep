@@ -1,20 +1,44 @@
 const tc = require('tinycolor2');
 
 const CHOICES = [
-	{
-		name: "yes",
-		accepted: ['yes', 'y', '✅']
-	},
-	{
-		name: 'no',
-		accepted: ['no', 'n', '❌'],
-		msg: 'Action cancelled!'
-	},
-	{
-		name: 'random',
-		accepted: ['random', 'r', '🔀']
-	}
-]
+	{
+		name: "yes",
+		accepted: ['yes', 'y', '✅']
+	},
+	{
+		name: 'no',
+		accepted: ['no', 'n', '❌'],
+		msg: 'Action cancelled!'
+	},
+	{
+		name: 'random',
+		accepted: ['random', 'r', '🔀']
+	}
+]
+
+const BUTTONS = [
+	{
+		type: 2,
+		style: 3,
+		label: 'Confirm',
+		emoji: '✅',
+		custom_id: 'yes'
+	},
+	{
+		type: 2,
+		style: 4,
+		label: 'Cancel',
+		emoji: '❌',
+		custom_id: 'no'
+	},
+	{
+		type: 2,
+		style: 1,
+		label: 'Random',
+		emoji: '🔀',
+		custom_id: 'random'
+	}
+]
 
 const BG_COLORS = {
 	dark: `36393f`,
@@ -22,16 +46,17 @@ const BG_COLORS = {
 }
 
 function getA11y(color) {
-	var text = [];
-	for(var k in BG_COLORS) {
-		var c = tc(BG_COLORS[k]);
-		var readable = tc.isReadable(color, c);
-		if(readable) text.push(`✅ this color is readable on ${k} mode`);
-		else text.push(`❌ this color might not be readable on ${k} mode`);
+	var text = [];
+	for(var k in BG_COLORS) {
+		var c = tc(BG_COLORS[k]);
+		var readable = tc.isReadable(color, c);
+		if(readable) text.push(`✅ this color is readable on ${k} mode`);
+		else text.push(`❌ this color might not be readable on ${k} mode`);
 	}
 
-	return text;
-}
+
+	return text;
+}
 
 module.exports = {
 	data: {
@@ -51,7 +76,7 @@ module.exports = {
 		'[color] - Change to a specific color'
 	],
 	extra: "This command accepts hex codes and color names!\n" +
-	       "See [this](https://www.w3schools.com/colors/colors_names.asp) " 
+	       "See [this](https://www.w3schools.com/colors/colors_names.asp) " +
 	       "link for supported names",
 	async execute(ctx) {
 		var cfg = await ctx.client.stores.configs.get(ctx.guildId);
@@ -77,7 +102,160 @@ module.exports = {
 			if(cfg.readable && a11y.find(a => a.includes('not')))
 				return "This server requires readable colors! This color's info:\n" + a11y.join('\n');
 
+			var message = await ctx.reply({
+				embeds: [{
+					title: "Color "+color.toHexString().toUpperCase(),
+					image: {
+						url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+					},
+					color: parseInt(color.toHex(), 16),
+					footer: {
+						text: ucfg.a11y ? a11y.join(" | ") : ""
+					}
+				}],
+				components: [{
+					type: 1,
+					components: BUTTONS
+				}],
+				fetchReply: true
+			});
+
+			var done = false;
+			var member = await ctx.guild.members.fetch(ctx.user.id);
+			var timeout = setTimeout(async ()=> {
+				done = true;
+				await message.edit('Action timed out', {embeds: [], components: []});
+			}, 3 * 60 * 1000);
+			while(!done) {
+				var choice = await ctx.client.utils.handleChoices(ctx.client, message, ctx.user, CHOICES);
+
+				switch(choice.name) {
+					case 'yes':
+						done = true;
+						clearTimeout(timeout);
+
+						var role = await ctx.client.stores.userRoles.get(ctx.guildId, ctx.user.id);
+						var srole;
+						if(cfg.hoist) srole = await ctx.guild.roles.fetch(cfg.hoist);
+						else srole = ctx.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
+						var name;
+						console.log(ctx.user.username);
+						if(ucfg.auto_rename && saved?.name) name = saved.name;
+						else name = (role?.raw?.name ?? ctx.user.username);
+						
+						console.log(srole ? srole.position : "No sheep role");
+						var options = {
+							name,
+							color: color.toHex(),
+							position: srole ? srole.position - 1 : 0,
+							mentionable: cfg.pingable
+						}
+
+						try {
+							if(role && !role.raw?.deleted) {
+								console.log(role.raw.position);
+								role = await role.raw.edit(options);
+							} else {
+								role = await ctx.guild.roles.create(options);
+								role.new = true;
+							}
+							console.log(role.position);
+							await member.roles.add(role.id);
+							if(role.new) await ctx.client.stores.userRoles.create(ctx.guildId, member.id, role.id);
+							role.new = false;
+
+							var m = "Color successfully changed to "+color.toHexString()+"! :D";
+							if(ucfg.a11y) m += "\nAccessibility info:\n" + a11y.join("\n");
+
+							if(choice.interaction) {
+								await choice.interaction.update({content: m, embeds: [], components: []});
+							} else await ctx.editReply({content: m, embeds: [], components: []});
+							if(choice.react) await choice.react.users.remove(member.id);
+							if(choice.message) await choice.message.delete();
+						} catch(e) {
+							console.log(e.stack);
+							return [
+								`Something went wrong! ERR: ${e.message}\n`,
+								`Try moving my highest role above any roles you're trying to color, then try again!\n`,
+								`If the error continues, please report this in `,
+								`my development server: https://discord.gg/EvDmXGt`
+							].join("");
+						}
+						break;
+					case 'random':
+						var color = tc.random();
+						if(choice.interaction) {
+							await choice.interaction.update({embeds: [{
+								title: "Color "+color.toHexString().toUpperCase(),
+								image: {
+									url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+								},
+								color: parseInt(color.toHex(), 16),
+								footer: {
+									text: `${color.toRgbString()}`
+								}
+							}]})
+						} else {
+							await ctx.editReply({embeds: [{
+								title: "Color "+color.toHexString().toUpperCase(),
+								image: {
+									url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+								},
+								color: parseInt(color.toHex(), 16),
+								footer: {
+									text: `${color.toRgbString()}`
+								}
+							}]})
+						}
+
+						if(choice.react) await choice.react.users.remove(member.id);
+						else if(choice.message) await choice.message.delete();
+						clearTimeout(timeout);
+						timeout = setTimeout(async ()=> {
+							done = true;
+							await ctx.editReply({content: 'Action timed out', embeds: [], components: []});
+							await message.reactions.removeAll();
+						}, 3 * 60 * 1000);
+						break;
+					default:
+						ctx.editReply({content: "Action cancelled", embeds: [], components: []});
+						message.reactions.removeAll();
+						done = true;
+						clearTimeout(timeout);
+						break;
+				}
+			}
+
+			return;
+		} else {
+			var role = await ctx.guild.roles.cache.find(r => r.name.toLowerCase() == arg);
+			if(!role) return "Role not found";
+
+			role = await ctx.client.stores.serverRoles.get(ctx.guild.id, role.id);
+			if(!role) return "Server role not found";
+
+			var roles = await ctx.client.stores.serverRoles.getAll(ctx.guild.id);
+			if(!roles || !roles[0]) return "Couldn't get role list :(";
+
+			for(var rl of roles) {
+				if(ctx.member.roles.cache.find(r => r.id == rl.role_id)) {
+					try {
+						await ctx.member.roles.remove(rl.role_id);
+					} catch(e) {
+						console.log(e.stack);
+						return "ERR: "+e.message;
+					}
+				}
+			}		
+
+			try {
+				await ctx.member.roles.add(role.role_id);
+			} catch(e) {
+				console.log(e.stack);
+				return "ERR: "+e.message;
+			}
 			
+			return "Added!"
 		}
 	}
 }
