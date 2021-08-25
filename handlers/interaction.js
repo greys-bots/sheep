@@ -93,6 +93,7 @@ class InteractionHandler {
 
 			var cmds = slashData.map(d => d);
 			var dcmds = devOnly.map(d => d);
+			if(process.env.COMMAND_GUILD) await this.bot.application.commands.set([]);
 			if(process.env.COMMAND_GUILD == process.env.DEV_GUILD) {
 				cmds = cmds.concat(dcmds);
 				await this.bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
