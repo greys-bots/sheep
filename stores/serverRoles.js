@@ -44,7 +44,6 @@ class ServerRoleStore extends Collection {
 
 	async get(server, role) {
 		return new Promise(async (res, rej) => {
-			console.log(server, role);
 			try {
 				var data = await this.db.query(`SELECT * FROM server_roles WHERE server_id = $1 AND role_id = $2`, [server, role]);
 			} catch(e) {
