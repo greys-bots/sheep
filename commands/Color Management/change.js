@@ -23,8 +23,8 @@ function getA11y(bot, color) {
 	var text = [];
 	for(var k in BG_COLORS) {
 		var c = bot.tc(BG_COLORS[k]);
-		var readable = bot.tc.isReadable(color, c);
-		if(readable) text.push(`✅ this color is readable on ${k} mode`);
+		var rd = bot.tc.readability(color, c);
+		if(rd > 2) text.push(`✅ this color is readable on ${k} mode`);
 		else text.push(`❌ this color might not be readable on ${k} mode`);
 	}
 
