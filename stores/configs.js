@@ -74,7 +74,6 @@ class ConfigStore extends Collection {
 	async update(server, data = {}) {
 		return new Promise(async (res, rej) => {
 			try {
-				console.log(`UPDATE configs SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE server_id = $1`);
 				await this.db.query(`UPDATE configs SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE server_id = $1`,[server, ...Object.values(data)]);
 			} catch(e) {
 				console.log(e);

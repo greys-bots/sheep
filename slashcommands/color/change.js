@@ -49,11 +49,10 @@ function getA11y(color) {
 	var text = [];
 	for(var k in BG_COLORS) {
 		var c = tc(BG_COLORS[k]);
-		var readable = tc.isReadable(color, c);
-		if(readable) text.push(`✅ this color is readable on ${k} mode`);
+		var rd = tc.readability(color, c);
+		if(rd > 2) text.push(`✅ this color is readable on ${k} mode`);
 		else text.push(`❌ this color might not be readable on ${k} mode`);
 	}
-
 
 	return text;
 }
@@ -139,11 +138,9 @@ module.exports = {
 						if(cfg.hoist) srole = await ctx.guild.roles.fetch(cfg.hoist);
 						else srole = ctx.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
 						var name;
-						console.log(ctx.user.username);
 						if(ucfg.auto_rename && saved?.name) name = saved.name;
 						else name = (role?.raw?.name ?? ctx.user.username);
 						
-						console.log(srole ? srole.position : "No sheep role");
 						var options = {
 							name,
 							color: color.toHex(),
@@ -157,12 +154,9 @@ module.exports = {
 								role = await role.raw.edit(options);
 							} else {
 								role = await ctx.guild.roles.create(options);
-								role.new = true;
+								await ctx.client.stores.userRoles.create(ctx.guildId, member.id, role.id);
 							}
-							console.log(role.position);
 							await member.roles.add(role.id);
-							if(role.new) await ctx.client.stores.userRoles.create(ctx.guildId, member.id, role.id);
-							role.new = false;
 
 							var m = "Color successfully changed to "+color.toHexString()+"! :D";
 							if(ucfg.a11y) m += "\nAccessibility info:\n" + a11y.join("\n");
