@@ -36,7 +36,7 @@ module.exports = {
 
 		var arg = args.join(" ").toLowerCase();
 		var groles = await msg.guild.roles.fetch();
-		role = groles.cache.find(r => [r.name.toLowerCase(), r.id].includes(arg));
+		role = groles.find(r => [r.name.toLowerCase(), r.id].includes(arg));
 		if(!role) return "Role not found! D:";
 		
 		if(config.new) await bot.stores.configs.create(msg.guild.id, {hoist: role.id});
