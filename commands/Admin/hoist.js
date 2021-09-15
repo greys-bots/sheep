@@ -40,7 +40,7 @@ module.exports = {
 		if(!role) return "Role not found! D:";
 		
 		if(config.new) await bot.stores.configs.create(msg.guild.id, {hoist: role.id});
-		else await bot.stores.configs.update(msg.guild.id, {hoist: role.iid});
+		else await bot.stores.configs.update(msg.guild.id, {hoist: role.id});
 		return 'Config updated!'
 	},
 	guildOnly: true,
