@@ -33,7 +33,11 @@ class InteractionHandler {
 
 			var {data} = command;
 			if(command.options) {
-				var d2 = command.options.map(({data: d}) => d);
+				var d2 = command.options.map(({data: d}) => {
+					d.permissions = d.permissions ?? command.permissions;
+					d.guildOnly = d.guildOnly ?? command.guildOnly;
+					return d;
+				});
 				data.options = d2;
 			}
 
@@ -118,18 +122,23 @@ class InteractionHandler {
 		var cmd = this.bot.slashCommands.get(ctx.commandName);
 		if(!cmd) return;
 
+		var name = cmd.data.name;;
 		if(ctx.options.getSubcommandGroup(false)) {
 			cmd = cmd.options.find(o => o.data.name == ctx.options.getSubcommandGroup());
 			if(!cmd) return;
+			name += ` ${cmd.data.name}`;
 			var opt = ctx.options.getSubcommand(false);
 			if(opt) {
 				cmd = cmd.options.find(o => o.data.name == opt);
+				name += ` ${cmd.data.name}`;
 			} else return;
 		} else if(ctx.options.getSubcommand(false)) {
 			cmd = cmd.options.find(o => o.data.name == ctx.options.getSubcommand());
 			if(!cmd) return;
+			name += ` ${cmd.data.name}`;
 		}
 
+		if(cmd) cmd.full = name;
 		return cmd;
 	}
 
@@ -147,12 +156,25 @@ class InteractionHandler {
 			content: "You don't have permission to use this command!",
 			ephemeral: true
 		});
+
+		check = await this.checkUsage(ctx);
+		if(!check) return await ctx.reply({
+			content: "You don't have the proper usage permission to use this command!",
+			ephemeral: true
+		});
+
+		check = await this.checkDisabled(cmd, ctx);
+		if(!check) return await ctx.reply({
+			content: "That command is disabled!",
+			ephemeral: true
+		});
 		
 		try {
 			var res = await cmd.execute(ctx);
 		} catch(e) {
 			console.error(e);
 			if(ctx.replied) return await ctx.followUp({content: "Error:\n" + e.message, ephemeral: true});
+			else if(ctx.deferred) return await ctx.editReply({content: "Error:\n" + e.message, ephemeral: true});
 			else return await ctx.reply({content: "Error:\n" + e.message, ephemeral: true});
 		}
 
@@ -206,8 +228,11 @@ class InteractionHandler {
 							}
 						]
 					}
-					await ctx[type](reply);
-					var message = await ctx.editReply(reply);
+					var message;
+					if(type == "reply"){
+						await ctx[type](reply);
+						message = await ctx.editReply(reply); // cheat to "fetch" ephemeral replies
+					} else message = await ctx[type](reply); // followup & edit return by default
 
 					var menu = {
 						user: ctx.user.id,
@@ -250,8 +275,43 @@ class InteractionHandler {
 	checkPerms(cmd, ctx) {
 		if(cmd.ownerOnly && ctx.user.id !== process.env.OWNER)
 			return false;
-		if(!cmd.perms || !cmd.perms[0]) return true;
+		if(!cmd.permissions?.length) return true;
 		return ctx.member.permissions.has(cmd.permissions);
+	}
+
+	async checkUsage(ctx) {
+		if(!ctx.guild) return true;
+		
+		var cfg = await ctx.client.stores.usages.get(ctx.guild.id);
+		if(!cfg || cfg.type == 0) return true;
+		if(!cfg.whitelist?.length && !cfg.blacklist?.length) return true;
+
+		if(ctx.type == 1) { // whitelist
+			var found = ctx.whitelist.includes(ctx.user.id);
+			if(!found) found = ctx.whitelist.find(r => ctx.member.roles.resolve(r));
+			if(!found) return false;
+			return true;	
+		} else {
+			var found = ctx.blacklist.includes(ctx.user.id);
+			if(!found) found = ctx.blacklist.find(r => ctx.member.roles.resolve(r));
+			if(!found) return true;
+			return false;
+		}
+	}
+
+	async checkDisabled(cmd, ctx) {
+		if(!ctx.guild) return true;
+		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
+		if(!cfg?.disabled?.length) return true;
+
+		var split = cmd.full.split(" ");
+		var rec = "";
+		for(var s of split) {
+			rec += `${s} `;
+			if(cfg.disabled.includes(rec.trim())) return false;
+		}
+
+		return true;
 	}
 
 	async paginate(menu, ctx) {
