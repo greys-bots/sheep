@@ -34,7 +34,7 @@ bot.status = -1;
 bot.guildCount = 0;
 bot.statuses = [
 	async ()=> {
-		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
+		var guilds = (await bot.shard.broadcastEval(cli => cli.guilds.cache.size)).reduce((prev, val) => prev + val, 0);
 		return `s!h | in ${guilds} guilds!`;
 	},
 	"s!h | https://sheep.greysdawn.com"
@@ -43,7 +43,7 @@ bot.statuses = [
 bot.updateStatus = async function(){
 	//wait for all guilds to show up before setting the status again
 	if(bot.status == -1) {
-		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
+		var guilds = (await bot.shard.broadcastEval(cli => cli.guilds.cache.size)).reduce((prev, val) => prev + val, 0);
 		if(guilds != bot.guildCount) {
 			bot.guildCount = guilds;
 			setTimeout(()=> bot.updateStatus(), 10000);
@@ -98,7 +98,7 @@ bot.on("ready", async ()=> {
 	bot.writeLog('=====LOG START=====')
 	await bot.user.setActivity("s!h | booting...");
 	if(bot.shard.ids.find(id => id+1 == bot.shard.count))
-		await bot.shard.broadcastEval('this.updateStatus()');
+		await bot.shard.broadcastEval(cli => cli.updateStatus());
 })
 
 bot.on('error', (err)=> {

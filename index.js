@@ -13,15 +13,15 @@ ipc.serve(function() {
 
     ipc.server.on('STATS', async function (msg, socket) {
         console.log("stats requested");
-        var guilds = (await manager.broadcastEval(`this.guilds.cache.size`)).reduce((prev, val) => prev + val, 0);
-        var users = (await manager.broadcastEval(`this.users.cache.size`)).reduce((prev, val) => prev + val, 0);
+        var guilds = (await manager.broadcastEval(cli => cli.guilds.cache.size)).reduce((prev, val) => prev + val, 0);
+        var users = (await manager.broadcastEval(cli => cli.users.cache.size)).reduce((prev, val) => prev + val, 0);
         ipc.server.emit(socket, `STATS`, {guilds, users});
     })
 
     ipc.server.on('COMMANDS', async function (msg, socket) {
         console.log("commands requested");
-        var commands = (await manager.broadcastEval(`
-            var cmds = this.commands.map(c => {
+        var commands = (await manager.broadcastEval(cli => {
+        	var cmds = cli.commands.map(c => {
                 return {
                     name: c.name,
                     help: c.help(),
@@ -44,7 +44,7 @@ ipc.serve(function() {
                 }
             });
 
-            var mods = this.modules.map(m => {
+            var mods = cli.modules.map(m => {
                 return {
                     name: m.name,
                     color: m.color,
@@ -56,7 +56,7 @@ ipc.serve(function() {
 
             cmds.forEach((c, i) => cmds[i].module = mods.find(m => m.commands.includes(c.name)));
             ({cmds, mods})
-        `))[0];
+        }))[0];
         ipc.server.emit(socket, `COMMANDS`, commands);
     })
 });

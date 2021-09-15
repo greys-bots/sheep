@@ -283,17 +283,17 @@ class InteractionHandler {
 		if(!ctx.guild) return true;
 		
 		var cfg = await ctx.client.stores.usages.get(ctx.guild.id);
-		if(!cfg || cfg.type == 0) return true;
+		if(!cfg || !cfg.type) return true;
 		if(!cfg.whitelist?.length && !cfg.blacklist?.length) return true;
 
 		if(ctx.type == 1) { // whitelist
-			var found = ctx.whitelist.includes(ctx.user.id);
-			if(!found) found = ctx.whitelist.find(r => ctx.member.roles.resolve(r));
+			var found = cfg.whitelist?.includes(ctx.user.id);
+			if(!found) found = cfg.whitelist?.find(r => ctx.member.roles.resolve(r));
 			if(!found) return false;
 			return true;	
 		} else {
-			var found = ctx.blacklist.includes(ctx.user.id);
-			if(!found) found = ctx.blacklist.find(r => ctx.member.roles.resolve(r));
+			var found = cfg.blacklist?.includes(ctx.user.id);
+			if(!found) found = cfg.blacklist?.find(r => ctx.member.roles.resolve(r));
 			if(!found) return true;
 			return false;
 		}
