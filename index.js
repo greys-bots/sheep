@@ -55,7 +55,7 @@ ipc.serve(function() {
             })
 
             cmds.forEach((c, i) => cmds[i].module = mods.find(m => m.commands.includes(c.name)));
-            ({cmds, mods})
+            return {cmds, mods};
         }))[0];
         ipc.server.emit(socket, `COMMANDS`, commands);
     })
