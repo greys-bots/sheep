@@ -1,4 +1,9 @@
-const { Client, Intents } = require("discord.js");
+const {
+	Client,
+	Intents,
+	Options,
+	LimitedCollection
+} = require("discord.js");
 const fs				  = require("fs");
 const path 				  = require("path");
 const dblite			  = require("dblite");
@@ -18,9 +23,10 @@ const bot = new Client({
 		'GUILD_MEMBER',
 		'REACTION'
 	],
-	messageCacheMaxSize: 0,
-	messageCacheLifetime: 1,
-	messageSweepInterval: 1
+	makeCache: Options.cacheWithLimits({
+		MessageManager: 0,
+		ThreadManager: 0
+	})
 });
 
 bot.prefix = ["s!","sh!","sheep!","baa!"];
