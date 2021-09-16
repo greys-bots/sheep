@@ -2,8 +2,8 @@ module.exports = {
 	help: ()=> "A little about the bot",
 	usage: ()=> [" - Just what's on the tin"],
 	execute: async (bot, msg, args) => {
-		var guilds = (await bot.shard.broadcastEval('this.guilds.cache.size')).reduce((prev, val) => prev + val, 0);
-		var users = (await bot.shard.broadcastEval('this.users.cache.size')).reduce((prev, val) => prev + val, 0);
+		var guilds = (await bot.shard.broadcastEval(cli => cli.guilds.cache.size)).reduce((prev, val) => prev + val, 0);
+		var users = (await bot.shard.broadcastEval(cli => cli.users.cache.size)).reduce((prev, val) => prev + val, 0);
 		
 		return ({
 			title: '**About**',
