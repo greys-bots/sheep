@@ -92,23 +92,25 @@ class InteractionHandler {
 
 		this.bot.slashCommands = slashCommands;
 
-		try {
-			if(!this.bot.application?.owner) await this.bot.application?.fetch();
+		if(this.bot.shard.ids.includes(0)) {
+			try {
+				if(!this.bot.application?.owner) await this.bot.application?.fetch();
 
-			var cmds = slashData.map(d => d);
-			var dcmds = devOnly.map(d => d);
-			if(process.env.COMMAND_GUILD) await this.bot.application.commands.set([]);
-			if(process.env.COMMAND_GUILD == process.env.DEV_GUILD) {
-				cmds = cmds.concat(dcmds);
-				await this.bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
-			} else {
-				await this.bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
-				await this.bot.application.commands.set(dcmds, process.env.DEV_GUILD);
+				var cmds = slashData.map(d => d);
+				var dcmds = devOnly.map(d => d);
+				if(process.env.COMMAND_GUILD) await this.bot.application.commands.set([]);
+				if(process.env.COMMAND_GUILD == process.env.DEV_GUILD) {
+					cmds = cmds.concat(dcmds);
+					await this.bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
+				} else {
+					await this.bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
+					await this.bot.application.commands.set(dcmds, process.env.DEV_GUILD);
+				}
+				return;
+			} catch(e) {
+				console.log(e);
+				return Promise.reject(e);
 			}
-			return;
-		} catch(e) {
-			console.log(e);
-			return Promise.reject(e);
 		}
 	}
 
