@@ -29,7 +29,7 @@ const bot = new Client({
 	})
 });
 
-bot.prefix = ["s!","sh!","sheep!","baa!"];
+bot.prefix = process.env.PREFIX ? [process.env.PREFIX] : ["s!","sh!","sheep!","baa!"];
 bot.owner = process.env.OWNER;
 
 bot.tc = require('tinycolor2');
