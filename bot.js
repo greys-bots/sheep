@@ -102,7 +102,7 @@ bot.writeLog = async (log) => {
 bot.on("ready", async ()=> {
 	console.log('Ready!');
 	bot.writeLog('=====LOG START=====')
-	await bot.user.setActivity("s!h | booting...");
+	bot.user.setActivity("s!h | booting...");
 	if(bot.shard.ids.find(id => id+1 == bot.shard.count))
 		await bot.shard.broadcastEval(cli => cli.updateStatus());
 })
@@ -113,6 +113,24 @@ bot.on('error', (err)=> {
 })
 
 process.on("unhandledRejection", (e) => console.log(/*e.message ||*/ e));
+
+process.on(`SIGTERM`, ()=> {
+    try {
+        bot.db?.end();
+    } catch(e) {
+        console.log(e.message);
+    }
+    process.exit();
+})
+
+process.on(`SIGINT`, ()=> {
+    try {
+        bot.db?.end();
+    } catch(e) {
+        console.log(e.message);
+    }
+    process.exit();
+})
 
 setup();
 bot.login(process.env.TOKEN)
