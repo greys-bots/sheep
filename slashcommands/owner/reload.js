@@ -37,15 +37,17 @@ module.exports = {
 				process.exit(0);
 			case 'scmds':
 				await ctx.deferReply();
-				await ctx.client.handlers.interaction.load(
-					__dirname + '/..'
-				);
+				await ctx.client.shard.broadcastEval((cli, {path}) => {
+					cli.handlers.interaction.load(path)
+					return true;
+				}, {context: { path: __dirname + '/..'}})
 				return 'Reloaded!'
 			case 'cmds':
 				await ctx.deferReply();
-				await ctx.client.handlers.command.load(
-					__dirname + '/../../commands'
-				);
+				await ctx.client.shard.broadcastEval((cli, {path}) => {
+					cli.handlers.command.load(path)
+					return true;
+				}, {context: { path: __dirname + '/../../commands'}})
 				return 'Reloaded!'
 		}
 	}
