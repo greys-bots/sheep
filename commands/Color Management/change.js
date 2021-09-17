@@ -111,7 +111,7 @@ module.exports = {
 							
 							var m = "Color successfully changed to "+color.toHexString()+"! :D";
 							if(ucfg.a11y) m += "\nAccessibility info:\n" + a11y.join("\n");
-							await message.edit(m, {embed: null});
+							await message.edit({content: m, embeds: []});
 							await message.reactions.removeAll();
 						} catch(e) {
 							console.log(e.stack);
@@ -143,12 +143,12 @@ module.exports = {
 						clearTimeout(timeout);
 						timeout = setTimeout(async ()=> {
 							done = true;
-							await message.edit('Action timed out', {embed: null});
+							await message.edit({content: "Action cancelled", embeds: []});
 							await message.reactions.removeAll();
 						}, 3 * 60 * 1000);
 						break;
 					default:
-						message.edit("Action cancelled", {embed: null});
+						message.edit({content: "Action cancelled", embeds: []});
 						message.reactions.removeAll();
 						done = true;
 						clearTimeout(timeout);
