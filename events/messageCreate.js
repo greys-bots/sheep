@@ -15,6 +15,8 @@ module.exports = async (msg, bot)=>{
 		if(thanks) return await msg.channel.send(WELCOMES[Math.floor(Math.random() * WELCOMES.length)]);
 		return;
 	}
+	if(msg.content.replace(prefix, "").length == 0) return await msg.channel.send("Baaa!");
+
 	var log = [
 		`Guild: ${msg.guild ? msg.guild.name : "DMs"} (${msg.guild ? msg.guild.id : msg.channel.id})`,
 		`User: ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})`,
@@ -29,8 +31,6 @@ module.exports = async (msg, bot)=>{
 		bot.writeLog(log.join('\r\n'));
 		return await msg.channel.send("Command not found!");
 	}
-
-	if(!command) return msg.channel.send("Baaa!");
 	var config = {};
 	var usages = {whitelist: [], blacklist: []};
 	if(msg.guild) {
