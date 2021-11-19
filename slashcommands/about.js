@@ -7,9 +7,9 @@ module.exports = {
 		"- Gives info about the bot"
 	],
 	async execute(ctx) {
-		var guilds = (await bot.shard.broadcastEval(cli => cli.guilds.cache.size)).reduce((prev, val) => prev + val, 0);
-		var users = (await bot.shard.broadcastEval(cli => cli.users.cache.size)).reduce((prev, val) => prev + val, 0);
-		
+		var guilds = (await ctx.client.shard.broadcastEval(cli => cli.guilds.cache.size)).reduce((prev, val) => prev + val, 0);
+		var users = (await ctx.client.shard.broadcastEval(cli => cli.users.cache.size)).reduce((prev, val) => prev + val, 0);
+
 		return {embeds: [{
 			title: '**About**',
 			description: "Baa! I'm Sheep! I help people change their name color here on Discord.\nMy prefixes are `s!`, `sh!`, `sheep!`, and `baa!`",
