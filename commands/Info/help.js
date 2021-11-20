@@ -52,8 +52,8 @@ module.exports = {
 					text: "Arguments like [this] are required, arguments like <this> are optional."
 				}
 			};
-			if(command.desc) embed.embed.fields.push({name: "**Extra Info**", value: command.desc()});
-			if(command.permissions) embed.embed.fields.push({name: "**Permissions**", value: command.permissions.join(", ")});
+			if(command.desc) embed.fields.push({name: "**Extra Info**", value: command.desc()});
+			if(command.permissions) embed.fields.push({name: "**Permissions**", value: command.permissions.join(", ")});
 
 			return embed;
 		} else {

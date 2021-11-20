@@ -1,11 +1,14 @@
 module.exports = {
 	help: ()=> "Assigns a color or color role to a user",
-	usage: () => [" [user] [color/role] - Assigns a color or role to the given user"],
+	usage: () => [
+		" [user] [color] - Assigns a color to the given user, creating a new role if needed",
+		" [user] [@role] - Assigns an existing role to the user, giving them control over the color"
+	],
 	execute: async (bot, msg, args) => {
 		if(!args[0]) return "Please provide a user and color to assign!";
 		var member = msg.guild.members.cache.find(m => m.id == args[0].replace(/[<@!>]/g, ""));
 		if(!member) return "Couldn't find that member :(";
-		var role = msg.guild.roles.cache.find(r => [r.name.toLowerCase(), r.id].includes(args.slice(1).join(" ").replace(/[<@&>]/g, "").toLowerCase()));
+		var role = msg.mentions?.roles?.first();
 		if(role) {
 			var exists = await bot.stores.userRoles.get(msg.guild.id, member.id);
 			if(exists) return "That user already has a color role associated with them!";

@@ -41,8 +41,8 @@ module.exports = async (msg, bot)=>{
 	try {
 		var result = await bot.handlers.command.handle({command, args, msg, config, usages});
 	} catch(e) {
-		console.log(e.stack);
-		log.push(`Error: ${e.stack}`);
+		console.log(e);
+		log.push(`Error: ${e.message ?? e}`);
 		log.push(`--------------------`);
 		msg.channel.send('There was an error! D:')
 	}
