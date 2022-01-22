@@ -17,7 +17,7 @@
     "eris": "^0.9.0",
     "eris-additions": "^1.4.1",
     "jimp": "^0.10.3",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "node-ipc": "^9.1.1",
     "pg": "^8.4.2",
     "pg-ipc": "^1.0.4",
