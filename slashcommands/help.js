@@ -38,6 +38,40 @@ module.exports = {
 		var embeds = [];
 		var cmds;
 		if(!mod && !cmd && !scmd) {
+			embeds = [{
+				title: "Baaa, I'm Sheep!",
+				description:
+					"My job is to make color roles simple and easy!\n\n" +
+					"To get started, use `s!c [color]` (without brackets) " +
+					"to assign yourself a color. If you'd like, you can also " +
+					"`s!rename` it!\n" +
+					"On top of that, I have other cool features, like:\n\n" +
+					"> **Saved colors**\n" +
+					"Save a color for later using `s!sv`! This lets you " +
+					"use a handy name to refer to a color in commands\n\n" +
+					"> **Server-based roles**\n" +
+					"Server too big for individual user roles? No problem! " +
+					"Use `s!tg` to toggle role modes and add roles for " +
+					"users to pick from with `s!rl`\n\n" +
+					"> **Detailed help commands**\n" +
+					"You can use `s!h` for help with any command " +
+					"(including subcommands)! Try it out with `s!h c`\n" +
+					"You can also flip the pages here to see all the commands!",
+				fields: [
+					{
+						name: "Need help? Join the support server!",
+						value: "[https://discord.gg/EvDmXGt](https://discord.gg/EvDmXGt)"
+					},
+					{
+						name: "Support my creators!",
+						value: 
+							"[patreon](https://patreon.com/greysdawn) | " +
+							"[ko-fi](https://ko-fi.com/greysdawn)"
+					}
+				],
+				color: 0xf5e4b5
+			}];
+			
 			var mods = ctx.client.slashCommands.map(m => m).filter(m => m.options);
 			var ug = ctx.client.slashCommands.map(m => m).filter(m => !m.options);
 			for(var m of mods) {
@@ -55,8 +89,8 @@ module.exports = {
 
 			if(ug?.[0]) {
 				var e = {
-					title: "UNGROUPED",
-					description: "Miscellaneous commands",
+					title: "INFO",
+					description: "Informational commands",
 					fields: []
 				}
 
