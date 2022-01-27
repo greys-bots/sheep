@@ -12,32 +12,44 @@ module.exports = {
 			var embeds = [{
 				title: "Baaa, I'm Sheep!",
 				description:
-					"My job is to make color roles simple and easy!\n\n" +
+					"My job is to make color roles simple and easy!\n" +
 					"To get started, use `s!c [color]` (without brackets) " +
 					"to assign yourself a color. If you'd like, you can also " +
-					"`s!rename` it!\n" +
-					"On top of that, I have other cool features, like:\n\n" +
-					"> **Saved colors**\n" +
-					"Save a color for later using `s!sv`! This lets you " +
-					"use a handy name to refer to a color in commands\n\n" +
-					"> **Server-based roles**\n" +
-					"Server too big for individual user roles? No problem! " +
-					"Use `s!tg` to toggle role modes and add roles for " +
-					"users to pick from with `s!rl`\n\n" +
-					"> **Detailed help commands**\n" +
-					"You can use `s!h` for help with any command " +
-					"(including subcommands)! Try it out with `s!h c`\n" +
-					"You can also flip the pages here to see all the commands!",
+					"`s!rename` it!\n\n" +
+					"On top of that, I have other cool features, like:",
 				fields: [
 					{
+						name: "Saved colors",
+						value: 
+							"Save a color for later using `s!sv`! This lets you " +
+							"use a handy name to refer to a color in commands"					
+					},
+					{
+						name: "Server-based colors",
+						value:
+							"Server too big for individual user roles? No problem! " +
+							"Use `s!tg` to toggle role modes and add roles for " +
+							"users to pick from with `s!rl`"
+							
+					},
+					{
+						name: "Detailed help command",
+						value:
+							"You can use `s!h` for help with any command " +
+							"(including subcommands)! Try it out with `s!h c`\n" +
+							"You can also flip the pages here to see all the commands!"
+					},
+					{
 						name: "Need help? Join the support server!",
-						value: "[https://discord.gg/EvDmXGt](https://discord.gg/EvDmXGt)"
+						value: "[https://discord.gg/EvDmXGt](https://discord.gg/EvDmXGt)",
+						inline: true
 					},
 					{
 						name: "Support my creators!",
 						value: 
 							"[patreon](https://patreon.com/greysdawn) | " +
-							"[ko-fi](https://ko-fi.com/greysdawn)"
+							"[ko-fi](https://ko-fi.com/greysdawn)",
+						inline: true
 					}
 				],
 				color: 0xf5e4b5
