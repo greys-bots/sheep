@@ -41,7 +41,7 @@ module.exports = {
 	execute: async (bot, msg, args)=> {
 		var config = (await bot.stores.configs.get(msg.guild.id)) ?? {role_mode: 0};
 		var ucfg = (await bot.stores.userConfigs.get(msg.author.id)) ?? {auto_rename: false};
-		if(config.role_mode == 0) {
+		if(!config.role_mode) {
 			var color, saved;
 			if(!args[0]) color = bot.tc.random();
 			else {

@@ -77,7 +77,8 @@ opts.push({
 		var whitelist = cfg?.whitelist ?? [];
 		if(!whitelist.includes(target.id)) whitelist.push(target.id);
 
-		await ctx.client.stores.usages[cfg ? "update" : "create"](ctx.guild.id, {whitelist});
+		if(cfg) await ctx.client.stores.usages.update(ctx.guild.id, {whitelist});
+		else await ctx.client.stores.usages.create(ctx.guild.id, {whitelist});
 		return "Config updated!";
 	}
 })

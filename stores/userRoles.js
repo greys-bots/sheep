@@ -8,18 +8,6 @@ class UserRoleStore extends Collection {
 		this.bot = bot;
 	};
 
-	// relies on menu currently, so don't need this
-	// might change later?
-	// async init() {
-	// 	this.bot.on("messageReactionAdd", (...args) => {
-	// 		try {
-	// 			this.handleReactions(...args)
-	// 		} catch(e) {
-	// 			console.log(e);
-	// 		}
-	// 	})
-	// }
-
 	async create(server, user, role) {
 		return new Promise(async (res, rej) => {
 			try {
