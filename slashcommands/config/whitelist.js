@@ -159,7 +159,8 @@ opts.push({
 	async execute(ctx) {
 		var cfg = await ctx.client.stores.usages.get(ctx.guild.id);
 
-		await ctx.client.stores[cfg ? "update" : "create"](ctx.guild.id, {type: 2});
+		if(cfg) await ctx.client.stores.usages.update(ctx.guild.id, {type: 1});
+		else await ctx.client.stores.usages.create(ctx.guild.id, {type: 1});
 		return "Config updated!";
 	}
 })
@@ -174,7 +175,8 @@ opts.push({
 	async execute(ctx) {
 		var cfg = await ctx.client.stores.usages.get(ctx.guild.id);
 
-		await ctx.client.stores[cfg ? "update" : "create"](ctx.guild.id, {type: 0});
+		if(cfg) await ctx.client.stores.usages.update(ctx.guild.id, {type: 0});
+		else await ctx.client.stores.usages.create(ctx.guild.id, {type: 0});
 		return "Config updated!";
 	}
 })

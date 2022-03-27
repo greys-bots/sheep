@@ -77,7 +77,8 @@ opts.push({
 		var blacklist = cfg?.blacklist ?? [];
 		if(!blacklist.includes(target.id)) blacklist.push(target.id);
 
-		await ctx.client.stores.usages[cfg ? "update" : "create"](ctx.guild.id, {blacklist});
+		if(cfg) await ctx.client.stores.usages.update(ctx.guild.id, {blacklist});
+		else await ctx.client.stores.usages.create(ctx.guild.id, {blacklist});
 		return "Config updated!";
 	}
 })
@@ -158,7 +159,8 @@ opts.push({
 	async execute(ctx) {
 		var cfg = await ctx.client.stores.usages.get(ctx.guild.id);
 
-		await ctx.client.stores[cfg ? "update" : "create"](ctx.guild.id, {type: 2});
+		if(cfg) await ctx.client.stores.usages.update(ctx.guild.id, {type: 2});
+		else await ctx.client.stores.usages.create(ctx.guild.id, {type: 2});
 		return "Config updated!";
 	}
 })
@@ -173,7 +175,8 @@ opts.push({
 	async execute(ctx) {
 		var cfg = await ctx.client.stores.usages.get(ctx.guild.id);
 
-		await ctx.client.stores[cfg ? "update" : "create"](ctx.guild.id, {type: 0});
+		if(cfg) await ctx.client.stores.usages.update(ctx.guild.id, {type: 0});
+		else await ctx.client.stores.usages.create(ctx.guild.id, {type: 0});
 		return "Config updated!";
 	}
 })

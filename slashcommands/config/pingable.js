@@ -52,7 +52,8 @@ module.exports = {
 			return;
 		}
 
-		await ctx.client.stores.configs[cfg ? "update" : "create"](ctx.guildId, {pingable: val});
+		if(cfg) await ctx.client.stores.configs.update(ctx.guildId, {pingable: val});
+		else await ctx.client.stores.configs.create(ctx.guildId, {pingable: val});
 		return "Value updated!";
 	},
 	guildOnly: true,

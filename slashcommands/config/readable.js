@@ -52,7 +52,8 @@ module.exports = {
 			return;
 		}
 
-		await ctx.client.stores.configs[cfg ? "update" : "create"](ctx.guildId, {readable: val});
+		if(cfg) await ctx.client.stores.configs.update(ctx.guildId, {readable: val});
+		else await ctx.client.stores.configs.create(ctx.guildId, {readable: val});
 		return "Value updated!";
 	},
 	guildOnly: true,

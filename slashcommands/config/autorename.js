@@ -55,7 +55,8 @@ module.exports = {
 			return;
 		}
 
-		await ctx.client.stores.userConfigs[cfg ? "update" : "create"](ctx.user.id, {auto_rename: val});
+		if(cfg) await ctx.client.stores.userConfigs.update(ctx.user.id, {auto_rename: val});
+		else await ctx.client.stores.userConfigs.create(ctx.user.id, {auto_rename: val});
 		return "Value updated!";
 	}
 }

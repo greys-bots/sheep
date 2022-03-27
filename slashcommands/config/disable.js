@@ -77,7 +77,8 @@ module.exports = {
 		name = name.trim();
 		if(!disabled.includes(name)) disabled.push(name);
 
-		await ctx.client.stores.configs[cfg ? "update" : "create"](ctx.guild.id, {disabled});
+		if(cfg) await ctx.client.stores.configs.update(ctx.guild.id, {disabled});
+		else await ctx.client.stores.configs.create(ctx.guild.id, {disabled});
 		return "Config updated!";
 	},
 	permissions: ["MANAGE_GUILD"],

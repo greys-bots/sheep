@@ -52,7 +52,8 @@ module.exports = {
 			return;
 		}
 
-		await ctx.client.stores.userConfigs[cfg ? "update" : "create"](ctx.user.id, {a11y: val});
+		if(cfg) await ctx.client.stores.userConfigs.update(ctx.user.id, {a11y: val});
+		else await ctx.client.stores.userConfigs.create(ctx.user.id, {a11y: val});
 		return "Value updated!";
 	}
 }
