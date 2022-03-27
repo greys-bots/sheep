@@ -288,7 +288,7 @@ class InteractionHandler {
 		if(!cfg || !cfg.type) return true;
 		if(!cfg.whitelist?.length && !cfg.blacklist?.length) return true;
 
-		if(ctx.type == 1) { // whitelist
+		if(cfg.type == 1) { // whitelist
 			var found = cfg.whitelist?.includes(ctx.user.id);
 			if(!found) found = cfg.whitelist?.find(r => ctx.member.roles.resolve(r));
 			if(!found) return false;
