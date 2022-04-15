@@ -6,7 +6,7 @@ Sheep collects very little of your data. In order to function, these are the thi
 - Daily backups of the above
 
 ## Storage and access
-Data is stored using PostgreSQL on a secure and private server. The data is only accessible by the develops of the bot; no one else has been given access.
+Data is stored using PostgreSQL on a secure and private server. The data is only accessible by the developers of the bot; no one else has been given access.
 
 ## Usage
 Data collected by the bot is used in a few ways:
