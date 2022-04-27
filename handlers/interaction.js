@@ -287,6 +287,8 @@ class InteractionHandler {
 		var cfg = await ctx.client.stores.usages.get(ctx.guild.id);
 		if(!cfg || !cfg.type) return true;
 		if(!cfg.whitelist?.length && !cfg.blacklist?.length) return true;
+		if(ctx.member.permissions.has('MANAGE_MESSAGES'))
+			return true;
 
 		if(cfg.type == 1) { // whitelist
 			var found = cfg.whitelist?.includes(ctx.user.id);
