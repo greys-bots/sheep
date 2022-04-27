@@ -2,6 +2,8 @@ module.exports = {
 	help: ()=> "Lists all server-based color roles",
 	usage: ()=> [" - Lists currently indexed roles",
 				 " create [name] [color] - Creates new color role and indexes it",
+				 " index [role] - Indexes an existing color role",
+				 " remove [role] - Deletes an indexed role from the database",
 				 " edit [color|name] [name] [value] - Edits an indexed role. Can change the role's color or name",
 				 " reset - Deletes all indexed color roles and switches to user-based roles"],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
@@ -11,7 +13,13 @@ module.exports = {
 		var embeds = await bot.utils.genEmbeds(bot, roles.filter(x => x.name != "invalid"), (r) => {
 			var color = r.raw.color.toString(16).toUpperCase();
 			if(color.length == 5) color = "0"+color;
-			return {name: r.raw.name, value: `#${r.raw.color ? color : "(no color)"}`}
+			return {
+				name: r.raw.name,
+				value: (
+					`#${r.raw.color ? color : "(no color)"}\n` +
+					`Preview: <@&${r.raw.id}>`
+				)
+			}
 		}, {
 			title: "Server Color Roles",
 			description: "name : color"
@@ -77,15 +85,13 @@ module.exports.subcommands.index = {
 }
 
 module.exports.subcommands.remove = {
-	help: ()=> "Removes a server-based color role based",
+	help: ()=> "Removes a server-based color role",
 	usage: ()=> [" [role] - Removes the given role. Role can be the @mention, role name, or ID."],
 	execute: async (bot, msg, args, config = {role_mode: 0}) => {
 		if(config.role_mode == 0) return "Current mode set to user-based roles; can't edit server-based ones! Use `s!tg` to toggle modes";
 		var role = await msg.guild.roles.cache.find(r => r.name == args.join(" ").toLowerCase() || r.id == args[0].replace(/[<@&>]/g,""));
 		if(!role) return "Couldn't find that role :(";
-		console.log(role.id);
 		var exists = await bot.stores.serverRoles.get(msg.guild.id, role.id);
-		console.log(exists);
 		if(!exists) return "Role not indexed!";
 
 		try {
