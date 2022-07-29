@@ -9,13 +9,23 @@ const WELCOMES = [
 
 module.exports = async (msg, bot)=>{
 	if(msg.author.bot) return;
-	var prefix = new RegExp(`^(${bot.prefix.join("|")})`,"i");
-	if(!prefix.test(msg.content.toLowerCase())) {
+	var prefix; 
+	var match;
+	if(process.env.REQUIRE_MENTIONS) {
+		prefix = new RegExp(`^<@!?(?:${bot.user.id})>`);
+		match = msg.content.match(prefix);
+	} else {
+		prefix = new RegExp(`^(${bot.prefix.join("|")})`,"i");
+		match = prefix.test(msg.content.toLowerCase());
+	}
+	if(!match) {
 		var thanks = msg.content.match(/^(thanks? ?(you)?|ty),? ?sheep/i);
 		if(thanks) return await msg.channel.send(WELCOMES[Math.floor(Math.random() * WELCOMES.length)]);
 		return;
 	}
-	if(msg.content.replace(prefix, "").length == 0) return await msg.channel.send("Baaa!");
+
+	var content = msg.content.replace(prefix, '').trim();
+	if(content.length == 0) return await msg.channel.send("Baaa!");
 
 	var log = [
 		`Guild: ${msg.guild ? msg.guild.name : "DMs"} (${msg.guild ? msg.guild.id : msg.channel.id})`,
@@ -24,7 +34,7 @@ module.exports = async (msg, bot)=>{
 		`--------------------`
 	];
 
-	let {command, args} = await bot.handlers.command.parse(msg.content.replace(prefix, ""));
+	let {command, args} = await bot.handlers.command.parse(content);
 	if(!command) {
 		log.push('- Command not found -');
 		console.log(log.join('\r\n'));
