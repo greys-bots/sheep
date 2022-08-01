@@ -12,6 +12,8 @@ module.exports = async (msg, bot)=>{
 	var prefix; 
 	var match;
 	if(process.env.REQUIRE_MENTIONS) {
+		if(msg.content.match(new RegExp(`^(${bot.prefix.join("|")})`,"i")))
+			return 'Baaa! Please ping me to use commands!';
 		prefix = new RegExp(`^<@!?(?:${bot.user.id})>`);
 		match = msg.content.match(prefix);
 	} else {
