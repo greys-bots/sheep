@@ -44,7 +44,6 @@ class UserRoleStore extends Collection {
 		})
 	}
 
-	//no caching thanks to it messing with deleted roles
 	async get(server, user, forceUpdate = false) {
 		return new Promise(async (res, rej) => {
 			try {

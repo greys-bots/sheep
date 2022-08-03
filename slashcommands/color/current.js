@@ -7,8 +7,8 @@ module.exports = {
 	},
 	usage: ["- Shows your current role's color"],
 	async execute(ctx) {
-		var role = await ctx.client.stores.userRoles.get(ctx.guildId, ctx.user.id);
-		if(role?.raw) return "You don't have a color role!";
+		var role = await ctx.client.stores.userRoles.get(ctx.guild.id, ctx.user.id);
+		if(!role?.raw) return "You don't have a color role!";
 		if(!role.raw.color) return "Role has no color!";
 
 		var color = ("000000" + role.raw.color.toString(16)).slice(-6);

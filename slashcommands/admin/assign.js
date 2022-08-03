@@ -23,7 +23,7 @@ module.exports = {
 		'[user] [value: color] - Assigns a color to the user',
 		'[user] [value: role mention] - Assigns the mentioned role to the user'
 	],
-	async execute() {
+	async execute(ctx) {
 		var user = ctx.options.getMember('user');
 		var role = ctx.options.resolved.roles?.first();
 		var val = ctx.options.getString('value', false);
