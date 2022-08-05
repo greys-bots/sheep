@@ -52,7 +52,7 @@ module.exports = {
 		var opts = {
 			name: urole?.raw?.name ?? user.user.username,
 			color: c.toHex(),
-			position: srole ? srole.permission - 1 : 0,
+			position: srole ? srole.position - 1 : 0,
 			mentionable: cfg.pingable
 		}
 
