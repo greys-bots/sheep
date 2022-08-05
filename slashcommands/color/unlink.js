@@ -28,13 +28,13 @@ module.exports = {
 		'[user] - Unlink roles with another user'
 	],
 	async execute(ctx) {
-		var cfg = await ctx.client.stores.configs.get(ctx.guildId);
+		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
 		if(cfg.role_mode == 1) return "Can't link or unlink colors in server-based color mode!";
 		var user = ctx.options.getUser('user');
 
-		var role = await ctx.client.stores.userRoles.get(ctx.guildId, ctx.user.id);
+		var role = await ctx.client.stores.userRoles.get(ctx.guild.id, ctx.user.id);
 		if(!role) return "You don't have a role to unlink!";
-		var role2 = await ctx.client.stores.userRoles.get(ctx.guildId, user.id);
+		var role2 = await ctx.client.stores.userRoles.get(ctx.guild.id, user.id);
 		if(role.role_id != role2.role_id) return "Your roles aren't linked!";
 
 		var msg = await ctx.reply({
@@ -55,7 +55,7 @@ module.exports = {
 		if(conf.msg) msg = conf.msg;
 		else {
 			await ctx.member.roles.remove(role.role_id);
-			await ctx.client.stores.userRoles.unlink(ctx.guildId, role.role_id, ctx.user.id);
+			await ctx.client.stores.userRoles.unlink(ctx.guild.id, role.role_id, ctx.user.id);
 			msg = "Roles unlinked!";
 		}
 

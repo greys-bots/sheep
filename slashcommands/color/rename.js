@@ -13,7 +13,7 @@ module.exports = {
 		"[name] - Changes your role's name"
 	],
 	async execute(ctx) {
-		var cfg = await ctx.client.stores.configs.get(ctx.guildId);
+		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
 		if(!cfg) cfg = {role_mode: 0};
 
 		if(cfg.role_mode == 1) return "Config set to server-based roles; you can't change your color's name :(";

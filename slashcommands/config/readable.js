@@ -19,7 +19,7 @@ module.exports = {
 	extra: "Default setting: **false.** Readable colors aren't required",
 	async execute(ctx) {
 		var val = ctx.options.getBoolean('value', false);
-		var cfg = await ctx.client.stores.configs.get(ctx.guildId);
+		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
 
 		var conf;
 		if(val == null) {
@@ -46,14 +46,14 @@ module.exports = {
 				return;
 			}
 
-			await ctx.client.stores.configs[cfg ? "update" : "create"](ctx.guildId, {readable: false});
+			await ctx.client.stores.configs[cfg ? "update" : "create"](ctx.guild.id, {readable: false});
 			if(conf.interaction) await conf.interaction.update({content: "Value cleared!", components: [], embeds: []});
 			else await ctx.editReply({content: "Value cleared!", components: [], embeds: []});
 			return;
 		}
 
-		if(cfg) await ctx.client.stores.configs.update(ctx.guildId, {readable: val});
-		else await ctx.client.stores.configs.create(ctx.guildId, {readable: val});
+		if(cfg) await ctx.client.stores.configs.update(ctx.guild.id, {readable: val});
+		else await ctx.client.stores.configs.create(ctx.guild.id, {readable: val});
 		return "Value updated!";
 	},
 	guildOnly: true,

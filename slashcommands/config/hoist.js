@@ -21,7 +21,7 @@ module.exports = {
 		   "puts them under any role they have with the word `sheep` in it.",
 	async execute(ctx) {
 		var role = ctx.options.getRole('role', false);
-		var cfg = await ctx.client.stores.configs.get(ctx.guildId);
+		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
 
 		var conf;
 		if(!role) {
@@ -50,14 +50,14 @@ module.exports = {
 				return;
 			}
 
-			await ctx.client.stores.configs[cfg ? "update" : "create"](ctx.guildId, {hoist: null});
+			await ctx.client.stores.configs[cfg ? "update" : "create"](ctx.guild.id, {hoist: null});
 			if(conf.interaction) await conf.interaction.update({content: "Value cleared!", components: [], embeds: []});
 			else await ctx.editReply({content: "Value cleared!", components: [], embeds: []});
 			return;
 		}
 
-		if(cfg) await ctx.client.stores.configs.update(ctx.guildId, {hoist: role.id});
-		else await ctx.client.stores.configs.create(ctx.guildId, {hoist: role.id});
+		if(cfg) await ctx.client.stores.configs.update(ctx.guild.id, {hoist: role.id});
+		else await ctx.client.stores.configs.create(ctx.guild.id, {hoist: role.id});
 		return "Value updated!";
 	},
 	guildOnly: true,

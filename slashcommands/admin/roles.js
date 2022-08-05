@@ -32,7 +32,7 @@ opts.push({
 	async execute(ctx) {
 		var rl = ctx.options.getRole('role', false);
 
-		var roles = await ctx.client.stores.serverRoles.getAll(ctx.guildId);
+		var roles = await ctx.client.stores.serverRoles.getAll(ctx.guild.id);
 		if(!roles || !roles[0]) return "No indexed roles";
 		if(rl) roles = roles.filter(r => r.role_id == rl.id);
 		if(!roles.length) return "That role isn't indexed!";
@@ -91,7 +91,7 @@ opts.push({
 
 		await ctx.deferReply();
 		var role = await ctx.guild.roles.create({name, color});
-		await ctx.client.stores.serverRoles.create(ctx.guildId, role.id);
+		await ctx.client.stores.serverRoles.create(ctx.guild.id, role.id);
 		return "Role created!";
 	}
 })
@@ -115,10 +115,10 @@ opts.push({
 	async execute(ctx) {
 		var role = ctx.options.getRole('role');
 
-		var existing = await ctx.client.stores.serverRoles.get(ctx.guildId, role.id);
+		var existing = await ctx.client.stores.serverRoles.get(ctx.guild.id, role.id);
 		if(existing) return "That role is already indexed!";
 
-		await ctx.client.stores.serverRoles.create(ctx.guildId, role.id);
+		await ctx.client.stores.serverRoles.create(ctx.guild.id, role.id);
 		return "Role indexed!";
 	}
 })
@@ -147,11 +147,11 @@ opts.push({
 	async execute(ctx) {
 		var role = ctx.options.getRole('role');
 		var del = ctx.options.getBoolean('delete', false);
-		var exists = await ctx.client.stores.serverRoles.get(ctx.guildId, role.id);
+		var exists = await ctx.client.stores.serverRoles.get(ctx.guild.id, role.id);
 		if(!exists) return "Role not indexed!";
 
 		try {
-			await ctx.client.stores.serverRoles.delete(ctx.guildId, role.id);
+			await ctx.client.stores.serverRoles.delete(ctx.guild.id, role.id);
 			if(del) await role.delete();
 		} catch(e) {
 			return "ERR: "+e;
@@ -241,7 +241,7 @@ opts.push({
 	async execute(ctx) {
 		var del = ctx.options.getBoolean('delete', false);
 
-		var roles = await ctx.client.stores.serverRoles.getAll(ctx.guildId);
+		var roles = await ctx.client.stores.serverRoles.getAll(ctx.guild.id);
 		if(!roles?.length) return "No server roles indexed!";
 
 		var err = false;
@@ -256,7 +256,7 @@ opts.push({
 			}
 		}
 
-		await ctx.client.stores.serverRoles.deleteAll(ctx.guildId);
+		await ctx.client.stores.serverRoles.deleteAll(ctx.guild.id);
 
 		if(err) return "Some roles couldn't be deleted; you'll have to manually delete the rest!";
 		else if(del) return "Roles deleted!";

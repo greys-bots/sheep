@@ -78,7 +78,7 @@ module.exports = {
 	       "See [this](https://www.w3schools.com/colors/colors_names.asp) " +
 	       "link for supported names",
 	async execute(ctx) {
-		var cfg = await ctx.client.stores.configs.get(ctx.guildId);
+		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
 		if(!cfg) cfg = {role_mode: 0};
 
 		var ucfg = await ctx.client.stores.userConfigs.get(ctx.user.id);
@@ -133,7 +133,7 @@ module.exports = {
 						done = true;
 						clearTimeout(timeout);
 
-						var role = await ctx.client.stores.userRoles.get(ctx.guildId, ctx.user.id);
+						var role = await ctx.client.stores.userRoles.get(ctx.guild.id, ctx.user.id);
 						var srole;
 						if(cfg.hoist) srole = await ctx.guild.roles.fetch(cfg.hoist);
 						else srole = ctx.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
@@ -154,7 +154,7 @@ module.exports = {
 								role = await role.raw.edit(options);
 							} else {
 								role = await ctx.guild.roles.create(options);
-								await ctx.client.stores.userRoles.create(ctx.guildId, member.id, role.id);
+								await ctx.client.stores.userRoles.create(ctx.guild.id, member.id, role.id);
 							}
 							await member.roles.add(role.id);
 

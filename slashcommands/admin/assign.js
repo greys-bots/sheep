@@ -29,12 +29,12 @@ module.exports = {
 		var val = ctx.options.getString('value', false);
 		if(!val) return "Please provide a role mention or a color!";
 		
-		var urole = ctx.client.stores.userRoles.get(ctx.guildId, user.id);
+		var urole = await ctx.client.stores.userRoles.get(ctx.guild.id, user.id);
 
 		if(role) {
 			if(urole) return "That user already has a color role!";
 
-			await ctx.client.stores.userRoles.create(ctx.guildId, user.id, role.id);
+			await ctx.client.stores.userRoles.create(ctx.guild.id, user.id, role.id);
 			await user.roles.add(role.id);
 			return "Role assigned!"
 		}
@@ -42,15 +42,15 @@ module.exports = {
 		var c = tc(val);
 		if(!c.isValid()) return "Please provide a valid color!";
 
-		var cfg = ctx.client.stores.configs.get(ctx.guildId);
+		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
 		if(!cfg) cfg = {};
 		
 		var srole;
-		if(cfg.hoist) srole = ctx.guild.roles.fetch(cfg.hoist);
+		if(cfg.hoist) srole = await ctx.guild.roles.fetch(cfg.hoist);
 		else srole = ctx.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
 
 		var opts = {
-			name: urole?.raw.name ?? user.user.username,
+			name: urole?.raw?.name ?? user.user.username,
 			color: c.toHex(),
 			position: srole ? srole.permission - 1 : 0,
 			mentionable: cfg.pingable
@@ -62,11 +62,12 @@ module.exports = {
 				rl = await urole.raw.edit(opts);
 			} else {
 				rl = await ctx.guild.roles.create(opts);
-				await ctx.client.stores.userRoles.create(ctx.guildId, user.id, rl.id);
+				await ctx.client.stores.userRoles.create(ctx.guild.id, user.id, rl.id);
 			}
 
 			await user.roles.add(rl.id);
 		} catch(e) {
+			console.log(e)
 			return `ERR: `+e.message;
 		}
 

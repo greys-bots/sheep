@@ -5,7 +5,7 @@ module.exports = {
 	},
 	usage: ["- Deletes any roles left by users who are no longer in the server"],
 	async execute(ctx) {
-		var roles = ctx.client.stores.userRoles.getAll(ctx.guildId);
+		var roles = ctx.client.stores.userRoles.getAll(ctx.guild.id);
 		if(!roles?.[0]) return "No roles to delete!";
 
 		var members = await ctx.guild.members.fetch();
