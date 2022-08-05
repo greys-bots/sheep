@@ -62,7 +62,6 @@ bot.updateStatus = async function(){
 	}
 	var target = bot.statuses[bot.status % bot.statuses.length];
 	if(typeof target == "function") {
-		console.log(target());
 		bot.user.setActivity(await target());
 	} else bot.user.setActivity(target);
 	bot.status++;
@@ -76,9 +75,9 @@ async function setup() {
 	files = fs.readdirSync("./events");
 	files.forEach(f => bot.on(f.slice(0,-3), (...args) => require("./events/"+f)(...args,bot)));
 
-	bot.handlers = {};
-	files = fs.readdirSync(__dirname + "/handlers");
-	files.forEach(f => bot.handlers[f.slice(0,-3)] = require(__dirname + "/handlers/"+f)(bot));
+	// bot.handlers = {};
+	// files = fs.readdirSync(__dirname + "/handlers");
+	// files.forEach(f => bot.handlers[f.slice(0,-3)] = require(__dirname + "/handlers/"+f)(bot));
 
 	bot.utils = {};
 	files = fs.readdirSync("./utils");
@@ -101,7 +100,7 @@ bot.writeLog = async (log) => {
 }
 
 bot.on("ready", async ()=> {
-	console.log('Ready!');
+	// console.log(`Shard(s) ${bot.shard.ids.join(', ')} ready`);
 	bot.writeLog('=====LOG START=====')
 	bot.user.setActivity("s!h | booting...");
 	if(bot.shard.ids.find(id => id+1 == bot.shard.count))

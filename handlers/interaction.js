@@ -1,4 +1,5 @@
 const { Collection } = require('discord.js');
+const { recursiveRead } = require('../utils/general');
 
 class InteractionHandler {
 	menus = new Collection();
@@ -10,108 +11,10 @@ class InteractionHandler {
 			this.handle(interaction);
 		})
 
-		bot.once('ready', async () => {
-			await this.load(__dirname + '/../slashcommands');
-			console.log('slash commands loaded!')
-		})
-	}
-
-	async load(path) {
-		var slashCommands = new Collection();
-		var slashData = new Collection();
-		var devOnly = new Collection();
-
-		var files = this.bot.utils.recursivelyReadDirectory(path);
-
-		for(var f of files) {
-			var path_frags = f.replace(path, "").split(/(?:\\|\/)/);
-			var mods = path_frags.slice(1, -1);
-			var file = path_frags[path_frags.length - 1];
-			if(file == '__mod.js') continue;
-			delete require.cache[require.resolve(f)];
-			var command = require(f);
-
-			var {data} = command;
-			if(command.options) {
-				var d2 = command.options.map(({data: d}) => {
-					d.permissions = d.permissions ?? command.permissions;
-					d.guildOnly = d.guildOnly ?? command.guildOnly;
-					return d;
-				});
-				data.options = d2;
-			}
-
-			if(mods[0]) {
-				var group = slashCommands.get(mods[0]);
-				var g2 = slashData.get(mods[0]);
-				if(!group) {
-					var mod;
-					delete require.cache[require.resolve(f.replace(file, "/__mod.js"))];
-					mod = require(f.replace(file, "/__mod.js"));
-					group = {
-						...mod,
-						options: [],
-						type: 1
-					};
-					g2 = {
-						...mod.data,
-						options: [],
-						type: 1
-					};
-
-					slashCommands.set(mod.data.name, group);
-					if(mod.dev) devOnly.set(mod.data.name, g2);
-					else slashData.set(mod.data.name, g2);
-				}
-				
-				command.permissions = command.permissions ?? group.permissions;
-				command.guildOnly = command.guildOnly ?? group.guildOnly;
-				if(command.options) command.options = command.options.map(o => {
-					o.permissions = o.permissions ?? command.permissions
-					return o;
-				})
-
-				group.options.push(command)
-				if(mod.dev) {
-					var dg = devOnly.get(mod.data.name);
-					dg.options.push({
-						...data,
-						type: data.type ?? 1
-					});
-				} else {
-					g2.options.push({
-						...data,
-						type: data.type ?? 1
-					})
-				}
-			} else {
-				slashCommands.set(command.data.name, command);
-				slashData.set(command.data.name, data)
-			}
-		}
-
-		this.bot.slashCommands = slashCommands;
-
-		if(this.bot.shard.ids.includes(0)) {
-			try {
-				if(!this.bot.application?.owner) await this.bot.application?.fetch();
-
-				var cmds = slashData.map(d => d);
-				var dcmds = devOnly.map(d => d);
-				if(process.env.COMMAND_GUILD) await this.bot.application.commands.set([]);
-				if(process.env.COMMAND_GUILD == process.env.DEV_GUILD) {
-					cmds = cmds.concat(dcmds);
-					await this.bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
-				} else {
-					await this.bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
-					await this.bot.application.commands.set(dcmds, process.env.DEV_GUILD);
-				}
-				return;
-			} catch(e) {
-				console.log(e);
-				return Promise.reject(e);
-			}
-		}
+		// bot.once('ready', async () => {
+		// 	await this.load(__dirname + '/../slashcommands');
+		// 	console.log(`App commands loaded for shard(s) ${bot.shard.ids.join(', ')}`);
+		// })
 	}
 
 	async handle(ctx) {
@@ -345,4 +248,108 @@ class InteractionHandler {
 	}
 }
 
-module.exports = (bot) => new InteractionHandler(bot);
+async function load(path) {
+	var slashCommands = new Collection();
+	var slashData = new Collection();
+	var devOnly = new Collection();
+
+	var files = recursiveRead(path);
+
+	for(var f of files) {
+		var path_frags = f.replace(path, "").split(/(?:\\|\/)/);
+		var mods = path_frags.slice(1, -1);
+		var file = path_frags[path_frags.length - 1];
+		if(file == '__mod.js') continue;
+		delete require.cache[require.resolve(f)];
+		var command = require(f);
+
+		var {data} = command;
+		if(command.options) {
+			var d2 = command.options.map(({data: d}) => {
+				d.permissions = d.permissions ?? command.permissions;
+				d.guildOnly = d.guildOnly ?? command.guildOnly;
+				return d;
+			});
+			data.options = d2;
+		}
+
+		if(mods[0]) {
+			var group = slashCommands.get(mods[0]);
+			var g2 = slashData.get(mods[0]);
+			if(!group) {
+				var mod;
+				delete require.cache[require.resolve(f.replace(file, "/__mod.js"))];
+				mod = require(f.replace(file, "/__mod.js"));
+				group = {
+					...mod,
+					options: [],
+					type: 1
+				};
+				g2 = {
+					...mod.data,
+					options: [],
+					type: 1
+				};
+
+				slashCommands.set(mod.data.name, group);
+				if(mod.dev) devOnly.set(mod.data.name, g2);
+				else slashData.set(mod.data.name, g2);
+			}
+			
+			command.permissions = command.permissions ?? group.permissions;
+			command.guildOnly = command.guildOnly ?? group.guildOnly;
+			if(command.options) command.options = command.options.map(o => {
+				o.permissions = o.permissions ?? command.permissions
+				return o;
+			})
+
+			group.options.push(command)
+			if(mod.dev) {
+				var dg = devOnly.get(mod.data.name);
+				dg.options.push({
+					...data,
+					type: data.type ?? 1
+				});
+			} else {
+				g2.options.push({
+					...data,
+					type: data.type ?? 1
+				})
+			}
+		} else {
+			slashCommands.set(command.data.name, command);
+			slashData.set(command.data.name, data)
+		}
+	}
+
+	return {
+		slashCommands,
+		slashData,
+		devOnly
+	}
+}
+
+async function sendCommands(bot, data) {
+	console.log('Sending app commands...');
+	var { slashData, devOnly } = data;
+	try {
+		if(!bot.application?.owner) await bot.application?.fetch();
+
+		var cmds = slashData.map(d => d);
+		var dcmds = devOnly.map(d => d);
+		if(process.env.COMMAND_GUILD) await bot.application.commands.set([]);
+		if(process.env.COMMAND_GUILD == process.env.DEV_GUILD) {
+			cmds = cmds.concat(dcmds);
+			await bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
+		} else {
+			await bot.application.commands.set(cmds, process.env.COMMAND_GUILD);
+			await bot.application.commands.set(dcmds, process.env.DEV_GUILD);
+		}
+		return;
+	} catch(e) {
+		console.log(e);
+		return Promise.reject(e);
+	}
+}
+
+module.exports = { handler: InteractionHandler, load, sendCommands };

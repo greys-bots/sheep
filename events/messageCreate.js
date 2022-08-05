@@ -9,6 +9,16 @@ const WELCOMES = [
 
 module.exports = async (msg, bot)=>{
 	if(msg.author.bot) return;
+	if(msg.content == "s!debug") {
+		console.log(
+			`Shard: ${bot.shard.ids}\r\n`,
+			`Commands:\r\n`,
+			bot.commands,
+			'\r\n',
+			`App commands:\r\n`,
+			bot.slashCommands
+		)
+	}
 	var prefix; 
 	var match;
 	if(process.env.REQUIRE_MENTIONS) {

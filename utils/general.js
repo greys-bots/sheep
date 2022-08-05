@@ -5,12 +5,12 @@ const {
 	confirmBtns: BUTTONS
 } = require('../extras');
 
-const recursivelyReadDirectory = (dir) => {
+const recursiveRead = (dir) => {
 	var results = [];
 	var files = fs.readdirSync(dir, {withFileTypes: true});
 	for(file of files) {
 		if(file.isDirectory()) {
-			results = results.concat(recursivelyReadDirectory(dir+"/"+file.name));
+			results = results.concat(recursiveRead(dir+"/"+file.name));
 		} else {
 			results.push(dir+"/"+file.name);
 		}
@@ -20,7 +20,7 @@ const recursivelyReadDirectory = (dir) => {
 }
 
 module.exports = {
-	recursivelyReadDirectory,
+	recursiveRead,
 	genEmbeds: async (bot, arr, genFunc, info = {}, fieldnum, extras = {}) => {
 		return new Promise(async res => {
 			var embeds = [];
