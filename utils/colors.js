@@ -1,5 +1,4 @@
 const jimp 		= require('jimp');
-const sharp 	= require('sharp');
 const tc 		= require('tinycolor2');
 const path 		= require('path');
 
@@ -115,6 +114,68 @@ module.exports = {
 					}
 				}
 			});
+		})
+	},
+
+	createWoolImage: async (color, options = {}) => {
+		return new Promise(async (res, rej) => {
+			if(color && color.toLowerCase() != 'random') color = tc(color);
+			else color = tc.random();
+			var c = color.toRgb();
+			var size = [300, 300];
+			var fontsize = 32;
+			var text = [];
+			var wool = await jimp.read(path.join(__dirname,'../wool.png'));
+			var mask = wool.clone();
+			mask.brightness(-1);
+
+			var bg;
+			new jimp(300, 300, 'ffffff', async (err, img) => {
+				img.composite(mask, 0, 0);
+				img.invert()
+
+				mask = img.clone();
+
+				if(options.info != undefined) {
+					text = [
+					`Hex: ${color.toHexString().toUpperCase()}`,
+					`RGB: ${color.toRgbString()}`,
+					`HSV: ${color.toHsvString()}`
+					]
+				}
+
+				new jimp(300, 300, color.toHex(), async (err, image)=>{
+					if(err){
+						console.log(err);
+						return rej(err.message);
+					} else {
+						image.mask(mask)
+						wool.composite(image, 0, 0, {
+						  mode: jimp.BLEND_MULTIPLY,
+						  opacitySource: .9,
+						  opacityDest: 1
+						});
+				
+
+						if(options.info != undefined) {
+							var info;
+ 
+							new jimp(await module.exports.createColorImage(color.toHex(), {info: true}), (err, inf) => info = inf);
+
+							new jimp(812, 512, async (err, image2) => {
+								await image2.composite(wool, 512, 106);
+								await image2.composite(info, 0, 0)
+								
+								image2.getBuffer(jimp.MIME_PNG, (err, data) => res(data));
+							})
+						} else {
+							wool.getBuffer(jimp.MIME_PNG, (err, data)=>{
+								res(data);
+							})
+						}
+					}
+				});
+			})
 		})
 	}
 }

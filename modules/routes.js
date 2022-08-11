@@ -49,6 +49,17 @@ module.exports = (app, ipc) => {
 
 		{
 			protocol: "get",
+			path: '/wool/:col',
+			function: async (req, res)=> {
+				var img = await utils.createWoolImage(req.params.col, req.query);
+				res.type('png');
+				res.write(img);
+				res.end();
+			}
+		},
+
+		{
+			protocol: "get",
 			path: '/api/modules',
 			function: async (req, res)=> {
 				res.send({modules: ipc.data.modules});
