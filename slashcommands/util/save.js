@@ -113,7 +113,7 @@ opts.push({
 		if(!color.isValid()) return "That color isn't valid!";
 		color = color.toHex();
 
-		if(exists) await ctx.client.stores.colors.update(ctx.user.id, name, {color});
+		if(exists) await ctx.client.stores.colors.update(ctx.user.id, name.toLowerCase(), {color});
 		else await ctx.client.stores.colors.create(ctx.user.id, name, {color});
 
 		if(conf?.interaction) await conf.interaction.update({

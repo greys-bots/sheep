@@ -42,7 +42,7 @@ module.exports = {
 			var c = bot.tc(color.toLowerCase());
 			if(!c.isValid()) return "That color isn't valid :(";
 
-			var exists = await bot.stores.colors.get(msg.author.id, name);
+			var exists = await bot.stores.colors.get(msg.author.id, name.toLowerCase());
 			console.log(exists);
 			if(exists) {
 				var message = await msg.channel.send("A saved color with that name already exists! Would you like to override it?");
