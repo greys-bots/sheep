@@ -6,8 +6,10 @@ module.exports = {
 		var role = await bot.stores.userRoles.get(msg.guild.id, msg.member.id);
 		if(!role) return "Either you don't have a color role or I can't find it :(";
 
+		var arg = args.join(" ");
+		if(arg.length > 32) return 'That name is too long! Roles must be 32 characters or less';
 		try {
-			role.raw.edit({name: args.join(" ")});
+			role.raw.edit({name: arg});
 		} catch(e) {
 			console.log(e);
 			return "ERR: "+e.message;

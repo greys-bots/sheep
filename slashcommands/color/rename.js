@@ -21,6 +21,7 @@ module.exports = {
 		if(!role) return "Either you don't have a color role or I can't find it :(";
 
 		var arg = ctx.options.getString('name', false)?.trim().toLowerCase();
+		if(arg.length > 32) return 'That name is too long! Roles must be 32 characters or less';
 		try {
 			role.raw.edit({name: arg});
 		} catch(e) {
