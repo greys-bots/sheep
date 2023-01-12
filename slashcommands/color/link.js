@@ -17,12 +17,13 @@ module.exports = {
 	extra: "Linking roles means that the color can be changed by either account",
 	async execute(ctx) {
 		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
-		if(cfg.role_mode == 1) return "Can't link colors in server-based color mode!";
+		if(cfg && cfg.role_mode == 1) return "Can't link colors in server-based color mode!";
 
 		var role = await ctx.client.stores.userRoles.get(ctx.guild.id, ctx.user.id);
 		if(!role) return "You don't have a role to link!";
 
 		var user = ctx.options.getMember('user');
+		if(user.id == ctx.user.id) return "Baaa! You can't link roles with yourself, silly!";
 		var msg = await ctx.reply({
 			content: `<@${user.id}>, please confirm you'd like to link roles!`,
 			components: [{

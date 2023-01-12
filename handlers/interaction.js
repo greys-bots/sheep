@@ -115,6 +115,7 @@ class InteractionHandler {
 	}
 
 	async handle(ctx) {
+		if(process.env.DEV_INSTANCE && ctx.user?.id !== process.env.OWNER) return;
 		if(ctx.isCommand() || ctx.isContextMenu()) this.handleCommand(ctx);
 		if(ctx.isButton()) this.handleButtons(ctx);
 		if(ctx.isSelectMenu()) this.handleSelect(ctx);

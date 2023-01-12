@@ -29,7 +29,7 @@ module.exports = {
 	],
 	async execute(ctx) {
 		var cfg = await ctx.client.stores.configs.get(ctx.guild.id);
-		if(cfg.role_mode == 1) return "Can't link or unlink colors in server-based color mode!";
+		if(cfg && cfg.role_mode == 1) return "Can't link or unlink colors in server-based color mode!";
 		var user = ctx.options.getUser('user');
 
 		var role = await ctx.client.stores.userRoles.get(ctx.guild.id, ctx.user.id);
