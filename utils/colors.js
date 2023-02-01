@@ -1,3 +1,5 @@
+const tc = require('tinycolor2');
+
 module.exports = {
 	toCmyk: async (color) => {
 		//code based on this: http://www.javascripter.net/faq/rgb2cmyk.htm
@@ -32,7 +34,7 @@ module.exports = {
 			  var padsub = ('0'+sub).slice(-2);
 			  c += padsub;
 			}
-			res(bot.tc(c));
+			res(tc(c));
 		})
 	}
 }

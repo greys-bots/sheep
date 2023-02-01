@@ -54,7 +54,7 @@ module.exports = (bot) => {
 	bot.stores = {};
 	var files = fs.readdirSync(__dirname);
 	for(var file of files) {
-		if(["__db.js", "__migrations.js"].includes(file)) continue;
+		if(["__db.js", "migrations"].includes(file)) continue;
 		var name = file.replace(".js", "");
 
 		bot.stores[name] = require(__dirname+'/'+file)(bot, db);
