@@ -45,39 +45,14 @@ class Command extends SlashCommand {
 		var conf = await this.#bot.utils.getConfirmation(this.#bot, msg, user);
 
 		var msg;
-		if(conf.msg) msg = conf.msg;
-		else {
-			var existing = await this.#stores.userRoles.get(ctx.guild.id, user.id);
-			if(existing) await this.#stores.userRoles.delete(ctx.guild.id, user.id);
+		if(conf.msg) return conf.msg;
 
-			await this.#stores.userRoles.create(ctx.guild.id, user.id, role.role_id);
-			await user.roles.add(role.role_id);
-			msg = "Roles linked!";
-		}
+		var existing = await this.#stores.userRoles.get(ctx.guild.id, user.id);
+		if(existing) await this.#stores.userRoles.delete(ctx.guild.id, user.id);
 
-		if(conf.interaction) {
-			await conf.interaction.update({
-				content: msg,
-				components: [{
-					type: 1,
-					components: confBtns.map(c => {
-						return {...c, disabled: true}
-					})
-				}]
-			})
-		} else {
-			await ctx.editReply({
-				content: msg,
-				components: [{
-					type: 1,
-					components: confBtns.map(c => {
-						return {...c, disabled: true}
-					})
-				}]
-			})
-		}
-
-		return;
+		await this.#stores.userRoles.create(ctx.guild.id, user.id, role.role_id);
+		await user.roles.add(role.role_id);
+		return "Roles linked!";
 	}
 }
 
