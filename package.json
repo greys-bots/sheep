@@ -8,7 +8,7 @@
     "start": "supervisor -e .js,.json -i logs,data.sqlite,data.sqlite-journal index.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "axios": "^0.21.2",
     "discord.js": "^14.7.1",
