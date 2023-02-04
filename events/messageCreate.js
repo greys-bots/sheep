@@ -9,9 +9,10 @@ const WELCOMES = [
 
 module.exports = async (msg, bot)=>{
 	if(msg.author.bot) return;
-	var prefix = new RegExp(`^<@!?(?:${bot.user.id})>`); 
+	var prefix = new RegExp(`^<@!?(?:${bot.user.id})>`);
+	if(!msg.content.match(prefix)) return;
 
-	var thanks = msg.content.replace(prefix).match(/^(thanks? ?(you)?|ty),? ?(?:sheep)?/i);
+	var thanks = msg.content.replace(prefix).trim().match(/^(thanks? ?(you)?|ty),? ?(?:sheep)?/i);
 	if(thanks) return await msg.channel.send(WELCOMES[Math.floor(Math.random() * WELCOMES.length)]);
 	
 	return await msg.channel.send("Please use my slash commands! Check out this post for more info: https://www.patreon.com/posts/your-guide-to-to-77199320")
