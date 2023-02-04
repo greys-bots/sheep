@@ -1,4 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
+const tc = require('tc');
 
 class Command extends SlashCommand {
 	#bot;
