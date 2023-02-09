@@ -67,8 +67,6 @@ async function setup() {
 bot.on("ready", async ()=> {
 	console.log(`Logged in as ${bot.user.tag} (${bot.user.id})`);
 	bot.user.setActivity("/help | booting...");
-	if(bot.shard.ids.find(id => id+1 == bot.shard.count))
-		await bot.shard.broadcastEval(cli => cli.updateStatus());
 })
 
 bot.on('error', (err)=> {

@@ -56,7 +56,7 @@ class Command extends SlashCommand {
 		
 		var srole;
 		if(cfg.hoist) srole = await ctx.guild.roles.fetch(cfg.hoist);
-		else srole = ctx.guild.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
+		else srole = ctx.guild.members.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
 
 		var opts = {
 			name: urole?.raw?.name ?? user.user.username,
