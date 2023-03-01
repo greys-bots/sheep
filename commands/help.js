@@ -154,6 +154,11 @@ class Command extends SlashCommand {
 					name: "Extra",
 					value: cm.extra
 				});
+
+				if(cm.permissions?.length) embeds[embeds.length - 1].fields.push({
+					name: "Permissions",
+					value: cm.permissions.join(", ")
+				});
 			}	
 		}
 
