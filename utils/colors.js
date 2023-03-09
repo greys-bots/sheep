@@ -177,5 +177,36 @@ module.exports = {
 				});
 			})
 		})
-	}
+	},
+
+	createWormImage: async (color, options = {}) => {
+		return new Promise(async (res, rej) => {
+			if(color && color.toLowerCase() != 'random') color = tc(color);
+			else color = tc.random();
+			var c = color.toRgb();
+			var size = [750, 1000];
+			var fontsize = 32;
+			var text = [];
+			var worm = await jimp.read(path.join(__dirname,'../worm.png'));
+			var mask = await jimp.read(path.join(__dirname,'../wmask.png'));
+
+			new jimp(768, 256, color.toHex(), async (err, image)=>{
+				if(err){
+					console.log(err);
+					return rej(err.message);
+				} else {
+					image.mask(mask);
+					worm.composite(image, 0, 0, {
+					  mode: jimp.BLEND_MULTIPLY,
+					  opacitySource: .9,
+					  opacityDest: 1
+					});
+
+					worm.getBuffer(jimp.MIME_PNG, (err, data)=>{
+						res(data);
+					})
+				}
+			});
+		})
+	},
 }
