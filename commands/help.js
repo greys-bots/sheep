@@ -35,38 +35,29 @@ class Command extends SlashCommand {
 		var cmds;
 		if(!cn) {
 			embeds = [{
-				title: "Baaa, I'm Sheep!",
+				title: "Command Help",
 				description:
+					"## Baaa! I'm Sheep!\n" +
 					"My job is to make color roles simple and easy!\n" +
-					"To get started, use `s!c [color]` (without brackets) " +
+					"To get started, use `/color change` (without brackets) " +
 					"to assign yourself a color. If you'd like, you can also " +
-					"`s!rename` it!\n\n" +
-					"On top of that, I have other cool features, like:",
+					"`/color rename` it!\n\n" +
+					"On top of that, I have other cool features, like:\n" +
+					"### Saved colors\n" +
+					"Save a color for later using `/util save new`! This lets you " +
+						"use a handy name to refer to a color in commands\n" +
+					"### Server-based colors\n" +
+					"Server too big for individual user roles? No problem! " +
+						"Use `/admin toggle` to toggle role modes and add roles for " +
+						"users to pick from with `/admin roles create`\n" +
+					"### Detailed help commands\n" +
+					"You can get help with any command " +
+						"(including subcommands)! Try it out by typing out a command when using `/help`\n" +
+						"You can also flip the pages here to see all the commands!",
 				fields: [
 					{
-						name: "Saved colors",
-						value: 
-							"Save a color for later using `/util save new`! This lets you " +
-							"use a handy name to refer to a color in commands"					
-					},
-					{
-						name: "Server-based colors",
-						value:
-							"Server too big for individual user roles? No problem! " +
-							"Use `/admin toggle` to toggle role modes and add roles for " +
-							"users to pick from with `/admin roles create`"
-							
-					},
-					{
-						name: "Detailed help command",
-						value:
-							"You can use `s!h` for help with any command " +
-							"(including subcommands)! Try it out with `/help module:color command:help`\n" +
-							"You can also flip the pages here to see all the commands!"
-					},
-					{
 						name: "Need help? Join the support server!",
-						value: "[https://discord.gg/EvDmXGt](https://discord.gg/EvDmXGt)",
+						value: "https://discord.gg/EvDmXGt",
 						inline: true
 					},
 					{

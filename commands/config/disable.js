@@ -10,28 +10,15 @@ class Command extends SlashCommand {
 			description: "Disable usage of specific commands",
 			options: [
 				{
-					name: 'module',
-					description: "Disable an entire module",
-					type: 3,
-					required: false
-				},
-				{
 					name: 'command',
-					description: "Disable a specific command in a module",
+					description: "The command to disable",
 					type: 3,
-					required: false
-				},
-				{
-					name: 'subcommand',
-					description: "Disable a specific command's subcommand",
-					type: 3,
-					required: false
+					required: false,
+					autocomplete: true
 				}
 			],
 			usage: [
-				"[module] - Disable a whole module",
-				"[module] [command] - Disable a module's command",
-				"[module] [command] [subcommand] - Disable a command's subcommand"	
+				"[command] - Disable a command or group of commands"	
 			],
 			extra: "Only guild-only commands can be disabled",
 			permissions: ["ManageGuild"],
@@ -42,13 +29,10 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
-		var mod = ctx.options.getString('module')?.toLowerCase().trim();
-		var cmd = ctx.options.getString('command')?.toLowerCase().trim();
-		var scmd = ctx.options.getString('subcommand')?.toLowerCase().trim();
-
+		var cn = ctx.options.getString('command')?.toLowerCase().trim();
 		var cfg = await this.#stores.configs.get(ctx.guild.id);
 		
-		if(!mod && !cmd && !scmd) {
+		if(!cn) {
 			if(!cfg?.disabled?.length) return "Nothing disabled!";
 			
 			return {embeds: [{
@@ -57,33 +41,32 @@ class Command extends SlashCommand {
 			}]}
 		}
 
+		
 		var disabled = cfg?.disabled ?? [];
-		var name = "";
+		var name = cn;
+		var [mod, cmd, scmd] = name.split(" ");
 		var cm;
 		var cmds;
 		if(mod) {
 			cm = this.#bot.slashCommands.get(mod);
 			if(!cm) return "Module not found!";
-			cmds = cm.options.map(o => o);
-			name += (cm.name ?? cm.data.name) + " ";
+			cmds = cm.subcommands.map(o => o);
 		} else {
 			cmds = this.#bot.slashCommands.map(c => c);
 		}
 
 		if(cmd) {
-			cm = cmds.find(c => (c.name ?? c.data.name) == cmd);
+			cm = cmds.find(c => (c.name ?? c.name) == cmd);
 			if(!cm) return "Command not found!";
-			cmds = cm.options?.map(o => o);
-			name += `${cm.name ?? cm.data.name} `;
+			cmds = cm.subcommands?.map(o => o);
 
 			if(scmd) {
-				cm = cmds?.find(c => (c.name ?? c.data.name) == scmd);
+				cm = cmds?.find(c => (c.name ?? c.name) == scmd);
 				if(!cm) return "Subcommand not found!";
-				name += `${cm.name ?? cm.data.name}`;
 			}
 		}
 
-		if(!cm.guildOnly || ["enable", "disable"].includes(cm.data.name))
+		if(!cm.guildOnly || ["enable", "disable"].includes(cm.name))
 			return "That command can't be disabled!";
 
 		name = name.trim();
@@ -92,6 +75,25 @@ class Command extends SlashCommand {
 		if(cfg) await this.#stores.configs.update(ctx.guild.id, {disabled});
 		else await this.#stores.configs.create(ctx.guild.id, {disabled});
 		return "Config updated!";
+	}
+
+	async auto(ctx) {
+		var names = this.#bot.slashNames;
+		var foc = ctx.options.getFocused();
+		var res;
+		if(!foc) res = names.map(n => ({ name: n, value: n }));
+		else {
+			foc = foc.toLowerCase()
+
+			res = names.filter(n =>
+				n.includes(foc)
+			).map(n => ({
+				name: n,
+				value: n
+			}))
+		}
+
+		return res.slice(0, 25);
 	}
 }
 
