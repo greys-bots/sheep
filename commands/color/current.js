@@ -30,7 +30,7 @@ class Command extends SlashCommand {
 				url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
 			},
 			color: parseInt(color.toHex(), 16),
-			footer: color.toRgbString()
+			footer: { text: color.toRgbString() }
 		}]}
 	}
 }
