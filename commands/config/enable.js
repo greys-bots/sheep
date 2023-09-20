@@ -71,6 +71,25 @@ class Command extends SlashCommand {
 		await this.#stores.configs.update(ctx.guild.id, {disabled});
 		return "Config updated!";
 	}
+
+	async auto(ctx) {
+		var names = this.#bot.slashNames;
+		var foc = ctx.options.getFocused();
+		var res;
+		if(!foc) res = names.map(n => ({ name: n, value: n }));
+		else {
+			foc = foc.toLowerCase()
+
+			res = names.filter(n =>
+				n.includes(foc)
+			).map(n => ({
+				name: n,
+				value: n
+			}))
+		}
+
+		return res.slice(0, 25);
+	}
 }
 
 module.exports = (bot, stores) => new Command(bot, stores);
