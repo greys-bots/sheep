@@ -26,7 +26,7 @@ class Command extends SlashCommand {
 
 	async execute(ctx) {
 		var cfg = await this.#stores.configs.get(ctx.guild.id);
-		if(cfg && cfg.role_mode == 1) return "Can't link colors in server-based color mode!";
+		if(cfg?.role_mode == 1) return "Can't link colors in server-based color mode!";
 
 		var role = await this.#stores.userRoles.get(ctx.guild.id, ctx.user.id);
 		if(!role) return "You don't have a role to link!";
