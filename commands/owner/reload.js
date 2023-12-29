@@ -39,6 +39,7 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
+		if(ctx.user.id !== this.#bot.owner) return "Only the bot owner can use this!";
 		var arg = ctx.options.get('value').value.trim();
 		
 		switch(arg) {
