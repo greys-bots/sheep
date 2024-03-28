@@ -62,7 +62,8 @@ class Command extends SlashCommand {
 			name: urole?.raw?.name ?? user.user.username,
 			color: c.toHex(),
 			position: srole ? srole.position - 1 : 0,
-			mentionable: cfg.pingable
+			mentionable: cfg.pingable,
+			permissions: 0n
 		}
 
 		try {

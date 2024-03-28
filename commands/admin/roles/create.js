@@ -46,7 +46,7 @@ class Command extends SlashCommand {
 		else color = parseInt(color, 16);
 
 		await ctx.deferReply();
-		var role = await ctx.guild.roles.create({name, color});
+		var role = await ctx.guild.roles.create({name, color, permissions: 0n});
 		await this.#stores.serverRoles.create(ctx.guild.id, role.id);
 		return "Role created!";
 	}

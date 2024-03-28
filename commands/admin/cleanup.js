@@ -17,7 +17,7 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
-		var roles = this.#stores.userRoles.getAll(ctx.guild.id);
+		var roles = await this.#stores.userRoles.getAll(ctx.guild.id);
 		if(!roles?.[0]) return "No roles to delete!";
 
 		var members = await ctx.guild.members.fetch();
