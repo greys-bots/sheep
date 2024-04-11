@@ -143,9 +143,15 @@ class Command extends SlashCommand {
 						clearTimeout(timeout);
 
 						var role = await this.#stores.userRoles.get(ctx.guild.id, ctx.user.id);
+						
+						// NOTE: sometimes positions can desync if we're just using cache
+						// so we want to force a fetch in order to help prevent that
 						var srole;
-						if(cfg.hoist) srole = await ctx.guild.roles.fetch(cfg.hoist);
-						else srole = ctx.guild.members.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
+						if(cfg.hoist) srole = await ctx.guild.roles.fetch(cfg.hoist, { force: true });
+						else {
+							var cached = ctx.guild.members.me.roles.cache.find(r => r.name.toLowerCase().includes("sheep") || r.managed);
+							if(cached) srole = await ctx.guild.roles.fetch(cached.id, { force: true });
+						}
 						var name;
 						if(ucfg.auto_rename && saved?.name) name = saved.name;
 						else name = (role?.raw?.name ?? ctx.user.username);
@@ -160,7 +166,6 @@ class Command extends SlashCommand {
 
 						try {
 							if(role && !role.raw?.deleted) {
-								console.log(role.raw.position);
 								role = await role.raw.edit(options);
 							} else {
 								role = await ctx.guild.roles.create(options);
