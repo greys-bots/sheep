@@ -63,7 +63,7 @@ class Command extends SlashCommand {
 			color: c.toHex(),
 			position: srole ? srole.position - 1 : 0,
 			mentionable: cfg.pingable,
-			permissions: 0n
+			permissions: urole?.raw?.permissions ?? 0n
 		}
 
 		try {
