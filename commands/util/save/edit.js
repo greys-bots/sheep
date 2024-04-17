@@ -14,7 +14,8 @@ class Command extends SlashCommand {
 					name: 'name',
 					description: "The color to edit",
 					type: 3,
-					required: true
+					required: true,
+					autocomplete: true
 				},
 				{
 					name: 'prop',
@@ -53,7 +54,7 @@ class Command extends SlashCommand {
 		var value = ctx.options.getString('value').trim();
 
 		var color = await this.#stores.colors.get(ctx.user.id, name);
-		if(!color) return "Color not found!";
+		if(!color?.id) return "Color not found!";
 		
 		switch(prop) {
 			case 'name':
@@ -67,8 +68,26 @@ class Command extends SlashCommand {
 				break;
 		}
 
-		await this.#stores.colors.update(ctx.user.id, name, {[prop]: value});
+		color[prop] = value;
+		await color.save();
 		return "Color updated!";
+	}
+
+	async auto(ctx) {
+		var colors = await this.#stores.colors.getAll(ctx.user.id);
+		var foc = ctx.options.getFocused();
+		if(!foc) return colors.map(c => ({ name: c.name, value: c.name }));
+		foc = foc.toLowerCase()
+
+		if(!colors?.length) return [];
+
+		return colors.filter(c =>
+			c.color.includes(foc) ||
+			c.name.toLowerCase().includes(foc)
+		).map(c => ({
+			name: c.name,
+			value: c.name
+		}))
 	}
 }
 

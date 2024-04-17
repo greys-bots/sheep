@@ -13,7 +13,8 @@ class Command extends SlashCommand {
 				name: 'color',
 				description: "A specific color to view",
 				type: 3,
-				required: false
+				required: false,
+				autocomplete: true
 			}],
 			usage: [
 				'- View all saved colors',
@@ -53,6 +54,23 @@ class Command extends SlashCommand {
 		})
 
 		return embeds.map(e => e.embed);
+	}
+
+	async auto(ctx) {
+		var colors = await this.#stores.colors.getAll(ctx.user.id);
+		var foc = ctx.options.getFocused();
+		if(!foc) return colors.map(c => ({ name: c.name, value: c.name }));
+		foc = foc.toLowerCase()
+
+		if(!colors?.length) return [];
+
+		return colors.filter(c =>
+			c.color.includes(foc) ||
+			c.name.toLowerCase().includes(foc)
+		).map(c => ({
+			name: c.name,
+			value: c.name
+		}))
 	}
 }
 

@@ -43,26 +43,15 @@ class Command extends SlashCommand {
 			});
 
 			conf = await this.#bot.utils.getConfirmation(this.#bot, m, ctx.user);
-			if(conf.msg) {
-				if(conf.interaction) await conf.interaction.update({
-					content: conf.msg,
-					components: []
-				});
-				else await ctx.editReply({
-					content: conf.msg,
-					components: []
-				});
-				return;
-			}
+			if(conf.msg) return conf.msg;
 
-			await this.#stores.userConfigs[cfg ? "update" : "create"](ctx.user.id, {a11y: false});
-			if(conf.interaction) await conf.interaction.update({content: "Value cleared!", components: [], embeds: []});
-			else await ctx.editReply({content: "Value cleared!", components: [], embeds: []});
-			return;
+			cfg.readout = false;
+			await cfg.save();
+			return "Value cleared!";
 		}
 
-		if(cfg) await this.#stores.userConfigs.update(ctx.user.id, {a11y: val});
-		else await this.#stores.userConfigs.create(ctx.user.id, {a11y: val});
+		cfg.readout = val;
+		await cfg.save();
 		return "Value updated!";
 	}
 }

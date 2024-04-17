@@ -26,8 +26,8 @@ class Command extends SlashCommand {
 		var mode = (cfg?.role_mode ?? 0) == 0 ? 1 : 0;
 		console.log(mode);
 
-		if(cfg) await this.#stores.configs.update(ctx.guild.id, {role_mode: mode});
-		else await this.#stores.configs.create(ctx.guild.id, {role_mode: mode});
+		cfg.role_mode = mode;
+		await cfg.save();
 
 		return `Mode toggled! New setting: ${MODES[mode]} roles`;
 	}

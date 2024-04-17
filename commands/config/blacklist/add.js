@@ -29,8 +29,8 @@ class Command extends SlashCommand {
 		var blacklist = cfg?.blacklist ?? [];
 		if(!blacklist.includes(target.id)) blacklist.push(target.id);
 
-		if(cfg) await this.#stores.usages.update(ctx.guild.id, {blacklist});
-		else await this.#stores.usages.create(ctx.guild.id, {blacklist});
+		cfg.blacklist = blacklist;
+		await cfg.save();
 		return "Config updated!";
 	}
 }

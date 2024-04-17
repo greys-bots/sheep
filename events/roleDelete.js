@@ -1,7 +1,9 @@
 module.exports = async (role, bot) => {
 	try {
-		await bot.stores.serverRoles.delete(role.guild.id, role.id);
-		await bot.stores.userRoles.delete(role.guild.id, role.id);
+		var sr = await bot.stores.serverRoles.getRaw(role.guild.id, role.id);
+		if(sr) await sr.delete();
+		var ur = await bot.stores.userRoles.getByRoleRaw(role.guild.id, role.id);
+		if(ur) await ur.delete();
 	} catch(e) {
 		console.log("Couldn't delete data on deleted role "+role.id);
 	}

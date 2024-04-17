@@ -68,29 +68,7 @@ class Command extends SlashCommand {
 			msg = "Roles unlinked!";
 		}
 
-		if(conf.interaction) {
-			await conf.interaction.update({
-				content: msg,
-				components: [{
-					type: 1,
-					components: btns.map(c => {
-						return {...c, disabled: true}
-					})
-				}]
-			})
-		} else {
-			await ctx.editReply({
-				content: msg,
-				components: [{
-					type: 1,
-					components: btns.map(c => {
-						return {...c, disabled: true}
-					})
-				}]
-			})
-		}
-
-		return;
+		return msg;
 	}
 }
 

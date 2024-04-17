@@ -30,7 +30,7 @@ class Command extends SlashCommand {
 		var rl = ctx.options.getRole('role', false);
 
 		var roles = await this.#stores.serverRoles.getAll(ctx.guild.id);
-		if(!roles || !roles[0]) return "No indexed roles";
+		if(!roles?.length) return "No indexed roles";
 		if(rl) roles = roles.filter(r => r.role_id == rl.id);
 		if(!roles.length) return "That role isn't indexed!";
 

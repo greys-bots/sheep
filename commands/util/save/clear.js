@@ -25,30 +25,10 @@ class Command extends SlashCommand {
 		})
 
 		var conf = await this.#bot.utils.getConfirmation(this.#bot, m, ctx.user);
-		var msg;
-		if(conf.msg) msg = conf.msg;
-		else {
-			await this.#stores.colors.deleteAll(ctx.user.id);
-			msg = "Colors deleted!";
-		}
+		if(conf.msg) return conf.msg;
 
-		if(conf.interaction) {
-			await conf.interaction.update({
-				content: msg,
-				components: [{type: 1, components: clearBtns.map((b) => {
-					return {...b, disabled: true}
-				})}]
-			})
-		} else {
-			await conf.editReply({
-				content: msg,
-				components: [{type: 1, components: clearBtns.map((b) => {
-					return {...b, disabled: true}
-				})}]
-			})
-		}
-
-		return;
+		await this.#stores.colors.deleteAll(ctx.user.id);
+		return "Colors deleted!";
 	}
 }
 

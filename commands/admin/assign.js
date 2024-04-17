@@ -43,7 +43,11 @@ class Command extends SlashCommand {
 		if(role) {
 			if(urole) return "That user already has a color role!";
 
-			await this.#stores.userRoles.create(ctx.guild.id, user.id, role.id);
+			await this.#stores.userRoles.create({
+				server_id: ctx.guild.id,
+				user_id: user.id,
+				role_id: role.id
+			});
 			await user.roles.add(role.id);
 			return "Role assigned!"
 		}
@@ -61,7 +65,6 @@ class Command extends SlashCommand {
 		var opts = {
 			name: urole?.raw?.name ?? user.user.username,
 			color: c.toHex(),
-			position: srole ? srole.position - 1 : 0,
 			mentionable: cfg.pingable,
 			permissions: urole?.raw?.permissions ?? 0n
 		}
@@ -69,10 +72,20 @@ class Command extends SlashCommand {
 		try {
 			var rl;
 			if(urole?.raw) {
-				rl = await urole.raw.edit(opts);
+				rl = await urole.raw.edit({
+					...opts,
+					position: srole?.position - 1 ?? 0
+				});
 			} else {
-				rl = await ctx.guild.roles.create(opts);
-				await this.#stores.userRoles.create(ctx.guild.id, user.id, rl.id);
+				rl = await ctx.guild.roles.create({
+					...opts,
+					position: srole?.position ?? 0
+				});
+				await this.#stores.userRoles.create({
+					server_id: ctx.guild.id,
+					user_id: user.id,
+					role_id: rl.id
+				});
 			}
 
 			await user.roles.add(rl.id);

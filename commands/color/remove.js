@@ -23,8 +23,12 @@ class Command extends SlashCommand {
 		if(cfg.role_mode == 0) {
 			var role = await this.#stores.userRoles.get(ctx.guild.id, ctx.member.id);
 			if(!role) return "You don't have a color role!";
+			var linked = await this.#stores.userRoles.getLinked(ctx.guild.id, role.role_id);
 			try {
-				await role.raw.delete("Removed color");
+				if(linked?.length && linked.find(x => x.id !== role.id)) {
+					await ctx.member.roles.remove(role.role_id);
+					await role.delete();
+				} else await role.raw.delete("Removed color");
 			} catch(e) {
 				console.log(e);
 				return "ERR: "+e.message;
@@ -42,18 +46,11 @@ class Command extends SlashCommand {
 					return "ERR: "+e.message;
 				}
 			}
+
 			if(roles) {
-				for(var i = 0; i < roles.length; i++) {
-					if(ctx.member.roles.cache.find(r => r.id == roles[i].role_id)) {
-						try {
-							await ctx.member.roles.remove(roles[i].role_id);
-						} catch(e) {
-							console.log(e);
-							return "ERR: "+e.message;
-						}	
-					}
-				}
+				await ctx.member.roles.remove(roles.map(x => x.role_id));
 			}
+
 			return "Color successfully removed! :D";
 		}
 	}

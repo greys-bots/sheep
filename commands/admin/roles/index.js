@@ -30,7 +30,10 @@ class Command extends SlashCommand {
 		var existing = await this.#stores.serverRoles.get(ctx.guild.id, role.id);
 		if(existing) return "That role is already indexed!";
 
-		await this.#stores.serverRoles.create(ctx.guild.id, role.id);
+		await this.#stores.serverRoles.create({
+			server_id: ctx.guild.id,
+			role_id: role.id
+		});
 		return "Role indexed!";
 	}
 }

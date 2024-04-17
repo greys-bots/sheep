@@ -13,7 +13,8 @@ class Command extends SlashCommand {
 				name: 'name',
 				description: "The color to delete",
 				type: 3,
-				required: true
+				required: true,
+				autocomplete: true
 			}],
 			usage: [
 				'[name] - Deletes the given saved color'
@@ -35,30 +36,27 @@ class Command extends SlashCommand {
 		})
 
 		var conf = await this.#bot.utils.getConfirmation(this.#bot, m, ctx.user);
-		var msg;
-		if(conf.msg) msg = conf.msg;
-		else {
-			await this.#stores.colors.delete(ctx.user.id, name);
-			msg = "Color deleted!";
-		}
+		if(conf.msg) return conf.msg;
 
-		if(conf.interaction) {
-			await conf.interaction.update({
-				content: msg,
-				components: [{type: 1, components: confBtns.map((b) => {
-					return {...b, disabled: true}
-				})}]
-			})
-		} else {
-			await conf.editReply({
-				content: msg,
-				components: [{type: 1, components: confBtns.map((b) => {
-					return {...b, disabled: true}
-				})}]
-			})
-		}
+		await c.delete();
+		return "Color deleted!";
+	}
 
-		return;
+	async auto(ctx) {
+		var colors = await this.#stores.colors.getAll(ctx.user.id);
+		var foc = ctx.options.getFocused();
+		if(!foc) return colors.map(c => ({ name: c.name, value: c.name }));
+		foc = foc.toLowerCase()
+
+		if(!colors?.length) return [];
+
+		return colors.filter(c =>
+			c.color.includes(foc) ||
+			c.name.toLowerCase().includes(foc)
+		).map(c => ({
+			name: c.name,
+			value: c.name
+		}))
 	}
 }
 

@@ -38,43 +38,26 @@ class Command extends SlashCommand {
 
 		var conf;
 		var exists = await this.#stores.colors.get(ctx.user.id, name.toLowerCase());
-		if(exists) {
+		if(exists?.id) {
 			var m = await ctx.reply({
 				content: "Color with that name already saved! Do you want to override it?",
 				components: [{type: 1, components: confBtns}],
 				fetchReply: true
 			});
 			conf = await this.#bot.utils.getConfirmation(this.#bot, m, ctx.user);
-			if(conf.msg) {
-				if(conf.interaction) await conf.interaction.update({
-					content: conf.msg,
-					components: []
-				});
-				else await ctx.editReply({
-					content: conf.msg,
-					components: []
-				});
-				return;
-			}
+			if(conf.msg) return conf.msg;
 		}
 		
 		color = tc(color);
 		if(!color.isValid()) return "That color isn't valid!";
 		color = color.toHex();
 
-		if(exists) await this.#stores.colors.update(ctx.user.id, name.toLowerCase(), {color});
-		else await this.#stores.colors.create(ctx.user.id, name, {color});
+		if(exists) {
+			exists.color = color;
+			await exists.save();
+		} else await this.#stores.colors.create(ctx.user.id, name, {color});
 
-		if(conf?.interaction) await conf.interaction.update({
-			content: 'Color saved!',
-			components: []
-		});
-		else await ctx[ctx.replied ? "editReply" : "reply"]({
-			content: 'Color saved!',
-			components: []
-		});
-
-		return;
+		return 'Color saved!';
 	}
 }
 

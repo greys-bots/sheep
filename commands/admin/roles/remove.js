@@ -38,7 +38,7 @@ class Command extends SlashCommand {
 		if(!exists) return "Role not indexed!";
 
 		try {
-			await this.#stores.serverRoles.delete(ctx.guild.id, role.id);
+			await exists.delete();
 			if(del) await role.delete();
 		} catch(e) {
 			return "ERR: "+e;

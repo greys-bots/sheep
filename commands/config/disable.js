@@ -72,8 +72,8 @@ class Command extends SlashCommand {
 		name = name.trim();
 		if(!disabled.includes(name)) disabled.push(name);
 
-		if(cfg) await this.#stores.configs.update(ctx.guild.id, {disabled});
-		else await this.#stores.configs.create(ctx.guild.id, {disabled});
+		cfg.disabled = disabled;
+		await cfg.save();
 		return "Config updated!";
 	}
 

@@ -1,237 +1,250 @@
-const {Collection} = require("discord.js");
+const { Models: { DataObject, DataStore }} = require('frame');
 
-class UserRoleStore extends Collection {
+const KEYS = {
+	id: { },
+	server_id: { },
+	user_id: { },
+	role_id: { }
+}
+
+class UserRole extends DataObject {
+	constructor(store, keys, data) {
+		super(store, keys, data);
+		if(data.raw) this.raw = data.raw;
+	}
+}
+
+class UserRoleStore extends DataStore {
 	constructor(bot, db) {
-		super();
-
-		this.db = db;
-		this.bot = bot;
+		super(bot, db);
 	};
 
-	async create(server, user, role) {
-		return new Promise(async (res, rej) => {
-			try {
-				await this.db.query(`INSERT INTO user_roles (
-					server_id,
-					user_id,
-					role_id
-				) VALUES ($1,$2,$3)`,
-				[server, user, role]);
-			} catch(e) {
-				console.log(e);
-		 		return rej(e.message);
-			}
-
-			res(await this.get(server, user));
-		})
+	async init() {
+		await this.db.query(`
+			CREATE TABLE IF NOT EXISTS user_roles (
+				id 			SERIAL PRIMARY KEY,
+				server_id 	TEXT,
+				user_id 	TEXT,
+				role_id 	TEXT
+			);
+		`)
 	}
 
-	async index(server, user, role) {
-		return new Promise(async (res, rej) => {
-			try {
-				await this.db.query(`INSERT INTO user_roles (
-					server_id,
-					user_id,
-					role_id
-				) VALUES ($1,$2,$3)`,
-				[server, user, role]);
-			} catch(e) {
-				console.log(e);
-		 		return rej(e.message);
-			}
-			
-			res();
-		})
+	async create(data) {
+		try {
+			var c = await this.db.query(`INSERT INTO user_roles (
+				server_id,
+				user_id,
+				role_id
+			) VALUES ($1,$2,$3)
+			RETURNING id`,
+			[data.server_id, data.user_id, data.role_id])
+		} catch(e) {
+			console.log(e);
+	 		return Promise.reject(e.message);
+		}
+		
+		return await this.getID(c.rows[0].id);
 	}
 
-	async get(server, user, forceUpdate = false) {
-		return new Promise(async (res, rej) => {
-			try {
-				var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1 AND user_id = $2`,[server, user]);
+	async index(data) {
+		try {
+			var c = await this.db.query(`INSERT INTO user_roles (
+				server_id,
+				user_id,
+				role_id
+			) VALUES ($1,$2,$3)
+			RETURNING id`,
+			[data.server_id, data.user_id, data.role_id])
+		} catch(e) {
+			console.log(e);
+	 		return Promise.reject(e.message);
+		}
+		
+		return;
+	}
+
+	async getID(id) {
+		try {
+				var data = await this.db.query(`SELECT * FROM server_roles WHERE id = $1`,[id]);
 			} catch(e) {
 				console.log(e);
-				return rej(e.message);
-			}
-
-			if(!this.bot) return res(data.rows[0]);
-
-			var guild = this.bot.guilds.resolve(server);
-			if(!guild) return rej("Couldn't get guild");
-			try {
-				var member = await guild.members.fetch({user, force: true});
-			} catch(e) {
-				console.log("Couldn't get member: "+e.message);
+				return Promise.reject(e.message);
 			}
 			
 			if(data.rows && data.rows[0]) {
-				var role;
-				for(var i = 0; i < data.rows.length; i++) {
-					try { 
-						role = await guild.roles.fetch(data.rows[i].role_id, {force: true});
-					} catch(e) { }
-					
-					if(!role || role.deleted) {
-						console.log(`removing role ${data.rows[i].role_id} from database`);
-						this.deleteByRoleID(data.rows[i].server_id, data.rows[i].role_id);
-						data.rows[i] = "deleted";
-					} else if(!member.roles.cache.has(role.id) && data.length > 1) {
-						console.log(`deleting role ${data.rows[i].role_id}`);
-						await role.delete();
-						data.rows[i] = "deleted";
-					} else data.rows[i].raw = role;
-				}
-				data.rows = data.rows.filter(x => x != "deleted");
-				if(!data.rows || !data.rows[0]) return res(undefined);
-				res(data.rows[0])
-			} else {
-				role = guild.roles.cache.find(r => r.name == user);
-				if(!role) res(undefined);
-				else {
-					return res(await this.create(server, user, role.id));
-				}
-			}
-		})
+				return new UserRole(this, KEYS, data.rows[0]);
+			} else return new UserRole(this, KEYS, { });
 	}
 
-	//specifically for getting roles to delete after a member leaves a server
-	//above function returns "unknown member," this won't
+	async get(server, user) {
+		try {
+			var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1 AND user_id = $2`, [server, user]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+
+		var guild = this.bot.guilds.resolve(server);
+		if(!guild) return Promise.reject("Couldn't get guild");
+		
+		if(data.rows && data.rows[0]) {
+			var rl;
+			for(var i = 0; i < data.rows.length; i++) {
+				rl = guild.roles.cache.find(r => r.id == data.rows[i].role_id);
+				if(!rl || rl.deleted) {
+					data.rows[i] = "deleted";
+				} else data.rows[i].raw = rl;
+			}
+			data.rows = data.rows.filter(x => x != "deleted");
+			if(!data.rows || !data.rows[0]) return undefined;
+			return new UserRole(this, KEYS, data.rows[0]);
+		} else return undefined;
+	}
+
 	async getRaw(server, user) {
-		return new Promise(async (res, rej) => {
-			try {
-				var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1 AND user_id = $2`,[server, user]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
-			}
+		try {
+			var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1 AND user_id = $2`, [server, user]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
 
-			if(data.rows && data.rows[0]) {
-				res(data.rows[0])
-			} else res(undefined);
-		})
+		if(data.rows && data.rows[0]) {
+			return new UserRole(this, KEYS, data.rows[0]);
+		} else return undefined;
 	}
 
-	async getByRoleID(server, role) {
-		return new Promise(async (res, rej) => {
-			try {
-				var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1 AND role_id = $2`, [server, role]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
-			}
+	async getByRoleRaw(server, role) {
+		try {
+			var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1 AND role_id = $2`, [server, role]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
 
-			res(data.rows[0]);
-		})
+		if(data.rows && data.rows[0]) {
+			return new UserRole(this, KEYS, data.rows[0]);
+		} else return undefined;
 	}
 
 	async getAll(server) {
-		return new Promise(async (res, rej) => {
-			try {
-				var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1`, [server]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
+		try {
+			var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1`,[server]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+
+		var guild = this.bot.guilds.resolve(server);
+		if(!guild) return Promise.reject("Couldn't get guild");
+		
+		if(data.rows && data.rows[0]) {
+			var rl;
+			for(var i = 0; i < data.rows.length; i++) {
+				rl = guild.roles.cache.find(r => r.id == data.rows[i].role_id);
+				if(!rl || rl.deleted) {
+					data.rows[i] = "deleted";
+				} else data.rows[i].raw = rl;
 			}
-
-			var guild = this.bot.guilds.resolve(server);
-			if(!guild) return rej("Couldn't get guild");
-
-			if(data.rows && data.rows[0]) {
-				for(var i = 0; i < data.rows.length; i++) {
-					var role;
-					role = guild.roles.cache.find(r => r.id == data.rows[i].role_id);
-					if(!role || role.deleted) {
-						console.log(`deleting role ${data.rows[i].role_id}`);
-						this.deleteByRoleID(data.rows[i].server_id, data.rows[i].role_id);
-						data.rows[i] = "deleted";
-					} else data.rows[i].raw = role;
-				}
-				data.rows = data.rows.filter(x => x != "deleted");
-				if(!data.rows || !data.rows[0]) return res(undefined);
-				res(data.rows)
-			} else res(undefined);
-		})
+			data.rows = data.rows.filter(x => x != "deleted");
+			if(!data.rows || !data.rows[0]) return undefined;
+			return data.rows.map(x => new UserRole(this, KEYS, x))
+		} else return undefined;
 	}
 
 	async getAllRaw(server) {
-		return new Promise(async (res, rej) => {
-			try {
-				var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1`, [server]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
-			}
+		try {
+			var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1`, [server]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
 
-			if(data.rows && data.rows[0]) {
-				res(data.rows)
-			} else res(undefined);
-		})
+		if(data.rows && data.rows[0]) {
+			return data.rows.map(x => new UserRole(this, KEYS, x));
+		} else return undefined;
 	}
 
 	async getAllByUserRaw(user) {
-		return new Promise(async (res, rej) => {
-			try {
-				var data = await this.db.query(`SELECT * FROM user_roles WHERE user_id = $1`, [user]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
-			}
+		try {
+			var data = await this.db.query(`SELECT * FROM user_roles WHERE user_id = $1`, [user]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
 
-			if(data.rows && data.rows[0]) {
-				res(data.rows)
-			} else res(undefined);
-		})
+		if(data.rows && data.rows[0]) {
+			return data.rows.map(x => new UserRole(this, KEYS, x));
+		} else return undefined;
 	}
 
-	async update(server, user, data = {}) {
-		return new Promise(async (res, rej) => {
-			try {
-				await this.db.query(`UPDATE user_roles SET ${Object.keys(data).map((k, i) => k+"=$"+(i+3)).join(",")} WHERE server_id = $1 AND user_id = $2`,[server, user, ...Object.values(data)]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
-			}
+	async getLinked(server, role) {
+		try {
+			var data = await this.db.query(`SELECT * FROM user_roles WHERE server_id = $1 AND role_id = $2`, [server, role]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
 
-			res(await this.get(server, user, true));
-		})
+		if(data.rows && data.rows[0]) {
+			return data.rows.map(x => new UserRole(this, KEYS, x));
+		} else return undefined;
 	}
 
-	async delete(server, user) {
-		return new Promise(async (res, rej) => {
-			try {
-				await this.db.query(`DELETE FROM user_roles WHERE server_id = $1 AND user_id = $2`, [server, user]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
-			}
-			
-			res();
-		})
+	async update(id, data = {}) {
+		try {
+			await this.db.query(`UPDATE user_roles SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+
+		return await this.getID(id);
+	}
+
+	async delete(id) {
+		try {
+			await this.db.query(`DELETE FROM user_roles WHERE id = $1`, [id]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+		
+		return;
 	}
 
 	async deleteByRoleID(server, role) {
-		return new Promise(async (res, rej) => {
-			try {
-				await this.db.query(`DELETE FROM user_roles WHERE server_id = $1 AND role_id = $2`, [server, role]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
-			}
-			
-			res();
-		})
+		try {
+			await this.db.query(`DELETE FROM user_roles WHERE server_id = $1 AND role_id = $2`, [server, role]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+		
+		return;
+	}
+
+	async deleteAll(server) {
+		try {
+			await this.db.query(`DELETE FROM user_roles WHERE server_id = $1`, [server]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+		
+		return;
 	}
 
 	async unlink(guild, role, user) {
-		return new Promise(async (res, rej) => {
-			try {
-				this.db.query(`DELETE FROM user_roles WHERE server_id = $1 AND role_id = $2 AND user_id = $3`, [guild, role, user]);
-			} catch(e) {
-				console.log(e);
-				return rej(e.message);
-			}
+		try {
+			this.db.query(`DELETE FROM user_roles WHERE server_id = $1 AND role_id = $2 AND user_id = $3`, [guild, role, user]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
 
-			res();
-		})
+		return;
 	}
 }
 

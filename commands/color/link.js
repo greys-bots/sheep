@@ -48,9 +48,13 @@ class Command extends SlashCommand {
 		if(conf.msg) return conf.msg;
 
 		var existing = await this.#stores.userRoles.get(ctx.guild.id, user.id);
-		if(existing) await this.#stores.userRoles.delete(ctx.guild.id, user.id);
+		if(existing) await existing.delete();
 
-		await this.#stores.userRoles.create(ctx.guild.id, user.id, role.role_id);
+		await this.#stores.userRoles.create({
+			server_id: ctx.guild.id,
+			user_id: user.id,
+			role_id: role.role_id
+		});
 		await user.roles.add(role.role_id);
 		return "Roles linked!";
 	}

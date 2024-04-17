@@ -99,7 +99,7 @@ class Command extends SlashCommand {
 			if(!arg) color = tc.random();
 			else {
 				saved = await this.#stores.colors.get(ctx.user.id, arg);
-				if(saved) color = tc(saved.color);
+				if(saved?.id) color = tc(saved.color);
 				else color = tc(arg)
 			}
 
@@ -159,26 +159,33 @@ class Command extends SlashCommand {
 						var options = {
 							name,
 							color: color.toHex(),
-							position: srole ? srole.position - 1 : 0,
 							mentionable: cfg.pingable,
 							permissions: role?.raw?.permissions ?? 0n
 						}
 
 						try {
 							if(role && !role.raw?.deleted) {
-								role = await role.raw.edit(options);
+								role = await role.raw.edit({
+									...options,
+									position: srole?.position - 1 ?? 0
+								});
 							} else {
-								role = await ctx.guild.roles.create(options);
-								await this.#stores.userRoles.create(ctx.guild.id, member.id, role.id);
+								role = await ctx.guild.roles.create({
+									...options,
+									position: srole?.position ?? 0
+								});
+								await this.#stores.userRoles.create({
+									server_id: ctx.guild.id,
+									user_id: member.id,
+									role_id: role.id
+								});
 							}
 							await member.roles.add(role.id);
 
 							var m = "Color successfully changed to "+color.toHexString()+"! :D";
 							if(ucfg.a11y) m += "\nAccessibility info:\n" + a11y.join("\n");
 
-							if(choice.interaction) {
-								await choice.interaction.update({content: m, embeds: [], components: []});
-							} else await ctx.editReply({content: m, embeds: [], components: []});
+							await ctx.editReply({content: m, embeds: [], components: []});
 							if(choice.react) await choice.react.users.remove(member.id);
 							if(choice.message) await choice.message.delete();
 						} catch(e) {
@@ -193,29 +200,16 @@ class Command extends SlashCommand {
 						break;
 					case 'random':
 						var color = tc.random();
-						if(choice.interaction) {
-							await choice.interaction.update({embeds: [{
-								title: "Color "+color.toHexString().toUpperCase(),
-								image: {
-									url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
-								},
-								color: parseInt(color.toHex(), 16),
-								footer: {
-									text: `${color.toRgbString()}`
-								}
-							}]})
-						} else {
-							await ctx.editReply({embeds: [{
-								title: "Color "+color.toHexString().toUpperCase(),
-								image: {
-									url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
-								},
-								color: parseInt(color.toHex(), 16),
-								footer: {
-									text: `${color.toRgbString()}`
-								}
-							}]})
-						}
+						await ctx.editReply({embeds: [{
+							title: "Color "+color.toHexString().toUpperCase(),
+							image: {
+								url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+							},
+							color: parseInt(color.toHex(), 16),
+							footer: {
+								text: `${color.toRgbString()}`
+							}
+						}]})
 
 						if(choice.react) await choice.react.users.remove(member.id);
 						else if(choice.message) await choice.message.delete();
@@ -246,23 +240,13 @@ class Command extends SlashCommand {
 			var roles = await this.#stores.serverRoles.getAll(ctx.guild.id);
 			if(!roles || !roles[0]) return "Couldn't get role list :(";
 
-			for(var rl of roles) {
-				if(ctx.member.roles.cache.find(r => r.id == rl.role_id)) {
-					try {
-						await ctx.member.roles.remove(rl.role_id);
-					} catch(e) {
-						console.log(e.stack);
-						return "ERR: "+e.message;
-					}
-				}
-			}		
-
 			try {
+				await ctx.member.roles.remove(roles.map(x => x.role_id));
 				await ctx.member.roles.add(role.role_id);
 			} catch(e) {
 				console.log(e.stack);
 				return "ERR: "+e.message;
-			}
+			}	
 			
 			return "Added!"
 		}

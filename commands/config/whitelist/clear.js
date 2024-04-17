@@ -29,23 +29,11 @@ class Command extends SlashCommand {
 		var conf = await this.#bot.utils.getConfirmation(this.#bot, m, ctx.user);
 
 		var msg;
-		if(conf.msg) msg = conf.msg;
-		else {
-			await this.#stores.usages.update(ctx.guild.id, {whitelist: []});
-			msg = "Whitelist cleared!";
-		}
+		if(conf.msg) return conf.msg;
 
-		var reply = {
-			content: msg,
-			components: []
-		}
-		
-		if(conf.interaction) {
-			await conf.interaction.update(reply)
-			return;
-		}
-
-		return reply;
+		cfg.whitelist = [];
+		await cfg.save();
+		return "Whitelist cleared!";
 	}
 }
 
