@@ -154,8 +154,9 @@ class ColorStore extends DataStore {
 			for(var color of data) {
 				//gotta normalize all incoming color names to lowercase
 				//in case of tampering
-				if(colors) {
-					var c = colors.find(x => x.name.toLowerCase() == color.name.toLowerCase());
+
+				var c = colors?.find(x => x.name.toLowerCase() == color.name.toLowerCase());
+				if(c) {
 					c.name = color.name;
 					c.color = color.color;
 					await c.save();

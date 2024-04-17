@@ -199,8 +199,8 @@ class Command extends SlashCommand {
 						}
 						break;
 					case 'random':
-						var color = tc.random();
-						await ctx.editReply({embeds: [{
+						color = tc.random();
+						await choice.interaction.update({embeds: [{
 							title: "Color "+color.toHexString().toUpperCase(),
 							image: {
 								url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
