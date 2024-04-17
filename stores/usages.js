@@ -76,7 +76,7 @@ class UsageStore extends DataStore {
 		
 		if(data.rows && data.rows[0]) {
 			return new Usage(this, KEYS, data.rows[0])
-		} else res(undefined);
+		} else return undefined;
 	}
 
 	async getID(id) {
@@ -89,7 +89,7 @@ class UsageStore extends DataStore {
 		
 		if(data.rows && data.rows[0]) {
 			return new Usage(this, KEYS, data.rows[0])
-		} else res(undefined);
+		} else return undefined;
 	}
 
 	async getByWhitelisted(server, id) {
