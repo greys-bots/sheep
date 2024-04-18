@@ -1,4 +1,4 @@
-const { Models: { DataObject, DataStore }} = require('frame');
+const { Models: { DataObject, DataStore }} = require('../../frame');
 
 const KEYS = {
 	id: { },
@@ -58,8 +58,8 @@ class ConfigStore extends DataStore {
 			console.log(e);
 	 		return Promise.reject(e.message);
 		}
-		
-		await this.getID(c.rows[0].id);
+
+		return await this.getID(c.rows[0].id);
 	}
 
 	async index(data = {}) {

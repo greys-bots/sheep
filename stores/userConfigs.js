@@ -47,7 +47,7 @@ class UserConfigStore extends DataStore {
 	 		return Promise.reject(e.message);
 		}
 		
-		await this.getID(c.rows[0].id);
+		return await this.getID(c.rows[0].id);
 	}
 
 	async index(data = {}) {
