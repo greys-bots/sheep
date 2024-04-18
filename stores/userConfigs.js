@@ -31,7 +31,7 @@ class UserConfigStore extends DataStore {
 
 	async create(data = {}) {
 		try {
-			var c = await this.db.query(`INSERT INTO user_user_configs (
+			var c = await this.db.query(`INSERT INTO user_configs (
 				user_id,
 				auto_rename,
 				a11y
@@ -52,7 +52,7 @@ class UserConfigStore extends DataStore {
 
 	async index(data = {}) {
 		try {
-			await this.db.query(`INSERT INTO user_user_configs (
+			await this.db.query(`INSERT INTO user_configs (
 				user_id,
 				auto_rename,
 				a11y
