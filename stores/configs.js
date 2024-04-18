@@ -1,4 +1,4 @@
-const { Models: { DataObject, DataStore }} = require('../../frame');
+const { Models: { DataObject, DataStore }} = require('frame');
 
 const KEYS = {
 	id: { },
