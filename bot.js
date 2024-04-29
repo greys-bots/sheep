@@ -41,13 +41,7 @@ const bot = new FrameClient({
 			return `/help | in ${guilds} guilds!`;
 		},
 		"/help | https://sheep.greysdawn.com"
-	],
-	warning: (
-		`‼️ **Update: Hosting Goal Met!** ‼️\n` +
-		`We're no longer worried about shutting down!\n` +
-		`Check out [this post](<https://greysdawn.com/blog/hosting-met>) for more info ` +
-		`and a look at future goals`
-	)
+	]
 });
 
 bot.tc = require('tinycolor2');
