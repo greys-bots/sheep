@@ -59,6 +59,8 @@ async function setup() {
 	bot.handlers = {};
 	bot.handlers.interaction = Handlers.InteractionHandler(bot, __dirname + '/commands');
 
+	bot.handlers.premium = require('./handlers/premium')(bot);
+
 	bot.utils = Utilities;
 	files = fs.readdirSync("./utils");
 	files.forEach(f => Object.assign(bot.utils, require("./utils/"+f)));

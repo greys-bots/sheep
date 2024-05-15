@@ -1,4 +1,7 @@
 module.exports = async (member, bot)=> {
+	if(process.env.TESTING && member.guild.id !== process.env.TEST_GUILD)
+		return;
+
 	var role = await bot.stores.userRoles.getRaw(member.guild.id, member.id);
 	if(!role) return;
 	try {

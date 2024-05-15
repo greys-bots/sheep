@@ -8,6 +8,9 @@ const WELCOMES = [
 ];
 
 module.exports = async (msg, bot)=>{
+	if(process.env.TESTING && msg.guild.id !== process.env.TEST_GUILD)
+		return;
+
 	if(msg.author.bot) return;
 	var prefix = new RegExp(`^<@!?(?:${bot.user.id})>`);
 	if(!msg.content.match(prefix)) return;

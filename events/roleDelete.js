@@ -1,4 +1,7 @@
 module.exports = async (role, bot) => {
+	if(process.env.TESTING && role.guild.id !== process.env.TEST_GUILD)
+		return;
+
 	try {
 		var sr = await bot.stores.serverRoles.getRaw(role.guild.id, role.id);
 		if(sr) await sr.delete();

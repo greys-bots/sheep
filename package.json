@@ -10,7 +10,8 @@
   "author": "",
   "license": "AGPL-3.0-only",
   "dependencies": {
-    "axios": "^0.21.2",
+    "@discordjs/rest": "^2.3.0",
+    "axios": "^1.6.8",
     "discord.js": "^14.7.1",
     "dotenv": "^8.2.0",
     "eris": "^0.9.0",

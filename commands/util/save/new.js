@@ -37,6 +37,14 @@ class Command extends SlashCommand {
 		var color = ctx.options.getString('color').trim();
 
 		var conf;
+		var count = await this.#stores.colors.getAll(ctx.user.id);
+		if(count?.length > 10) {
+			var prem = await this.#bot.handlers.premium.checkAccess(ctx.user.id);
+			if(!prem.access) return (
+				"You don't have room for any more saved colors :(\n" +
+				"Subscribe to premium to get more space!"
+			)
+		}
 		var exists = await this.#stores.colors.get(ctx.user.id, name.toLowerCase());
 		if(exists?.id) {
 			var m = await ctx.reply({
