@@ -39,7 +39,7 @@ class Command extends SlashCommand {
 
 		var conf;
 		var count = await this.#stores.colors.getAll(ctx.user.id);
-		if(count?.length > 10) {
+		if(count?.length >= 10) {
 			if(!prem.access) return (
 				"You don't have room for any more saved colors :(\n" +
 				"Subscribe to premium to get more space!"

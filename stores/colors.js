@@ -147,7 +147,7 @@ class ColorStore extends DataStore {
 		return colors.map(c => { return {name: c.name, color: c.color} }); 
 	}
 
-	async import(user, data = []) {
+	async import(user, data = [], prem) {
 		try {
 			var colors = await this.getAll(user);
 			var updated = 0, created = 0;
@@ -162,6 +162,8 @@ class ColorStore extends DataStore {
 					await c.save();
 					updated++;
 				} else {
+					if(!prem && colors.length >= 10)
+						continue;
 					await this.create({
 						user_id: user,
 						name: color.name, 
