@@ -4,9 +4,9 @@ class PremiumHandler {
 	constructor(bot) {
 		this.bot = bot;
 
-		this.bot.on('entitlementCreate', this.handleCreate);
-		this.bot.on('entitlementDelete', this.handleDelete);
-		this.bot.on('entitlementUpdate', this.handleUpdate);
+		this.bot.on('entitlementCreate', (evt) => this.handleCreate(evt));
+		this.bot.on('entitlementDelete', (evt) => this.handleDelete(evt));
+		this.bot.on('entitlementUpdate', (ont, nnt) => this.handleUpdate(ont, nnt));
 	}
 
 	async checkAccess(user) {

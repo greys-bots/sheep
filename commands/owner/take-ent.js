@@ -41,8 +41,6 @@ class Command extends SlashCommand {
 			skus: [sku]
 		})
 
-		console.log(ent)
-
 		ent = ent?.first()
 		if(!ent) return "No entitlement to delete!";
 
