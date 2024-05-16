@@ -35,11 +35,11 @@ class Command extends SlashCommand {
 	async execute(ctx) {
 		var name = ctx.options.getString('name').trim();
 		var color = ctx.options.getString('color').trim();
+		var prem = await this.#bot.handlers.premium.checkAccess(ctx.user.id);
 
 		var conf;
 		var count = await this.#stores.colors.getAll(ctx.user.id);
 		if(count?.length > 10) {
-			var prem = await this.#bot.handlers.premium.checkAccess(ctx.user.id);
 			if(!prem.access) return (
 				"You don't have room for any more saved colors :(\n" +
 				"Subscribe to premium to get more space!"
@@ -65,7 +65,9 @@ class Command extends SlashCommand {
 			await exists.save();
 		} else await this.#stores.colors.create(ctx.user.id, name, {color});
 
-		return 'Color saved!';
+		var msg = 'Color saved!';
+		if(!prem.access) msg = ` Slots used: ${count + 1}`;
+		return msg;
 	}
 }
 
