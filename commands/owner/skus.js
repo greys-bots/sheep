@@ -26,7 +26,7 @@ class Command extends SlashCommand {
 
 		var formatted = skus.map(s => {
 			return (
-				`${s.name} (${s.id}) - ${s.flags.toArray()}`
+				`${s.name} (${s.id}) - ${s.flags.toArray().join(", ")}`
 			)
 		})
 

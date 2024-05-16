@@ -51,7 +51,7 @@ class PremiumHandler {
 		var text = total.map(x => {
 			return (
 				`${x.perks} - ends: ` +
-				x.ends_at ? `<t:${x.ends_at.getTime()}:f>` : "never"
+				(x.ends_at ? `<t:${x.ends_at.getTime()}:f>` : "never")
 			)
 		}).join("\n")
 
