@@ -18,8 +18,11 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
-		await ctx.sendPremiumRequired();
-		return;
+		var { access } = await this.#bot.handlers.premium.checkAccess(ctx.user.id);
+		if(!access) {
+			await ctx.sendPremiumRequired();
+			return;
+		} else return "You're already subscribed!";
 	}
 }
 
