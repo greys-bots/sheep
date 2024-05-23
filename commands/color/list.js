@@ -6,18 +6,10 @@ class Command extends SlashCommand {
 
 	constructor(bot, stores) {
 		super({
-			name: 'view',
-			description: "View the server's color roles",
-			type: 1,
-			options: [{
-				name: 'role',
-				description: "A specific role to view",
-				type: 8,
-				required: false
-			}],
+			name: 'list',
+			description: "View the color roles available in the server",
 			usage: [
-				"- List all color roles indexed in the server",
-				"[role] - View a specific role to see if it's indexed"
+				"- List all color roles available in the server",
 			],
 			ephemeral: true
 		})
@@ -26,12 +18,8 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
-		var rl = ctx.options.getRole('role', false);
-
 		var roles = await this.#stores.serverRoles.getAll(ctx.guild.id);
-		if(!roles?.length) return "No roles have been indexed!";
-		if(rl) roles = roles.filter(r => r.role_id == rl.id);
-		if(!roles.length) return "That role isn't indexed!";
+		if(!roles?.length) return "No server-based roles are available!";
 
 		var embeds = await this.#bot.utils.genEmbeds(
 			this.#bot,

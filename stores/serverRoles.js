@@ -9,6 +9,7 @@ const KEYS = {
 class ServerRole extends DataObject {
 	constructor(store, keys, data) {
 		super(store, keys, data);
+		if(data.raw) this.raw = data.raw;
 	}
 }
 
