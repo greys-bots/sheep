@@ -24,9 +24,10 @@ class Command extends SlashCommand {
 
 	async execute(ctx) {
 		var cfg = await this.#stores.usages.get(ctx.guild.id);
+		if(!cfg?.id) cfg = await this.#stores.usages.create({ server_id: ctx.guild.id })
 		var target = ctx.options.getMentionable('target');
 
-		var blacklist = cfg?.blacklist ?? [];
+		var blacklist = cfg.blacklist ?? [];
 		if(!blacklist.includes(target.id)) blacklist.push(target.id);
 
 		cfg.blacklist = blacklist;

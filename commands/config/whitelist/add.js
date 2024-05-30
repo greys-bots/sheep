@@ -24,6 +24,7 @@ class Command extends SlashCommand {
 
 	async execute(ctx) {
 		var cfg = await this.#stores.usages.get(ctx.guild.id);
+		if(!cfg?.id) cfg = await this.#stores.usages.create({ server_id: ctx.guild.id });
 		var target = ctx.options.getMentionable('target');
 
 		var whitelist = cfg?.whitelist ?? [];

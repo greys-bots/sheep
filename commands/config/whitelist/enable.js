@@ -18,6 +18,7 @@ class Command extends SlashCommand {
 
 	async execute(ctx) {
 		var cfg = await this.#stores.usages.get(ctx.guild.id);
+		if(!cfg?.id) cfg = await this.#stores.usages.create({ server_id: ctx.guild.id });
 
 		cfg.type = 1;
 		await cfg.save();
