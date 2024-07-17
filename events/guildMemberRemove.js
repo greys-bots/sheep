@@ -4,6 +4,13 @@ module.exports = async (member, bot)=> {
 
 	var role = await bot.stores.userRoles.getRaw(member.guild.id, member.id);
 	if(!role) return;
+
+	var linked = await bot.stores.userRoles.getLinked(member.guild.id, role.role_id);
+	if(linked?.length && linked.find(x => x.id !== role.id)) {
+		await role.delete();
+		return;
+	}
+
 	try {
 		var rl = await member.guild.roles.fetch(role.role_id);
 		if(rl) rl.delete("Member left server");
