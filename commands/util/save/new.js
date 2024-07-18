@@ -66,7 +66,7 @@ class Command extends SlashCommand {
 		} else await this.#stores.colors.create(ctx.user.id, name, {color});
 
 		var msg = 'Color saved!';
-		if(!prem.access) msg = ` Slots used: ${count + 1}`;
+		if(!prem.access) msg = ` Slots used: ${(count?.length ?? 0) + 1}`;
 		return msg;
 	}
 }
