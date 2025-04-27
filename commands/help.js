@@ -22,7 +22,8 @@ class Command extends SlashCommand {
 			],
 			extra: "Examples:\n"+
 				   "`/help command:form` - Shows form module help",
-			ephemeral: true
+			ephemeral: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -35,65 +36,108 @@ class Command extends SlashCommand {
 		var cmds;
 		if(!cn) {
 			embeds = [{
-				title: "Command Help",
-				description:
-					"## Baaa! I'm Sheep!\n" +
-					"My job is to make color roles simple and easy!\n" +
-					"To get started, use `/color change` (without brackets) " +
-					"to assign yourself a color. If you'd like, you can also " +
-					"`/color rename` it!\n\n" +
-					"On top of that, I have other cool features, like:\n" +
-					"### Saved colors\n" +
-					"Save a color for later using `/util save new`! This lets you " +
-						"use a handy name to refer to a color in commands\n" +
-					"### Server-based colors\n" +
-					"Server too big for individual user roles? No problem! " +
-						"Use `/admin toggle` to toggle role modes and add roles for " +
-						"users to pick from with `/admin roles create`\n" +
-					"### Detailed help commands\n" +
-					"You can get help with any command " +
-						"(including subcommands)! Try it out by typing out a command when using `/help`\n" +
-						"You can also flip the pages here to see all the commands!",
-				fields: [
-					{
-						name: "Need help? Join the support server!",
-						value: "https://discord.gg/EvDmXGt",
-						inline: true
-					},
-					{
-						name: "Support my creators!",
-						value: 
-							"[patreon](https://patreon.com/greysdawn) | " +
-							"[ko-fi](https://ko-fi.com/greysdawn)",
-						inline: true
-					}
-				],
-				color: 0xf5e4b5
+				components: [{
+					type: 17,
+					accent_color: 0xf5e4b5,
+					components: [
+						{
+							type: 10,
+							content: `Command Help`
+						},
+						{
+							type: 14,
+							spacing: 2
+						},
+						{
+							type: 10,
+							content:
+								"## Baaa! I'm Sheep!\n" +
+								"My job is to make color roles simple and easy!\n" +
+								"To get started, use `/color change` (without brackets) " +
+								"to assign yourself a color. If you'd like, you can also " +
+								"`/color rename` it!\n\n" +
+								"On top of that, I have other cool features, like:\n" +
+								"### Saved colors\n" +
+								"Save a color for later using `/util save new`! This lets you " +
+									"use a handy name to refer to a color in commands\n" +
+								"### Server-based colors\n" +
+								"Server too big for individual user roles? No problem! " +
+									"Use `/admin toggle` to toggle role modes and add roles for " +
+									"users to pick from with `/admin roles create`\n" +
+								"### Detailed help commands\n" +
+								"You can get help with any command " +
+									"(including subcommands)! Try it out by typing out a command when using `/help`\n" +
+									"You can also flip the pages here to see all the commands!",
+						},
+						{
+							type: 14,
+							spacing: 2
+						},
+						{
+							type: 1,
+							components: [
+								{
+									type: 2,
+									style: 5,
+									label: 'Support Server',
+									url: 'https://discord.gg/EvDmXGt'
+								},
+								{
+									type: 2,
+									style: 5,
+									label: 'Patreon',
+									url: 'https://patreon.com/greysdawn'
+								},
+								{
+									type: 2,
+									style: 5,
+									label: 'Ko-Fi',
+									url: 'https://ko-fi.com/greysdawn'
+								},
+							],
+						}
+					]	
+				}]
 			}];
 			
 			var mods = this.#bot.slashCommands.map(m => m).filter(m => m.subcommands.size);
 			var ug = this.#bot.slashCommands.map(m => m).filter(m => !m.subcommands.size);
 			for(var m of mods) {
 				var e = {
-					title: m.name.toUpperCase(),
-					description: m.description
+					components: [{
+						type: 17,
+						components: [{
+							type: 10,
+							content: `## ${m.name.toUpperCase()}\n${m.description}`
+						}]
+					}]
 				}
 
 				cmds = m.subcommands.map(o => o);
-				var tmp = await this.#bot.utils.genEmbeds(this.#bot, cmds, (c) => {
-					return {name: `/${m.name} ${c.name}`, value: c.description}
-				}, e, 10, {addition: ""})
-				embeds = embeds.concat(tmp.map(e => e.embed))
+				cmds.forEach(c => {
+					e.components[0].components.push({
+						type: 10,
+						content: `### /${m.name} ${c.name}\n${c.description}`
+					})
+				})
+				embeds.push(e);
 			}
 
 			if(ug?.[0]) {
 				var e = {
-					title: "UNGROUPED",
-					description: "Miscellaneous commands",
-					fields: []
+					components: [{
+						type: 17,
+						components: [{
+							type: 10,
+							content: `## UNGROUPED\nMiscellaneous commands`
+						}]
+					}]
 				}
 
-				for(var c of ug) e.fields.push({name: '/' + c.name, value: c.description});
+				for(var c of ug) e.components[0].components.push({
+					type: 10,
+					content: `### /${c.name}\n${c.description}`
+				});
 				embeds.push(e)
 			}
 		} else {
@@ -153,9 +197,6 @@ class Command extends SlashCommand {
 			}	
 		}
 
-		if(embeds.length > 1)
-			for(var i = 0; i < embeds.length; i++)
-				embeds[i].title += ` (${i+1}/${embeds.length})`;
 		return embeds;
 	}
 
