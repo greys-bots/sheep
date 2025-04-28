@@ -11,7 +11,8 @@ class Command extends SlashCommand {
 			usage: [
 				"- List all color roles available in the server",
 			],
-			ephemeral: true
+			ephemeral: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -21,21 +22,28 @@ class Command extends SlashCommand {
 		var roles = await this.#stores.serverRoles.getAll(ctx.guild.id);
 		if(!roles?.length) return "No server-based roles are available!";
 
-		var embeds = await this.#bot.utils.genEmbeds(
-			this.#bot,
+		var comps = this.#bot.utils.genComps(
 			roles,
-			(r) => {
-				return {
-					name: r.raw.name,
-					value: `<@&${r.role_id}>`
-				}
-			},
-			{
-				title: "Color Roles"
-			}
+			(r) => ({
+				type: 10,
+				content: `${r.raw.name} (<@&${r.role_id}>)`
+			})
 		)
+		var embeds = comps.map(c => {
+			return {
+				components: [{
+					type: 17,
+					components: [
+						{
+							type: 10,
+							content: '# Color Roles'
+						},
+						...c
+					]
+				}]
+			}
+		})
 
-		embeds = embeds.map(e => e.embed)
 		return embeds;
 	}
 }

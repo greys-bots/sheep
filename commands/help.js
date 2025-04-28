@@ -51,20 +51,20 @@ class Command extends SlashCommand {
 						{
 							type: 10,
 							content:
-								"## Baaa! I'm Sheep!\n" +
+								"# Baaa! I'm Sheep!\n" +
 								"My job is to make color roles simple and easy!\n" +
 								"To get started, use `/color change` (without brackets) " +
 								"to assign yourself a color. If you'd like, you can also " +
 								"`/color rename` it!\n\n" +
 								"On top of that, I have other cool features, like:\n" +
-								"### Saved colors\n" +
+								"## Saved colors\n" +
 								"Save a color for later using `/util save new`! This lets you " +
 									"use a handy name to refer to a color in commands\n" +
-								"### Server-based colors\n" +
+								"## Server-based colors\n" +
 								"Server too big for individual user roles? No problem! " +
 									"Use `/admin toggle` to toggle role modes and add roles for " +
 									"users to pick from with `/admin roles create`\n" +
-								"### Detailed help commands\n" +
+								"## Detailed help commands\n" +
 								"You can get help with any command " +
 									"(including subcommands)! Try it out by typing out a command when using `/help`\n" +
 									"You can also flip the pages here to see all the commands!",
@@ -102,13 +102,14 @@ class Command extends SlashCommand {
 			
 			var mods = this.#bot.slashCommands.map(m => m).filter(m => m.subcommands.size);
 			var ug = this.#bot.slashCommands.map(m => m).filter(m => !m.subcommands.size);
-			for(var m of mods) {
-				var e = {
+			for(let m of mods) {
+				let e = {
 					components: [{
 						type: 17,
+						accent_color: 0xf5e4b5,
 						components: [{
 							type: 10,
-							content: `## ${m.name.toUpperCase()}\n${m.description}`
+							content: `# ${m.name.toUpperCase()}\n${m.description}`
 						}]
 					}]
 				}
@@ -129,7 +130,7 @@ class Command extends SlashCommand {
 						type: 17,
 						components: [{
 							type: 10,
-							content: `## UNGROUPED\nMiscellaneous commands`
+							content: `# UNGROUPED\nMiscellaneous commands`
 						}]
 					}]
 				}
@@ -164,36 +165,53 @@ class Command extends SlashCommand {
 			}
 
 			if(cm.subcommands?.size) {
-				embeds = await this.#bot.utils.genEmbeds(this.#bot, cm.subcommands.map(c => c), (c) => {
-					return {name: `**/${name.trim()} ${c.name}**`, value: c.description}
-				}, {
-					title: name.toUpperCase(),
-					description: cm.description,
-					color: 0xf5e4b5
-				}, 10, {addition: ""})
-				embeds = embeds.map(e => e.embed);
-			} else {
-				embeds = [{
-					title: name,
-					description: cm.description,
-					fields: [],
-					color: 0xf5e4b5
-				}]
+				let e = {
+					components: [{
+						type: 17,
+						accent_color: 0xf5e4b5,
+						components: [{
+							type: 10,
+							content: `# ${name.toUpperCase()}\n${cm.description}`
+						}]
+					}]
+				}
 
-				if(cm.usage?.length) embeds[embeds.length - 1].fields.push({
-					name: "Usage",
-					value: cm.usage.map(u => `/${name.trim()} ${u}`).join("\n")
+				cm.subcommands.map(o => o).forEach(c => {
+					e.components[0].components.push({
+						type: 10,
+						content: `### /${name.trim()} ${c.name}\n${c.description}`
+					})
 				})
 
-				if(cm.extra?.length) embeds[embeds.length - 1].fields.push({
-					name: "Extra",
-					value: cm.extra
-				});
+				embeds = [e];
+			} else {
+				let e = {
+					components: [{
+						type: 17,
+						accent_color: 0xf5e4b5,
+						components: [{
+							type: 10,
+							content: `# /${name}\n${cm.description}`
+						}]
+					}]
+				}
 
-				if(cm.permissions?.length) embeds[embeds.length - 1].fields.push({
-					name: "Permissions",
-					value: cm.permissions.join(", ")
-				});
+				if(cm.usage?.length) e.components[0].components.push({
+					type: 10,
+					content: `### Usage\n` + cm.usage.map(u => `/${name.trim()} ${u}`).join("\n")
+				})
+
+				if(cm.extra?.length) e.components[0].components.push({
+					type: 10,
+					content: `### Extra\n` + cm.extra
+				})
+
+				if(cm.permissions?.length) e.components[0].components.push({
+					type: 10,
+					content: `### Permissions\n` + cm.permissions.join(", ")
+				})
+
+				embeds = [e];
 			}	
 		}
 

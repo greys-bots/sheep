@@ -19,7 +19,8 @@ class Command extends SlashCommand {
 				"- List all color roles indexed in the server",
 				"[role] - View a specific role to see if it's indexed"
 			],
-			ephemeral: true
+			ephemeral: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -33,21 +34,37 @@ class Command extends SlashCommand {
 		if(rl) roles = roles.filter(r => r.role_id == rl.id);
 		if(!roles.length) return "That role isn't indexed!";
 
-		var embeds = await this.#bot.utils.genEmbeds(
-			this.#bot,
-			roles,
-			(r) => {
-				return {
-					name: r.raw.name,
-					value: `<@&${r.role_id}>`
-				}
-			},
-			{
-				title: "Color Roles"
-			}
-		)
+		var embeds = [];
+		var cur = {
+			components: [{
+				type: 17,
+				components: [{
+					type: 10,
+					content: '# Color Roles'
+				}]
+			}]
+		}
 
-		embeds = embeds.map(e => e.embed)
+		for(var i = 0; i < roles.length; i++) {
+			if(cur.components[0].components.length >= 10) {
+				embeds.push(cur);
+				cur = {components: [{
+					type: 17,
+					components: [{
+						type: 10,
+						content: '# Color Roles'
+					}]
+				}]};
+			}
+
+			cur.components[0].components.push({
+				type: 10,
+				content: `**${roles[i].raw.name}** (<@&${roles[i].role_id}>)`
+			})
+		}
+		embeds.push(cur)
+
+		console.log(embeds.map(em => em.components[0].components))
 		return embeds;
 	}
 }

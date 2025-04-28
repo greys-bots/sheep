@@ -88,5 +88,22 @@ module.exports = {
 			bot.on('messageReactionAdd', reactListener);
 			bot.on('interactionCreate', intListener)
 		})
+	},
+
+	genComps: (arr, fn, limit = 9) => {
+		// limit of 9 to allow for a title in the container
+		let comps = [];
+		let cur = [];
+		for(var i = 0; i < arr.length; i++) {
+			if(cur.length == limit) {
+				comps.push(cur);
+				cur = [];
+			}
+
+			cur.push(fn(arr[i], i, arr))
+		}
+
+		comps.push(cur);
+		return comps;
 	}
 }

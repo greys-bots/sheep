@@ -12,6 +12,7 @@ class Command extends SlashCommand {
 			usage: [
 				"- Shows your current role's color"
 			],
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -24,14 +25,26 @@ class Command extends SlashCommand {
 
 		var color = ("000000" + role.raw.color.toString(16)).slice(-6);
 		color = tc(color);
-		return {embeds: [{
-			title: 'Current Color: '+color.toHexString(),
-			image: {
-				url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
-			},
-			color: parseInt(color.toHex(), 16),
-			footer: { text: color.toRgbString() }
-		}]}
+		return [{
+			components: [{
+				type: 17,
+				accent_color: parseInt(color.toHex(), 16),
+				components: [
+					{
+						type: 10,
+						content: `# Current color: ${color.toHexString()}`
+					},
+					{
+						type: 12,
+						items: [{
+							media: {
+								url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+							}
+						}]
+					}
+				]
+			}]
+		}]
 	}
 }
 

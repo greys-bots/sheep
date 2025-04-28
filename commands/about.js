@@ -11,7 +11,8 @@ class Command extends SlashCommand {
 			usage: [
 				"- Gives info about the bot"
 			],
-			ephemeral: true
+			ephemeral: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -21,41 +22,81 @@ class Command extends SlashCommand {
 		var guilds = (await this.#bot.shard.broadcastEval(cli => cli.guilds.cache.size)).reduce((prev, val) => prev + val, 0);
 		var users = (await this.#bot.shard.broadcastEval(cli => cli.users.cache.size)).reduce((prev, val) => prev + val, 0);
 
-		return {
-			embeds: [{
-				title: '**About**',
-				description: "Baa! I'm Sheep! I help people change their name color here on Discord.\nMy prefixes are `s!`, `sh!`, `sheep!`, and `baa!`",
-				fields:[
-					{name: "Creators", value: "[greysdawn](https://github.com/greysdawn) | @greysdawn"},
-					{name: "Invite", value: "[Clicky!](https://discordapp.com/api/oauth2/authorize?client_id=585271178180952064&permissions=268462080&scope=bot)",inline: true},
-					{name: "Stats", value: `Guilds: ${guilds} | Users: ${users}`},
-					{name: "Other Links", value: "[Repo](https://github.com/greys-bots/sheep) | [Website](https://sheep.greysdawn.com/)"}
-				]
-			}],
+		return [{
 			components: [{
-				type: 1,
+				type: 17,
 				components: [
 					{
-						type: 2,
-						style: 5,
-						label: "Support server",
-						url: "https://discord.gg/EvDmXGt"
+						type: 10,
+						content: "-# About"
 					},
 					{
-						type: 2,
-						style: 5,
-						label: "Patreon",
-						url: "https://patreon.com/greysdawn"
+						type: 14
 					},
 					{
-						type: 2,
-						style: 5,
-						label: "Ko-Fi",
-						url: "https://patreon.com/greysdawn"
+						type: 10,
+						content:
+							"# Baa! I'm Sheep!\n" +
+							"I help people change their name color here on Discord!\n" +
+							"## Creators\n" +
+							"[greysdawn](https://github.com/greysdawn) | @greysdawn\n" +
+							"## Stats\n" +
+							`**Guilds:** ${guilds} | **Users:** ${users}`
+					},
+					{
+						type: 14
+					},
+					{
+						type: 9,
+						components: [{
+							type: 10,
+							content: "Invite me!"
+						}],
+						accessory: {
+							type: 2,
+							style: '5',
+							label: 'Invite',
+							url: "https://discordapp.com/api/oauth2/authorize?client_id=585271178180952064"
+						}
+					},
+					{
+						type: 1,
+						components: [
+							{
+								type: 2,
+								style: 5,
+								label: "Support server",
+								url: "https://discord.gg/EvDmXGt"
+							},
+							{
+								type: 2,
+								style: 5,
+								label: "Website",
+								url: "https://sheep.greysdawn.com/"
+							},
+							{
+								type: 2,
+								style: 5,
+								label: "Github",
+								url: "https://github.com/greys-bots/sheep"
+							},
+							{
+								type: 2,
+								style: 5,
+								label: "Patreon",
+								url: "https://patreon.com/greysdawn"
+							},
+							{
+								type: 2,
+								style: 5,
+								label: "Ko-Fi",
+								url: "https://ko-fi.com/greysdawn"
+							}
+						]
 					}
 				]
 			}]
-		}
+		}]
 	}
 }
 

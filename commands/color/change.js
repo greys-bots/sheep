@@ -22,21 +22,21 @@ const BUTTONS = [
 		type: 2,
 		style: 3,
 		label: 'Confirm',
-		emoji: '✅',
+		emoji: { name: '✅' },
 		custom_id: 'yes'
 	},
 	{
 		type: 2,
 		style: 4,
 		label: 'Cancel',
-		emoji: '❌',
+		emoji: { name: '❌' },
 		custom_id: 'no'
 	},
 	{
 		type: 2,
 		style: 1,
 		label: 'Random',
-		emoji: '🔀',
+		emoji: { name: '🔀' },
 		custom_id: 'random'
 	}
 ]
@@ -56,6 +56,37 @@ function getA11y(color) {
 	}
 
 	return text;
+}
+
+function genComps(color, ucfg, a11y) {
+	return [
+		{
+			type: 17,
+			accent_color: parseInt(color.toHex(), 16),
+			components: [
+				{
+					type: 10,
+					content: `# Color ${color.toHexString().toUpperCase()}`
+				},
+				{
+					type: 12,
+					items: [{
+						media: {
+							url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
+						}
+					}]
+				},
+				{
+					type: 10,
+					content: '-# ' + (ucfg?.a11y ? a11y?.join(" | ") : "_ _")
+				}
+			]
+		},
+		{
+			type: 1,
+			components: BUTTONS
+		}
+	];
 }
 
 class Command extends SlashCommand {
@@ -81,6 +112,7 @@ class Command extends SlashCommand {
 			extra: "This command accepts hex codes and color names!\n" +
 			       "See [this](https://www.w3schools.com/colors/colors_names.asp) " +
 			       "link for supported names",
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -111,20 +143,8 @@ class Command extends SlashCommand {
 				return "This server requires readable colors! This color's info:\n" + a11y.join('\n');
 
 			var message = await ctx.reply({
-				embeds: [{
-					title: "Color "+color.toHexString().toUpperCase(),
-					image: {
-						url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
-					},
-					color: parseInt(color.toHex(), 16),
-					footer: {
-						text: ucfg.a11y ? a11y.join(" | ") : ""
-					}
-				}],
-				components: [{
-					type: 1,
-					components: BUTTONS
-				}],
+				flags: ['IsComponentsV2'],
+				components: genComps(color, ucfg, a11y),
 				fetchReply: true
 			});
 
@@ -185,7 +205,10 @@ class Command extends SlashCommand {
 							var m = "Color successfully changed to "+color.toHexString()+"! :D";
 							if(ucfg.a11y) m += "\nAccessibility info:\n" + a11y.join("\n");
 
-							await ctx.editReply({content: m, embeds: [], components: []});
+							await ctx.editReply({components: [{
+								type: 10,
+								content: m
+							}]});
 							if(choice.react) await choice.react.users.remove(member.id);
 							if(choice.message) await choice.message.delete();
 						} catch(e) {
@@ -199,29 +222,44 @@ class Command extends SlashCommand {
 						}
 						break;
 					case 'random':
+						if(cfg.readable) {
+							await ctx.followUp({
+								flags: ['Ephemeral'],
+								content: "This server requires readable colors, so you can't use random ones :("
+							})
+
+							clearTimeout(timeout);
+							timeout = setTimeout(async ()=> {
+								done = true;
+								await ctx.editReply({components: [{
+									type: 10,
+									content: "Action timed out"
+								}]});
+								await message.reactions.removeAll();
+							}, 3 * 60 * 1000);
+							break;
+						}
+
 						color = tc.random();
-						await choice.interaction.update({embeds: [{
-							title: "Color "+color.toHexString().toUpperCase(),
-							image: {
-								url: `https://sheep.greysdawn.com/sheep/${color.toHex()}`
-							},
-							color: parseInt(color.toHex(), 16),
-							footer: {
-								text: `${color.toRgbString()}`
-							}
-						}]})
+						await choice.interaction.update({ components: genComps(color) })
 
 						if(choice.react) await choice.react.users.remove(member.id);
 						else if(choice.message) await choice.message.delete();
 						clearTimeout(timeout);
 						timeout = setTimeout(async ()=> {
 							done = true;
-							await ctx.editReply({content: 'Action timed out', embeds: [], components: []});
+							await ctx.editReply({components: [{
+								type: 10,
+								content: "Action timed out"
+							}]});
 							await message.reactions.removeAll();
 						}, 3 * 60 * 1000);
 						break;
 					default:
-						ctx.editReply({content: "Action cancelled", embeds: [], components: []});
+						await ctx.editReply({components: [{
+							type: 10,
+							content: "Action cancelled"
+						}]});
 						message.reactions.removeAll();
 						done = true;
 						clearTimeout(timeout);
