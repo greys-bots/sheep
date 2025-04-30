@@ -24,7 +24,8 @@ class Command extends SlashCommand {
 				   "when they've been created or edited. By default, Sheep " +
 				   "puts them under any role they have with the word `sheep` in it.",
 			guildOnly: true,
-			permissions: ['ManageGuild']
+			permissions: ['ManageGuild'],
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -39,12 +40,20 @@ class Command extends SlashCommand {
 			if(!cfg?.hoist) return "No role set!";
 
 			var m = await ctx.reply({
-				embeds: [{
-					title: 'Current Value',
-					description: `<@&${cfg?.hoist}>\n` +
-								 `Interact below to reset!`
-				}],
-				components: [{type: 1, components: clearBtns}],
+				flags: ['IsComponentsV2'],
+				components: [
+					{
+						type: 17,
+						components: [{
+							type: 10,
+							content:
+								`### Current value\n` +
+								`<@&${cfg?.hoist}>\n` +
+								`-# Interact below to reset!`
+						}]
+					},
+					{type: 1, components: clearBtns}
+				],
 				fetchReply: true
 			});
 

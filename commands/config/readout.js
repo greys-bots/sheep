@@ -21,6 +21,7 @@ class Command extends SlashCommand {
 				'[value] - Set the value directly'
 			],
 			extra: "Default setting: **false.** The readout will not be shown",
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -33,12 +34,20 @@ class Command extends SlashCommand {
 		var conf;
 		if(val == null) {
 			var m = await ctx.reply({
-				embeds: [{
-					title: 'Current Value',
-					description: `${cfg?.a11y ? "true" : "false"}\n` +
-								 `Interact below to reset!`
-				}],
-				components: [{type: 1, components: clearBtns}],
+				flags: ['IsComponentsV2'],
+				components: [
+					{
+						type: 17,
+						components: [{
+							type: 10,
+							content:
+								`### Current value\n` +
+								`${cfg?.a11y ? "true" : "false"}\n` +
+								`-# Interact below to reset!`
+						}]
+					},
+					{type: 1, components: clearBtns}
+				],
 				fetchReply: true
 			});
 

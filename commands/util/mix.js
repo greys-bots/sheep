@@ -33,7 +33,8 @@ class Command extends SlashCommand {
 				'[color1] [color2] - Mix 2 colors at 50% strength',
 				'[color1] [color2] [amount] - Mix two colors at a desired strength'
 			],
-			ephemeral: true
+			ephemeral: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -53,13 +54,27 @@ class Command extends SlashCommand {
 
 		var c3 = tc.mix(c1, c2, amt);
 
-		return {embeds: [{
-			title: "Mixed colors",
-			description: `${c1.toString()} + ${c2.toString()} ` +
-						 `at ${amt}% strength = ${c3.toHexString().toUpperCase()}`,
-			color: parseInt(c3.toHex(), 16),
-			image: {url: `https://sheep.greysdawn.com/sheep/${c3.toHex()}`}
-		}]}
+		return [{
+			components: [{
+				type: 17,
+				accent_color: parseInt(c3.toHex(), 16),
+				components: [
+					{
+						type: 10,
+						content:
+							`## Mixed colors\n` +
+							`${c1.toString()} + ${c2.toString()} ` +
+						 	`at ${amt}% strength = ${c3.toHexString().toUpperCase()}`
+					},
+					{
+						type: 12,
+						items: [{
+							media: {url: `https://sheep.greysdawn.com/sheep/${c3.toHex()}`}
+						}]
+					}
+				]
+			}]
+		}]
 	}
 }
 

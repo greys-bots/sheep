@@ -11,6 +11,7 @@ class Command extends SlashCommand {
 			usage: [
 				"- View the current server whitelist"
 			],
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -39,14 +40,29 @@ class Command extends SlashCommand {
 			} catch(e) { }
 		}
 
-		return {embeds: [{
-			title: "Whitelist",
-			description:
-				`**Roles:**\n` +
-				(roles.join("\n") || "(none)") +
-				`\n\n**Users**\n` +
-				(users.join("\n") || "(none)")
-		}]}
+		return [{
+			components: [{
+				type: 17,
+				components: [
+					{
+						type: 10,
+						content: '## Whitelist'
+					},
+					{
+						type: 10,
+						content:
+						`### Roles\n` +
+						(roles.join("\n") || "(none)")
+					},
+					{
+						type: 10,
+						content:
+							`### Users\n` +
+							(users.join("\n") || "(none)")
+					}
+				]
+			}]
+		}]
 	}
 }
 

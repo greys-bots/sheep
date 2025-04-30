@@ -20,7 +20,8 @@ class Command extends SlashCommand {
 				'- View all saved colors',
 				"[color] - View a specific saved color"
 			],
-			ephemeral: true
+			ephemeral: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -36,24 +37,62 @@ class Command extends SlashCommand {
 			if(!c) return "Color not found!";
 			c = tc(c.color);
 
-			return {embeds: [{
-				title: `Color ${c.toHexString().toUpperCase()}`,
-				image: { url: `https://sheep.greysdawn.com/sheep/${c.toHex()}` },
-				color: parseInt(c.toHex(), 16)
-			}]}
+			return [{
+				components: [{
+					type: 17,
+					accent_color: parseInt(c.toHex(), 16),
+					components: [
+						{
+							type: 10,
+							content: `## Color ${c.toHexString().toUpperCase()}`
+						},
+						{
+							type: 12,
+							items: [{
+								media: { url: `https://sheep.greysdawn.com/sheep/${c.toHex()}` }
+							}]
+						}
+					]
+				}]
+			}];
 		}
 
-		var embeds = await this.#bot.utils.genEmbeds(this.#bot, colors, c => {
+		var comps = this.#bot.utils.genComps(colors, (c) => {
 			var cl = tc(c.color);
 			return {
-				name: c.name,
-				value: cl.toHexString()
+				type: 9,
+				components: [{
+					type: 10,
+					content: `**${c.name}**\n${cl.toHexString()}`
+				}],
+				accessory: {
+					type: 11,
+					media: {
+						url: `https://sheep.greysdawn.com/color/${cl.toHex()}?text=%20`
+					}
+				}
 			}
-		}, {
-			title: 'Saved Colors'
 		})
 
-		return embeds.map(e => e.embed);
+		var embeds = comps.map(c => {
+			return {
+				components: [
+					{
+						type: 17,
+						components: [
+							{
+								type: 10,
+								content: '## Saved Colors'
+							},
+							...c
+						]
+					}
+				]
+			}
+		})
+		console.log(embeds);
+
+		return embeds;
 	}
 
 	async auto(ctx) {

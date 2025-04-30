@@ -16,7 +16,7 @@
     "dotenv": "^8.2.0",
     "eris": "^0.9.0",
     "eris-additions": "^1.4.1",
-    "frame": "github:greys-bots/scaffold",
+    "frame": "github:greys-bots/frame",
     "jimp": "^0.3.5",
     "node-fetch": "^2.6.1",
     "node-ipc": "^9.1.1",

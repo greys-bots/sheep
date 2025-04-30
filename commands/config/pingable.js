@@ -22,7 +22,8 @@ class Command extends SlashCommand {
 			],
 			extra: "Default setting: **false.** Roles can't be pinged by everyone",
 			guildOnly: true,
-			permissions: ['ManageGuild']
+			permissions: ['ManageGuild'],
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -35,12 +36,20 @@ class Command extends SlashCommand {
 		var conf;
 		if(val == null) {
 			var m = await ctx.reply({
-				embeds: [{
-					title: 'Current Value',
-					description: `${cfg?.pingable ? "true" : "false"}\n` +
-								 `Interact below to reset!`
-				}],
-				components: [{type: 1, components: clearBtns}],
+				flags: ['IsComponentsV2'],
+				components: [
+					{
+						type: 17,
+						components: [{
+							type: 10,
+							content:
+								`### Current value\n` +
+								`${cfg?.pingable ? "true" : "false"}\n` +
+								`-# Interact below to reset!`
+						}]
+					},
+					{type: 1, components: clearBtns}
+				],
 				fetchReply: true
 			});
 

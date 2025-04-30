@@ -90,8 +90,7 @@ module.exports = {
 		})
 	},
 
-	genComps: (arr, fn, limit = 9) => {
-		// limit of 9 to allow for a title in the container
+	genComps: (arr, fn, limit = 10) => {
 		let comps = [];
 		let cur = [];
 		for(var i = 0; i < arr.length; i++) {

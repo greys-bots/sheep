@@ -21,7 +21,8 @@ class Command extends SlashCommand {
 				"[command] - Enable a command or group of commands"	
 			],
 			permissions: ["ManageGuild"],
-			guildOnly: true
+			guildOnly: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -34,10 +35,21 @@ class Command extends SlashCommand {
 		if(!cn) {
 			if(!cfg?.disabled?.length) return "Nothing disabled!";
 			
-			return {embeds: [{
-				title: "Disabled commands",
-				description: cfg.disabled.join("\n")
-			}]}
+			return [{
+				components: [{
+					type: 17,
+					components: [
+						{
+							type: 10,
+							content: '# Disabled commands'
+						},
+						{
+							type: 10,
+							content: cfg.disabled.join('\n')
+						}
+					]
+				}]
+			}]
 		}
 
 		

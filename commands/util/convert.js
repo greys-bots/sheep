@@ -45,7 +45,8 @@ class Command extends SlashCommand {
 				'[color] [format] - Convert a color to the desired format'
 			],
 			extra: "This command also accepts saved colors",
-			ephemeral: true
+			ephemeral: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -56,34 +57,43 @@ class Command extends SlashCommand {
 		var format = ctx.options.getString('format');
 
 		var sv = await this.#stores.colors.get(ctx.user.id, color.toLowerCase());
-		if(sv) color = tc(sv.color);
+		if(sv?.id) color = tc(sv.color);
 		else color = tc(color);
 
 		if(!color.isValid()) return "Please provide a valid color!";
 
-		var embed = {
-			title: "Color Conversion",
-			description: `${color.toString()} = `,
-			color: parseInt(color.toHex(), 16),
-			footer: {text: `Converted to: ${format}`}
+		var data = {
+			desc: `${color.toString()} = `,
+			footer: `Converted to: ${format}`
 		}
 		
 		switch(format) {
 			case 'hex':
-				embed.description += color.toHexString().toUpperCase();
+				data.desc += color.toHexString().toUpperCase();
 				break;
 			case 'rgb':
-				embed.description += color.toRgbString();
+				data.desc += color.toRgbString();
 				break;
 			case 'hsv':
-				embed.description += color.toHsvString();
+				data.desc += color.toHsvString();
 				break;
 			case 'cmyk':
-				embed.description += this.#bot.utils.toCmyk(color);
+				data.desc += this.#bot.utils.toCmyk(color);
 				break;
 		}
 
-		return {embeds: [embed]};
+		return [{
+			components: [{
+				type: 17,
+				components: [{
+					type: 10,
+					content:
+						`## Color Conversion\n` +
+						`${data.desc}\n` +
+						`-# ${data.footer}`
+				}]
+			}]
+		}]
 	}
 }
 
