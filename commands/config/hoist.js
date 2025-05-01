@@ -47,7 +47,7 @@ class Command extends SlashCommand {
 						components: [{
 							type: 10,
 							content:
-								`### Current value\n` +
+								`**Current value:** ` +
 								`<@&${cfg?.hoist}>\n` +
 								`-# Interact below to reset!`
 						}]

@@ -43,7 +43,7 @@ class Command extends SlashCommand {
 						components: [{
 							type: 10,
 							content:
-								`### Current value\n` +
+								`**Current value:** ` +
 								`${cfg?.readable ? "true" : "false"}\n` +
 								`-# Interact below to reset!`
 						}]
